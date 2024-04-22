@@ -1,0 +1,8 @@
+
+source "$BR2_EXTERNAL_MILKV_PATH/package/cmatrix/Config.in"
+source "$BR2_EXTERNAL_MILKV_PATH/package/cvi-pinmux/Config.in"
+source "$BR2_EXTERNAL_MILKV_PATH/package/duo-pinmux/Config.in"
+source "$BR2_EXTERNAL_MILKV_PATH/package/ncnn/Config.in"
+source "$BR2_EXTERNAL_MILKV_PATH/package/python-evdev/Config.in"
+source "$BR2_EXTERNAL_MILKV_PATH/package/python-freetype/Config.in"
+source "$BR2_EXTERNAL_MILKV_PATH/package/python-pinpong/Config.in"
