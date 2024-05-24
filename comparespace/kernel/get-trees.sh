@@ -6,5 +6,5 @@ fi
 
 if [[ ! -d milky ]]; then
 	mkdir milky
-	curl -L\# "https://github.com/milkv-duo/milkv-duo-linux/archive/refs/heads/linux-5.10.4.tar.gz" | tar -xz -C milky --strip-components 1
+	curl -L\# "https://github.com/milkv-duo/duo-buildroot-sdk/archive/refs/heads/develop.tar.gz" | tar -xz -C milky --strip-components 2 duo-buildroot-sdk-develop/linux_5.10
 fi

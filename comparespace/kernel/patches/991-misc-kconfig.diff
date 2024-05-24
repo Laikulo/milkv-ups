@@ -1,0 +1,1065 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/arm/Kconfig milky/arch/arm/Kconfig
+--- test-tree/arch/arm/Kconfig	2024-05-23 21:43:56.079961209 -0400
++++ milky/arch/arm/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -2050,3 +2050,4 @@ source "arch/arm/crypto/Kconfig"
+ endif
+ 
+ source "arch/arm/Kconfig.assembler"
++source "arch/arm/mach-cvitek/Kconfig"
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/arm64/Kconfig.platforms milky/arch/arm64/Kconfig.platforms
+--- test-tree/arch/arm64/Kconfig.platforms	2024-05-23 21:43:56.299960515 -0400
++++ milky/arch/arm64/Kconfig.platforms	2024-05-21 05:22:27.000000000 -0400
+@@ -326,4 +326,227 @@ config ARCH_ZYNQMP
+ 	help
+ 	  This enables support for Xilinx ZynqMP Family
+ 
++config ARCH_CVITEK
++    bool "Cvitek SoC Family"
++    select ION_CVITEK
++    select SCHED_CVIOPTIMIZE
++    help
++      This enables support for Cvitek SoC family.
++
++if ARCH_CVITEK
++choice
++    prompt "Select the chip of SoC"
++    default ARCH_CV183X
++    help
++      Select the chip for SoC
++
++config ARCH_CV183X
++    bool "Cvitek CV183X SoC"
++    select PINCTRL
++    select PINCTRL_BM
++    select PINMUX
++    select PINCONF
++    select GENERIC_PINCONF
++    help
++      This enables support for Cvitek's CV183X
++
++config ARCH_CV182X
++    bool "Cvitek CV182X SoC"
++    select PINCTRL
++    select PINCTRL_BM
++    select PINMUX
++    select PINCONF
++    select GENERIC_PINCONF
++    help
++      This enables support for Cvitek's CV182X
++
++config ARCH_CV181X
++    bool "Cvitek CV181X SoC"
++    select PINCTRL
++    select PINCTRL_BM
++    select PINMUX
++    select PINCONF
++    select GENERIC_PINCONF
++    help
++      This enables support for Cvitek's CV181X
++
++config ARCH_ATHENA2
++    bool "Cvitek ATHENA2 SoC"
++    select PINCTRL
++    select PINCTRL_BM
++    select PINMUX
++    select PINCONF
++    select GENERIC_PINCONF
++    help
++      This enables support for Cvitek's ATHENA2
++
++config ARCH_CV952X
++    bool "Cvitek CV952X SoC"
++    select PINCTRL
++    select PINCTRL_BM
++    select PINMUX
++    select PINCONF
++    select GENERIC_PINCONF
++    help
++      This enables support for Cvitek's CV952X
++
++endchoice
++endif # end ARCH_CVITEK
++
++if ARCH_CV182X
++config ARCH_CVITEK_CHIP
++    string "cv182x"
++    help
++      This enables support for Cvitek CV182X series
++
++choice
++    prompt "Select the platform of SoC"
++    default ARCH_CV182X_FPGA
++    help
++      Select the platform of SoC
++
++config ARCH_CV182X_PALLADIUM
++    bool "Cvitek CV182X SoC - Palladium"
++    help
++      This enables support for Cvitek's CV182X SoC on Palladium platform
++
++config ARCH_CV182X_FPGA
++    bool "Cvitek CV182X SoC - FPGA"
++    help
++      This enables support for Cvitek's CV182X SoC on FPGA platform
++
++config ARCH_CV182X_ASIC
++    bool "Cvitek CV182X SoC- ASIC"
++    help
++      This enables support for Cvitek's CV182X SoC ASIC
++
++endchoice
++endif # end ARCH_CV182X
++
++if ARCH_CV183X
++config ARCH_CVITEK_CHIP
++    string "cv183x"
++    help
++      This enables support for Cvitek CV183X series
++
++choice
++    prompt "Select the platform of SoC"
++    default ARCH_CV183X_ASIC
++    help
++      Select the platform of SoC
++
++config ARCH_CV183X_PALLADIUM
++    bool "Cvitek CV183X SoC - Palladium"
++    help
++      This enables support for Cvitek's CV183X SoC on Palladium platform
++
++config ARCH_CV183X_FPGA
++    bool "Cvitek CV183X SoC - FPGA"
++    help
++      This enables support for Cvitek's CV183X SoC on FPGA platform
++
++config ARCH_CV183X_ASIC
++    bool "Cvitek CV183X SoC- ASIC"
++    help
++      This enables support for Cvitek's CV183X SoC ASIC
++endchoice
++
++endif # end ARCH_CV183X
++
++if ARCH_CV181X
++config ARCH_CVITEK_CHIP
++    string "cv181x"
++    help
++      This enables support for Cvitek CV181X series
++
++choice
++    prompt "Select the platform of SoC"
++    default ARCH_CV181X_FPGA
++    help
++      Select the platform of SoC
++        FPGA
++        PALLADIUM
++        ASIC
++
++config ARCH_CV181X_PALLADIUM
++    bool "Cvitek CV181X SoC - Palladium"
++    help
++      This enables support for Cvitek's CV181X SoC on Palladium platform
++
++config ARCH_CV181X_FPGA
++    bool "Cvitek CV182X SoC - FPGA"
++    help
++      This enables support for Cvitek's CV181X SoC on FPGA platform
++
++config ARCH_CV181X_ASIC
++    bool "Cvitek CV181X SoC- ASIC"
++    help
++      This enables support for Cvitek's CV181X SoC ASIC
++
++endchoice
++endif # end ARCH_CV181X
++
++if ARCH_ATHENA2
++config ARCH_CVITEK_CHIP
++    string "athena2"
++    help
++      This enables support for Cvitek ATHENA2 series
++
++choice
++    prompt "Select the platform of SoC"
++    default ARCH_ATHENA2_FPGA
++    help
++      Select the platform of SoC
++        FPGA
++        PALLADIUM
++        ASIC
++
++config ARCH_ATHENA2_PALLADIUM
++    bool "Cvitek ATHENA2 SoC - Palladium"
++    help
++      This enables support for Cvitek's ATHENA2 SoC on Palladium platform
++
++config ARCH_ATHENA2_FPGA
++    bool "Cvitek ATHENA2 SoC - FPGA"
++    help
++      This enables support for Cvitek's ATHENA2 SoC on FPGA platform
++
++config ARCH_ATHENA2_ASIC
++    bool "Cvitek ATHENA2 SoC- ASIC"
++    help
++      This enables support for Cvitek's ATHENA2 SoC ASIC
++
++endchoice
++endif # end ARCH_ATHENA2
++
++if ARCH_CV952X
++config ARCH_CVITEK_CHIP
++    string "cv952x"
++    help
++      This enables support for Cvitek CV952X series
++
++choice
++    prompt "Select the platform of SoC"
++    default ARCH_CV952X_ASIC
++    help
++      Select the platform of SoC
++
++config ARCH_CV952X_PALLADIUM
++    bool "Cvitek CV952X SoC - Palladium"
++    help
++      This enables support for Cvitek's CV952X SoC on Palladium platform
++
++config ARCH_CV952X_FPGA
++    bool "Cvitek CV952X SoC - FPGA"
++    help
++      This enables support for Cvitek's CV952X SoC on FPGA platform
++
++config ARCH_CV952X_ASIC
++    bool "Cvitek CV952X SoC- ASIC"
++    help
++      This enables support for Cvitek's CV952X SoC ASIC
++
++endchoice
++endif # end ARCH_CV952X
++
+ endmenu
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/Kconfig milky/arch/csky/Kconfig
+--- test-tree/arch/csky/Kconfig	2024-05-23 21:43:56.347960363 -0400
++++ milky/arch/csky/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -7,7 +7,7 @@ config CSKY
+ 	select ARCH_HAS_SYNC_DMA_FOR_CPU
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+ 	select ARCH_USE_BUILTIN_BSWAP
+-	select ARCH_USE_QUEUED_RWLOCKS if NR_CPUS>2
++	select ARCH_USE_QUEUED_RWLOCKS
+ 	select ARCH_WANT_FRAME_POINTERS if !CPU_CK610
+ 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT
+ 	select COMMON_CLK
+@@ -36,6 +36,9 @@ config CSKY
+ 	select GENERIC_IRQ_MULTI_HANDLER
+ 	select GENERIC_SCHED_CLOCK
+ 	select GENERIC_SMP_IDLE_THREAD
++	select GENERIC_TIME_VSYSCALL
++	select GENERIC_VDSO_32
++	select GENERIC_GETTIMEOFDAY
+ 	select GX6605S_TIMER if CPU_CK610
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_ARCH_AUDITSYSCALL
+@@ -44,11 +47,14 @@ config CSKY
+ 	select HAVE_CONTEXT_TRACKING
+ 	select HAVE_VIRT_CPU_ACCOUNTING_GEN
+ 	select HAVE_DEBUG_BUGVERBOSE
++	select HAVE_DEBUG_KMEMLEAK
+ 	select HAVE_DYNAMIC_FTRACE
+ 	select HAVE_DYNAMIC_FTRACE_WITH_REGS
++	select HAVE_GENERIC_VDSO
+ 	select HAVE_FUNCTION_TRACER
+ 	select HAVE_FUNCTION_GRAPH_TRACER
+ 	select HAVE_FUNCTION_ERROR_INJECTION
++	select HAVE_FUTEX_CMPXCHG if FUTEX && SMP
+ 	select HAVE_FTRACE_MCOUNT_RECORD
+ 	select HAVE_KERNEL_GZIP
+ 	select HAVE_KERNEL_LZO
+@@ -193,6 +199,22 @@ config CPU_CK860
+ endchoice
+ 
+ choice
++	prompt "PAGE OFFSET"
++	default PAGE_OFFSET_80000000
++
++config PAGE_OFFSET_80000000
++	bool "PAGE OFFSET 2G (user:kernel = 2:2)"
++
++config PAGE_OFFSET_A0000000
++	bool "PAGE OFFSET 2.5G (user:kernel = 2.5:1.5)"
++endchoice
++
++config PAGE_OFFSET
++	hex
++	default 0x80000000 if PAGE_OFFSET_80000000
++	default 0xa0000000 if PAGE_OFFSET_A0000000
++choice
++
+ 	prompt "C-SKY PMU type"
+ 	depends on PERF_EVENTS
+ 	depends on CPU_CK807 || CPU_CK810 || CPU_CK860
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/Kconfig milky/arch/riscv/Kconfig
+--- test-tree/arch/riscv/Kconfig	2024-05-23 21:43:56.555959707 -0400
++++ milky/arch/riscv/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -14,6 +14,7 @@ config RISCV
+ 	def_bool y
+ 	select ARCH_CLOCKSOURCE_INIT
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_STACKWALK
+ 	select ARCH_HAS_BINFMT_FLAT
+ 	select ARCH_HAS_DEBUG_VM_PGTABLE
+ 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
+@@ -26,6 +27,11 @@ config RISCV
+ 	select ARCH_HAS_SET_DIRECT_MAP
+ 	select ARCH_HAS_SET_MEMORY
+ 	select ARCH_HAS_STRICT_KERNEL_RWX if MMU
++	select ARCH_HAS_DMA_PREP_COHERENT
++	select ARCH_HAS_SYNC_DMA_FOR_CPU
++	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
++	select ARCH_HAS_DMA_WRITE_COMBINE
++	select ARCH_HAS_DMA_MMAP_PGPROT
+ 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
+ 	select ARCH_OPTIONAL_KERNEL_RWX_DEFAULT
+ 	select ARCH_WANT_DEFAULT_TOPDOWN_MMAP_LAYOUT if MMU
+@@ -34,7 +40,10 @@ config RISCV
+ 	select CLONE_BACKWARDS
+ 	select CLINT_TIMER if !MMU
+ 	select COMMON_CLK
++	select COMPAT_BINFMT_ELF if BINFMT_ELF && COMPAT
+ 	select EDAC_SUPPORT
++	select DMA_DIRECT_REMAP
++	select GENERIC_ALLOCATOR
+ 	select GENERIC_ARCH_TOPOLOGY if SMP
+ 	select GENERIC_ATOMIC64 if !64BIT
+ 	select GENERIC_CLOCKEVENTS
+@@ -58,6 +67,7 @@ config RISCV
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_KGDB_QXFER_PKT
+ 	select HAVE_ARCH_MMAP_RND_BITS if MMU
++	select HAVE_ARCH_MMAP_RND_COMPAT_BITS if COMPAT
+ 	select HAVE_ARCH_SECCOMP_FILTER
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_ASM_MODVERSIONS
+@@ -67,11 +77,16 @@ config RISCV
+ 	select HAVE_EBPF_JIT if MMU
+ 	select HAVE_FUTEX_CMPXCHG if FUTEX
+ 	select HAVE_GCC_PLUGINS
++	select HAVE_FUNCTION_ERROR_INJECTION
+ 	select HAVE_GENERIC_VDSO if MMU && 64BIT
++	select HAVE_KPROBES
++	select HAVE_KPROBES_ON_FTRACE
++	select HAVE_KRETPROBES
+ 	select HAVE_PCI
+ 	select HAVE_PERF_EVENTS
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
++	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select HAVE_STACKPROTECTOR
+ 	select HAVE_SYSCALL_TRACEPOINTS
+ 	select IRQ_DOMAIN
+@@ -89,17 +104,24 @@ config RISCV
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select THREAD_INFO_IN_TASK
+ 	select UACCESS_MEMCPY if !MMU
++	select SET_FS
+ 
+ config ARCH_MMAP_RND_BITS_MIN
+ 	default 18 if 64BIT
+ 	default 8
+ 
++config ARCH_MMAP_RND_COMPAT_BITS_MIN
++	default 8
++
+ # max bits determined by the following formula:
+ #  VA_BITS - PAGE_SHIFT - 3
+ config ARCH_MMAP_RND_BITS_MAX
+ 	default 24 if 64BIT # SV39 based
+ 	default 17
+ 
++config ARCH_MMAP_RND_COMPAT_BITS_MAX
++	default 17
++
+ # set if we run in machine mode, cleared if we run in supervisor mode
+ config RISCV_M_MODE
+ 	bool
+@@ -139,6 +161,20 @@ config PAGE_OFFSET
+ 	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
+ 	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
+ 
++config FORCE_MAX_ZONEORDER
++        int "Maximum zone order"
++        default 13
++	help
++	  The kernel memory allocator divides physically contiguous memory
++	  blocks into "zones", where each zone is a power of two number of
++	  pages.  This option selects the largest power of two that the kernel
++	  keeps in the memory allocator.  If you need to allocate very large
++	  blocks of physically contiguous memory, then you may need to
++	  increase this value.
++
++	  This config option is actually maximum order plus one. For example,
++	  a value of 13 means that the largest free memory block is 2^12 pages.
++
+ config ARCH_FLATMEM_ENABLE
+ 	def_bool y
+ 
+@@ -156,6 +192,9 @@ config ARCH_WANT_GENERAL_HUGETLB
+ config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	def_bool y
+ 
++config ARCH_SUPPORTS_UPROBES
++	def_bool y
++
+ config SYS_SUPPORTS_HUGETLBFS
+ 	depends on MMU
+ 	def_bool y
+@@ -223,7 +262,7 @@ config ARCH_RV64I
+ 	select HAVE_FTRACE_MCOUNT_RECORD
+ 	select HAVE_FUNCTION_GRAPH_TRACER
+ 	select HAVE_FUNCTION_TRACER
+-	select SWIOTLB if MMU
++	select SWIOTLB if RISCV_SWIOTLB
+ 
+ endchoice
+ 
+@@ -308,12 +347,22 @@ config RISCV_ISA_C
+ 
+ 	   If you don't know what to do here, say Y.
+ 
++config NO_SFENCE_VMA
++	bool "Replace sfence.vma with CSR_SMCIR operation"
++	depends on !SMP
++	default y
++
++config RISCV_SWIOTLB
++	bool "Enable SWIOTLB"
++	depends on MMU
++	default y
++
+ menu "supported PMU type"
+ 	depends on PERF_EVENTS
+ 
+ config RISCV_BASE_PMU
+ 	bool "Base Performance Monitoring Unit"
+-	def_bool y
++	def_bool n
+ 	help
+ 	  A base PMU that serves as a reference implementation and has limited
+ 	  feature of perf.  It can run on any RISC-V machines so serves as the
+@@ -330,6 +379,38 @@ config FPU
+ 
+ 	  If you don't know what to do here, say Y.
+ 
++config VECTOR
++	bool "VECTOR support"
++	default n
++
++choice VECTOR_VERSION
++	prompt "Vector Version"
++	depends on VECTOR
++	default VECTOR_1_0
++
++config VECTOR_1_0
++	bool "VECTOR 1.0 support"
++	help
++	  Say N here if you want to disable all vector 1.0 related procedure
++	  in the kernel.
++
++	  If you don't know what to do here, say Y.
++
++config VECTOR_0_7
++	bool "VECTOR 0.7 support"
++	help
++	  Say N here if you want to disable all vector 0.7 related procedure
++	  in the kernel.
++
++	  If you don't know what to do here, say Y.
++
++endchoice
++
++config VECTOR_EMU
++	bool "VECTOR e64 emulate for c906 v1"
++	depends on VECTOR
++	default n
++
+ endmenu
+ 
+ menu "Kernel features"
+@@ -343,6 +424,23 @@ config RISCV_SBI_V01
+ 	help
+ 	  This config allows kernel to use SBI v0.1 APIs. This will be
+ 	  deprecated in future once legacy M-mode software are no longer in use.
++
++config COMPAT
++	bool "Kernel support for 32-bit U-mode"
++	depends on 64BIT && MMU
++	default y
++	help
++	  This option enables support for a 32-bit U-mode running under a 64-bit
++	  kernel at S-mode. riscv32-specific components such as system calls,
++	  the user helper functions (vdso), signal rt_frame functions and the
++	  ptrace interface are handled appropriately by the kernel.
++
++	  If you want to execute 32-bit userspace applications, say Y.
++
++config SYSVIPC_COMPAT
++	def_bool y
++	depends on COMPAT && SYSVIPC
++
+ endmenu
+ 
+ menu "Boot options"
+@@ -426,3 +524,4 @@ source "kernel/power/Kconfig"
+ endmenu
+ 
+ source "drivers/firmware/Kconfig"
++source "arch/riscv/mach-cvitek/Kconfig"
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/Kconfig.socs milky/arch/riscv/Kconfig.socs
+--- test-tree/arch/riscv/Kconfig.socs	2024-05-23 21:43:56.555959707 -0400
++++ milky/arch/riscv/Kconfig.socs	2024-05-21 05:22:27.000000000 -0400
+@@ -48,4 +48,14 @@ config SOC_KENDRYTE_K210_DTB_BUILTIN
+ 	  This option should be selected if no bootloader is being used.
+ 	  If unsure, say Y.
+ 
++config ARCH_CVITEK
++	bool "CVITEK SoCs"
++	help
++	  This enables support for cvitek SoC platform hardware.
++
++config SOC_THEAD
++	bool "T-HEAD SoCs"
++	help
++	  This enables support for T-HEAD SoC platform hardware.
++
+ endmenu
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/clk/Kconfig milky/drivers/clk/Kconfig
+--- test-tree/drivers/clk/Kconfig	2024-05-23 21:43:56.775959012 -0400
++++ milky/drivers/clk/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -384,5 +384,6 @@ source "drivers/clk/ti/Kconfig"
+ source "drivers/clk/uniphier/Kconfig"
+ source "drivers/clk/x86/Kconfig"
+ source "drivers/clk/zynqmp/Kconfig"
++source "drivers/clk/cvitek/Kconfig"
+ 
+ endif
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/dma/Kconfig milky/drivers/dma/Kconfig
+--- test-tree/drivers/dma/Kconfig	2024-05-23 21:43:56.855958760 -0400
++++ milky/drivers/dma/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -730,6 +730,8 @@ source "drivers/dma/ti/Kconfig"
+ 
+ source "drivers/dma/fsl-dpaa2-qdma/Kconfig"
+ 
++source "drivers/dma/cvitek/Kconfig"
++
+ # clients
+ comment "DMA Clients"
+ 	depends on DMA_ENGINE
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/i2c/busses/Kconfig milky/drivers/i2c/busses/Kconfig
+--- test-tree/drivers/i2c/busses/Kconfig	2024-05-23 21:43:57.199957674 -0400
++++ milky/drivers/i2c/busses/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -577,6 +577,11 @@ config I2C_DESIGNWARE_PCI
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-designware-pci.
+ 
++config I2C_DESIGNWARE_ICE
++	bool "Synopsys DesignWare for ICE"
++	depends on OF
++	default n
++
+ config I2C_DIGICOLOR
+ 	tristate "Conexant Digicolor I2C driver"
+ 	depends on ARCH_DIGICOLOR || COMPILE_TEST
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/Kconfig milky/drivers/Kconfig
+--- test-tree/drivers/Kconfig	2024-05-23 21:43:56.731959151 -0400
++++ milky/drivers/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -235,4 +235,6 @@ source "drivers/interconnect/Kconfig"
+ source "drivers/counter/Kconfig"
+ 
+ source "drivers/most/Kconfig"
++
++source "drivers/efuse/Kconfig"
+ endmenu
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/media/platform/Kconfig milky/drivers/media/platform/Kconfig
+--- test-tree/drivers/media/platform/Kconfig	2024-05-23 21:43:57.371957131 -0400
++++ milky/drivers/media/platform/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -535,6 +535,8 @@ config VIDEO_SUN8I_ROTATE
+ 	   Support for the Allwinner DE2 rotation unit.
+ 	   To compile this driver as a module choose m here.
+ 
++source "drivers/media/platform/cvitek/Kconfig"
++
+ endif # V4L_MEM2MEM_DRIVERS
+ 
+ # TI VIDEO PORT Helper Modules
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/mmc/host/Kconfig milky/drivers/mmc/host/Kconfig
+--- test-tree/drivers/mmc/host/Kconfig	2024-05-23 21:43:57.483956777 -0400
++++ milky/drivers/mmc/host/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -213,6 +213,17 @@ config MMC_SDHCI_OF_DWCMSHC
+ 	  If you have a controller with this interface, say Y or M here.
+ 	  If unsure, say N.
+ 
++config MMC_SDHCI_OF_LIGHT_MPW
++	tristate "SDHCI OF support for the Synopsys DWC MSHC of Light MPW"
++	depends on MMC_SDHCI_PLTFM
++	depends on OF
++	depends on COMMON_CLK
++	help
++	  This selects Synopsys DesignWare Cores Mobile Storage Controller
++	  support.
++	  If you have a controller with this interface, say Y or M here.
++	  If unsure, say N.
++
+ config MMC_SDHCI_OF_SPARX5
+ 	tristate "SDHCI OF support for the MCHP Sparx5 SoC"
+ 	depends on MMC_SDHCI_PLTFM
+@@ -553,6 +564,18 @@ config MMC_SDHCI_MSM
+ 
+ 	  If unsure, say N.
+ 
++config MMC_SDHCI_CVI
++    tristate "CVITEK SDHCI Controller Support"
++    depends on MMC_SDHCI_PLTFM
++    help
++      This selects the Secure Digital Host Controller Interface (SDHCI)
++      support present in Cvitek SOCs. The controller supports
++      SD/MMC/SDIO devices.
++
++      If you have a controller with this interface, say Y or M here.
++
++      If unsure, say N.
++
+ config MMC_MXC
+ 	tristate "Freescale i.MX21/27/31 or MPC512x Multimedia Card support"
+ 	depends on ARCH_MXC || PPC_MPC512x
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/mtd/nand/raw/Kconfig milky/drivers/mtd/nand/raw/Kconfig
+--- test-tree/drivers/mtd/nand/raw/Kconfig	2024-05-23 21:43:57.495956739 -0400
++++ milky/drivers/mtd/nand/raw/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -556,4 +556,13 @@ config MTD_NAND_DISKONCHIP_BBTWRITE
+ 	  load time (assuming you build diskonchip as a module) with the module
+ 	  parameter "inftl_bbt_write=1".
+ 
++config MTD_NAND_CVSNFC
++    tristate "Support SPINFC controller on CVITEK chips"
++    depends on HAS_DMA
++    help
++      Enable the driver for SPI NAND flash on platforms using a CVSNFC controller.
++      Thiscontroller is foudn on CV1835
++      Enable the driver for SPI NAND flash on platforms using a CVSNFC controller.
++      Thiscontroller is foudn on CV1835
++
+ endif # MTD_RAW_NAND
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/mtd/spi-nor/controllers/Kconfig milky/drivers/mtd/spi-nor/controllers/Kconfig
+--- test-tree/drivers/mtd/spi-nor/controllers/Kconfig	2024-05-23 21:43:57.499956727 -0400
++++ milky/drivers/mtd/spi-nor/controllers/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -27,6 +27,16 @@ config SPI_NXP_SPIFI
+ 	  Flash. Enable this option if you have a device with a SPIFI
+ 	  controller and want to access the Flash as a mtd device.
+ 
++config SPI_CVI_SPIF
++     tristate "Cvitek SPI Flash Interface (SPIF)"
++     depends on HAS_IOMEM
++     help
++       Enable support for the Cvitek SPI Flash controller.
++
++       SPIF is a specialized controller for connecting serial SPI
++       Flash. Enable this option if you have a device with a SPIF
++       controller and want to access the Flash as a mtd device.
++
+ config SPI_INTEL_SPI
+ 	tristate
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/net/ethernet/stmicro/stmmac/Kconfig milky/drivers/net/ethernet/stmicro/stmmac/Kconfig
+--- test-tree/drivers/net/ethernet/stmicro/stmmac/Kconfig	2024-05-23 21:43:57.615956361 -0400
++++ milky/drivers/net/ethernet/stmicro/stmmac/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -57,6 +57,16 @@ config DWMAC_GENERIC
+ 	  platform specific code to function or is using platform
+ 	  data for setup.
+ 
++config DWMAC_CVITEK
++    tristate "CVITEK DWMAC support"
++    default ARCH_CVITEK
++    depends on OF && (ARCH_CVITEK || COMPILE_TEST)
++    help
++      Support for CVITEK DWMAC Ethernet.
++      This selects CVITEK SoC glue layer support for the stmmac
++      device driver. This driver is used for the CVITEK series
++      SOCs GMAC ethernet controller.
++
+ config DWMAC_ANARION
+ 	tristate "Adaptrum Anarion GMAC support"
+ 	default ARC
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/net/phy/Kconfig milky/drivers/net/phy/Kconfig
+--- test-tree/drivers/net/phy/Kconfig	2024-05-23 21:43:57.635956298 -0400
++++ milky/drivers/net/phy/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -158,6 +158,14 @@ config CICADA_PHY
+ 	help
+ 	  Currently supports the cis8204
+ 
++config CVITEK_PHY
++	tristate "CVITEK PHYs"
++	help
++	  Enable support for RMII PHYs manufactured by CVITEK
++	  Include driver for cvitek.
++	  This is an internal ethernet phy.
++	  And support 100Mbs full duplex.
++
+ config CORTINA_PHY
+ 	tristate "Cortina EDC CDR 10G Ethernet PHY"
+ 	help
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/net/wireless/Kconfig milky/drivers/net/wireless/Kconfig
+--- test-tree/drivers/net/wireless/Kconfig	2024-05-23 21:43:57.651956247 -0400
++++ milky/drivers/net/wireless/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -48,6 +48,8 @@ source "drivers/net/wireless/st/Kconfig"
+ source "drivers/net/wireless/ti/Kconfig"
+ source "drivers/net/wireless/zydas/Kconfig"
+ source "drivers/net/wireless/quantenna/Kconfig"
++source "drivers/net/wireless/icommsemi/Kconfig"
++source "drivers/net/wireless/aicsemi/Kconfig"
+ 
+ config PCMCIA_RAYCS
+ 	tristate "Aviator/Raytheon 2.4GHz wireless support"
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/net/wireless/realtek/Kconfig milky/drivers/net/wireless/realtek/Kconfig
+--- test-tree/drivers/net/wireless/realtek/Kconfig	2024-05-23 21:43:57.727956007 -0400
++++ milky/drivers/net/wireless/realtek/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -16,5 +16,38 @@ source "drivers/net/wireless/realtek/rtl
+ source "drivers/net/wireless/realtek/rtlwifi/Kconfig"
+ source "drivers/net/wireless/realtek/rtl8xxxu/Kconfig"
+ source "drivers/net/wireless/realtek/rtw88/Kconfig"
++source "drivers/net/wireless/realtek/rtl8188f/Kconfig"
++
++config RTL8188FU
++    tristate "Realtek 8188F USB WiFi"
++    help
++      Help message of RTL8818FU
++      This is the driver of Realtek wifi drvier.
++      This chip work through USB.
++      You need to say Y if your board use this chip to implement wifi
++
++config RTL8189FS
++    tristate "Realtek 8189F SDIO WiFi"
++    help
++      Help message of RTL8189FS
++      This is the driver of Realtek wifi drvier.
++      This chip work through SDIO.
++      You need to say Y if your board use this chip to implement wifi
++
++config RTL8723DS
++    tristate "Realtek 8723D SDIO or SPI WiFi"
++    help
++      Help message of RTL8723DS
++      This is the driver of Realtek wifi drvier.
++      This chip work through SDIO.
++      You need to say Y if your board use this chip to implement wifi
++
++config RTL8821CS
++    tristate "Realtek 8821C SDIO or SPI WiFi"
++    help
++      Help message of RTL8821CS
++      This is the driver of Realtek wifi drvier.
++      This chip work through SDIO.
++      You need to say Y if your board use this chip to implement wifi
+ 
+ endif # WLAN_VENDOR_REALTEK
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/pinctrl/Kconfig milky/drivers/pinctrl/Kconfig
+--- test-tree/drivers/pinctrl/Kconfig	2024-05-23 21:43:57.787955818 -0400
++++ milky/drivers/pinctrl/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -400,6 +400,7 @@ source "drivers/pinctrl/zte/Kconfig"
+ source "drivers/pinctrl/meson/Kconfig"
+ source "drivers/pinctrl/cirrus/Kconfig"
+ source "drivers/pinctrl/visconti/Kconfig"
++source "drivers/pinctrl/cvitek/Kconfig"
+ 
+ config PINCTRL_XWAY
+ 	bool
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/soc/Kconfig milky/drivers/soc/Kconfig
+--- test-tree/drivers/soc/Kconfig	2024-05-23 21:43:57.911955427 -0400
++++ milky/drivers/soc/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -23,5 +23,6 @@ source "drivers/soc/versatile/Kconfig"
+ source "drivers/soc/xilinx/Kconfig"
+ source "drivers/soc/zte/Kconfig"
+ source "drivers/soc/kendryte/Kconfig"
++source "drivers/soc/cvitek/Kconfig"
+ 
+ endmenu
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/staging/android/ion/Kconfig milky/drivers/staging/android/ion/Kconfig
+--- test-tree/drivers/staging/android/ion/Kconfig	2024-05-23 21:43:57.939955338 -0400
++++ milky/drivers/staging/android/ion/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -18,6 +18,24 @@ config ION_SYSTEM_HEAP
+ 	  Choose this option to enable the Ion system heap. The system heap
+ 	  is backed by pages from the buddy allocator. If in doubt, say Y.
+ 
++config ION_CARVEOUT_HEAP
++	bool "Ion carveout heap support"
++	depends on ION
++	help
++	  Choose this option to enable carveout heaps with Ion. Carveout heaps
++	  are backed by memory reserved from the system. Allocation times are
++	  typically faster at the cost of memory not being used. Unless you
++	  know your system has these regions, you should say N here.
++
++config ION_CHUNK_HEAP
++	bool "Ion chunk heap support"
++	depends on ION
++	help
++          Choose this option to enable chunk heaps with Ion. This heap is
++	  similar in function the carveout heap but memory is broken down
++	  into smaller chunk sizes, typically corresponding to a TLB size.
++	  Unless you know your system has these regions, you should say N here.
++
+ config ION_CMA_HEAP
+ 	bool "Ion CMA heap support"
+ 	depends on ION && DMA_CMA
+@@ -25,3 +43,10 @@ config ION_CMA_HEAP
+ 	  Choose this option to enable CMA heaps with Ion. This heap is backed
+ 	  by the Contiguous Memory Allocator (CMA). If your system has these
+ 	  regions, you should say Y here.
++
++config ION_CVITEK
++    tristate "Ion for Cvitek"
++	depends on ARCH_CVITEK && ION
++	select ION_OF
++	help
++	  Choose this option if you wish to use ion on Cvitek Platform
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/staging/fbtft/Kconfig milky/drivers/staging/fbtft/Kconfig
+--- test-tree/drivers/staging/fbtft/Kconfig	2024-05-23 21:43:57.951955301 -0400
++++ milky/drivers/staging/fbtft/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -88,6 +88,16 @@ config FB_TFT_ILI9486
+ 	help
+ 	  Generic Framebuffer support for ILI9486
+ 
++config FB_TFT_JD9853
++	tristate "FB driver for the JD9853 LCD Controller"
++	depends on FB_TFT
++	help
++	  This enables generic framebuffer support for the JADARD JD9853
++	  display controller. The controller is intended for small color
++	  displays with a resolution of up to 240x320 pixels.
++
++	  Say Y if you have such a display that utilizes this controller.
++
+ config FB_TFT_PCD8544
+ 	tristate "FB driver for the PCD8544 LCD Controller"
+ 	depends on FB_TFT
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/thermal/Kconfig milky/drivers/thermal/Kconfig
+--- test-tree/drivers/thermal/Kconfig	2024-05-23 21:43:58.059954960 -0400
++++ milky/drivers/thermal/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -412,6 +412,50 @@ config MTK_THERMAL
+ 	  Enable this option if you want to have support for thermal management
+ 	  controller present in Mediatek SoCs
+ 
++config CV1835_THERMAL
++	tristate "Temperature sensor driver for CVITEK CV1835"
++	depends on ARCH_CV183X || COMPILE_TEST
++	default y
++	help
++	  Select this driver for CVITEK CV1835 temperature sensor monitoring
++	  system temperature measurements and alerts.
++	  This driver is used for monitoring the temperature sensor and handles
++	  the alert trip point interrupts and notifies the thermal framework with
++	  the trip point and temperature details of the zone.
++
++config CV182X_THERMAL
++	tristate "Temperature sensor driver for CVITEK CV182X"
++	depends on ARCH_CV182X || COMPILE_TEST
++	default y
++	help
++	  Select this driver for CVITEK CV182X temperature sensor monitoring
++	  system temperature measurements and alerts.
++	  This driver is used for monitoring the temperature sensor and handles
++	  the alert trip point interrupts and notifies the thermal framework with
++	  the trip point and temperature details of the zone.
++
++config CV181X_THERMAL
++	tristate "Temperature sensor driver for CVITEK CV181X"
++	depends on ARCH_CV181X || COMPILE_TEST
++	default y
++	help
++	  Select this driver for CVITEK CV181X temperature sensor monitoring
++	  system temperature measurements and alerts.
++	  This driver is used for monitoring the temperature sensor and handles
++	  the alert trip point interrupts and notifies the thermal framework with
++	  the trip point and temperature details of the zone.
++
++config CV180X_THERMAL
++	tristate "Temperature sensor driver for CVITEK CV180X"
++	depends on ARCH_CV180X || COMPILE_TEST
++	default y
++	help
++	  Select this driver for CVITEK CV180X temperature sensor monitoring
++	  system temperature measurements and alerts.
++	  This driver is used for monitoring the temperature sensor and handles
++	  the alert trip point interrupts and notifies the thermal framework with
++	  the trip point and temperature details of the zone.
++
+ config AMLOGIC_THERMAL
+ 	tristate "Amlogic Thermal Support"
+ 	default ARCH_MESON
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/usb/dwc2/Kconfig milky/drivers/usb/dwc2/Kconfig
+--- test-tree/drivers/usb/dwc2/Kconfig	2024-05-23 21:43:58.087954871 -0400
++++ milky/drivers/usb/dwc2/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -5,7 +5,6 @@ config USB_DWC2
+ 	depends on HAS_DMA
+ 	depends on USB || USB_GADGET
+ 	depends on HAS_IOMEM
+-	select USB_ROLE_SWITCH
+ 	help
+ 	  Say Y here if your system has a Dual Role Hi-Speed USB
+ 	  controller based on the DesignWare HSOTG IP Core.
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/usb/gadget/Kconfig milky/drivers/usb/gadget/Kconfig
+--- test-tree/drivers/usb/gadget/Kconfig	2024-05-23 21:43:58.091954859 -0400
++++ milky/drivers/usb/gadget/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -455,6 +455,17 @@ config USB_CONFIGFS_F_UVC
+ 	  device. It provides a userspace API to process UVC control requests
+ 	  and stream video data to the host.
+ 
++config USB_UVCG_SG_TRANSFER
++	bool "USB UVCG SG Support"
++	depends on USB_CONFIGFS_F_UVC
++	depends on VIDEO_V4L2
++	depends on VIDEO_DEV
++	default n
++	help
++	  Enable the scatter-gather method for isochronous transfer in UVC.
++	  The USB device controller shall be able to queue multiple u-frame
++	  data by dma desriptors.
++
+ config USB_CONFIGFS_F_PRINTER
+ 	bool "Printer function"
+ 	select USB_F_PRINTER
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/usb/Kconfig milky/drivers/usb/Kconfig
+--- test-tree/drivers/usb/Kconfig	2024-05-23 21:43:58.083954884 -0400
++++ milky/drivers/usb/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -125,6 +125,43 @@ source "drivers/usb/chipidea/Kconfig"
+ 
+ source "drivers/usb/isp1760/Kconfig"
+ 
++config USB_CVITEK_DRD
++	tristate "Cvitek USB DRD Core Support"
++	depends on USB && HAS_DMA
++	select USB_XHCI_PLATFORM if USB_SUPPORT && USB_XHCI_HCD
++	help
++	  Say Y or M here if your system has a Dual Role SuperSpeed
++	  USB controller based on the Cvitek USB3 IP Core.
++
++	  If you choose to build this driver is a dynamically linked
++	  module, the module will be called cviusb_drd.ko.
++
++if USB_CVITEK_DRD
++
++config USB_CVITEK_MISC
++	bool "Additional miscellaneous device for ioctl"
++	depends on (USB=y || USB=USB_CVITEK_DRD)
++	help
++	  Select this if you want to send commands to driver
++	  using I/O control.
++
++	  The miscellaneous function includes the drd state
++	  configuration and gadget standby mode.
++
++endif
++
++config USB_CVITEK_GADGET
++	tristate "Cvitek device controller"
++	depends on USB_GADGET
++	help
++	  Bitmain device controller driver for CV183X.
++	  BM1880 USB device can support USB 2.0 high speed.
++
++	  Say 'Y' or 'M' here to enable device controller functionality
++	  of the Cvitek driver.
++
++comment "Platform Glue Driver Support"
++
+ comment "USB port drivers"
+ 
+ if USB
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/usb/roles/Kconfig milky/drivers/usb/roles/Kconfig
+--- test-tree/drivers/usb/roles/Kconfig	2024-05-23 21:43:58.115954783 -0400
++++ milky/drivers/usb/roles/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -2,6 +2,7 @@
+ 
+ config USB_ROLE_SWITCH
+ 	tristate "USB Role Switch Support"
++	depends on USB_DWC2_DUAL_ROLE
+ 	help
+ 	  USB Role Switch is a device that can select the USB role - host or
+ 	  device - for a USB port (connector). In most cases dual-role capable
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/video/fbdev/Kconfig milky/drivers/video/fbdev/Kconfig
+--- test-tree/drivers/video/fbdev/Kconfig	2024-05-23 21:43:58.131954732 -0400
++++ milky/drivers/video/fbdev/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -2239,3 +2239,4 @@ config FB_SM712
+ source "drivers/video/fbdev/omap/Kconfig"
+ source "drivers/video/fbdev/omap2/Kconfig"
+ source "drivers/video/fbdev/mmp/Kconfig"
++source "drivers/video/fbdev/cvitek/Kconfig"
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/watchdog/Kconfig milky/drivers/watchdog/Kconfig
+--- test-tree/drivers/watchdog/Kconfig	2024-05-23 21:43:58.163954631 -0400
++++ milky/drivers/watchdog/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -724,6 +724,20 @@ config IMX2_WDT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called imx2_wdt.
+ 
++config ICE_WDT
++	tristate "ICE+ Watchdog"
++	depends on RISCV
++	default y
++	select WATCHDOG_CORE
++	help
++	  This is the driver for the hardware watchdog
++	  on the ice and later processors.
++	  If you have one of these processors and wish to have
++	  watchdog support enabled, say Y, otherwise say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ice_wdt.
++
+ config IMX_SC_WDT
+ 	tristate "IMX SC Watchdog"
+ 	depends on HAVE_ARM_SMCCC
+diff -urpN --no-dereference -X diffgen.ignore test-tree/init/Kconfig milky/init/Kconfig
+--- test-tree/init/Kconfig	2024-05-23 21:43:58.923952233 -0400
++++ milky/init/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -1215,6 +1215,13 @@ config SCHED_AUTOGROUP
+ 	  desktop applications.  Task group autogeneration is currently based
+ 	  upon task session.
+ 
++config SCHED_CVITEK
++	bool "CVITEK scheduler optimization"
++	help
++	  This option optimizes the scheduler priority and set cvitek drivers
++	  priority automatically.
++	  select it if it's cvitek bsp.
++
+ config SYSFS_DEPRECATED
+ 	bool "Enable deprecated sysfs features to support old userspace tools"
+ 	depends on SYSFS
+diff -urpN --no-dereference -X diffgen.ignore test-tree/kernel/Kconfig.hz milky/kernel/Kconfig.hz
+--- test-tree/kernel/Kconfig.hz	2024-05-23 21:43:58.927952220 -0400
++++ milky/kernel/Kconfig.hz	2024-05-21 05:22:27.000000000 -0400
+@@ -16,6 +16,8 @@ choice
+ 	 environment leading to NR_CPUS * HZ number of timer interrupts
+ 	 per second.
+ 
++	config HZ_12
++		bool "12 HZ"
+ 
+ 	config HZ_100
+ 		bool "100 HZ"
+@@ -50,6 +52,7 @@ endchoice
+ 
+ config HZ
+ 	int
++	default 12 if HZ_12
+ 	default 100 if HZ_100
+ 	default 250 if HZ_250
+ 	default 300 if HZ_300
+diff -urpN --no-dereference -X diffgen.ignore test-tree/sound/soc/Kconfig milky/sound/soc/Kconfig
+--- test-tree/sound/soc/Kconfig	2024-05-23 21:43:59.179951424 -0400
++++ milky/sound/soc/Kconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -47,6 +47,7 @@ source "sound/soc/atmel/Kconfig"
+ source "sound/soc/au1x/Kconfig"
+ source "sound/soc/bcm/Kconfig"
+ source "sound/soc/cirrus/Kconfig"
++source "sound/soc/cvitek/Kconfig"
+ source "sound/soc/dwc/Kconfig"
+ source "sound/soc/fsl/Kconfig"
+ source "sound/soc/hisilicon/Kconfig"
