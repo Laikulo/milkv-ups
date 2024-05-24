@@ -1,0 +1,4 @@
++ early_time_log: A facility to log things early? In kernel/time probaby because of strange translation
+  ~ kernel/time/Makefile
+  ~ init/main.c
+  + kernel/time/early_time_log.{c,h}

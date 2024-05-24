@@ -1,0 +1,39 @@
+diff -urpN stock/kernel/time/Makefile milky/kernel/time/Makefile
+--- stock/kernel/time/Makefile	2020-12-30 05:54:29.000000000 -0500
++++ milky/kernel/time/Makefile	2024-04-27 21:57:47.041194483 -0400
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
++obj-y += early_time_log.o
+ obj-y += time.o timer.o hrtimer.o
+ obj-y += timekeeping.o ntp.o clocksource.o jiffies.o timer_list.o
+ obj-y += timeconv.o timecounter.o alarmtimer.o
+
+diff -urpN stock/init/main.c milky/init/main.c
+--- stock/init/main.c	2020-12-30 05:54:29.000000000 -0500
++++ milky/init/main.c	2024-04-27 21:57:47.021194548 -0400
+@@ -98,6 +98,7 @@
+ #include <linux/mem_encrypt.h>
+ #include <linux/kcsan.h>
+ #include <linux/init_syscalls.h>
++#include <linux/early_time_log.h>
+ 
+ #include <asm/io.h>
+ #include <asm/bugs.h>
+@@ -1296,6 +1297,8 @@ static void __init do_initcalls(void)
+ 	size_t len = strlen(saved_command_line) + 1;
+ 	char *command_line;
+ 
++	early_time_log(__func__);
++
+ 	command_line = kzalloc(len, GFP_KERNEL);
+ 	if (!command_line)
+ 		panic("%s: Failed to allocate %zu bytes\n", __func__, len);
+@@ -1347,6 +1350,8 @@ static int run_init_process(const char *
+ 	pr_debug("  with environment:\n");
+ 	for (p = envp_init; *p; p++)
+ 		pr_debug("    %s\n", *p);
++
++	early_time_log(__func__);
+ 	return kernel_execve(init_filename, argv_init, envp_init);
+ }
+ 
