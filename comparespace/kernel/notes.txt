@@ -2,3 +2,16 @@
   ~ kernel/time/Makefile
   ~ init/main.c
   + kernel/time/early_time_log.{c,h}
+
+
+! Broke out all uncategorized Makefile and Kconfig changes
+
+! Looks like there is some backporting of some compat syscalls, I've not yet dug to see exactly when that happened
+
+! There's some very stilly debug statements
+
+! Looks like there are also a ton of c-sky patches in here, even though the milk-v duo isn't using that.
+  It looks like they yoinked this tree from T-Head Semi, so they probably got some of their stuff unexpectedly.
+
+! I'll probably take most of the patches forward to 5.10.x LTS. Pretty sure some will have been backported
+  by upstream, so those will fall off as we get closer to completing this.
