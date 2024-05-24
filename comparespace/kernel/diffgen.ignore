@@ -1,0 +1,5 @@
+.gitignore
+.gitattributes
+.get_maintainer.ignore
+.mailmap
+README.md

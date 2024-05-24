@@ -1,0 +1,645 @@
+diff -urpN test-tree/arch/arm/boot/dts/Makefile milky/arch/arm/boot/dts/Makefile
+--- test-tree/arch/arm/boot/dts/Makefile	2024-05-23 20:16:39.201037538 -0400
++++ milky/arch/arm/boot/dts/Makefile	2024-04-27 21:57:39.457219011 -0400
+@@ -1408,3 +1408,4 @@ dtb-$(CONFIG_ARCH_ASPEED) += \
+ 	aspeed-bmc-opp-zaius.dtb \
+ 	aspeed-bmc-portwell-neptune.dtb \
+ 	aspeed-bmc-quanta-q71l.dtb
++subdir-y += cvitek
+diff -urpN test-tree/arch/arm/Makefile milky/arch/arm/Makefile
+--- test-tree/arch/arm/Makefile	2024-05-23 20:16:39.197037551 -0400
++++ milky/arch/arm/Makefile	2024-04-27 21:57:39.453219024 -0400
+@@ -139,6 +139,7 @@ head-y		:= arch/arm/kernel/head$(MMUEXT)
+ # during boot, and this offset is critical to the functioning of
+ # kexec-tools.
+ textofs-y	:= 0x00008000
++textofs-$(CONFIG_ARCH_CVITEK) := 0x00108000
+ # We don't want the htc bootloader to corrupt kernel during resume
+ textofs-$(CONFIG_PM_H1940)      := 0x00108000
+ # RTD1195 has Boot ROM at start of address space
+@@ -227,6 +228,7 @@ machine-$(CONFIG_ARCH_VT8500)		+= vt8500
+ machine-$(CONFIG_ARCH_ZX)		+= zx
+ machine-$(CONFIG_ARCH_ZYNQ)		+= zynq
+ machine-$(CONFIG_PLAT_SPEAR)		+= spear
++machine-$(CONFIG_ARCH_CVITEK)       += cvitek
+ 
+ # Platform directory name.  This list is sorted alphanumerically
+ # by CONFIG_* macro name.
+diff -urpN test-tree/arch/arm64/boot/dts/Makefile milky/arch/arm64/boot/dts/Makefile
+--- test-tree/arch/arm64/boot/dts/Makefile	2024-05-23 20:16:39.361037029 -0400
++++ milky/arch/arm64/boot/dts/Makefile	2024-04-27 21:57:39.641218416 -0400
+@@ -30,3 +30,4 @@ subdir-y += ti
+ subdir-y += toshiba
+ subdir-y += xilinx
+ subdir-y += zte
++subdir-y += cvitek
+diff -urpN test-tree/arch/csky/kernel/Makefile milky/arch/csky/kernel/Makefile
+--- test-tree/arch/csky/kernel/Makefile	2024-05-23 20:16:39.417036850 -0400
++++ milky/arch/csky/kernel/Makefile	2024-04-27 21:57:39.741218093 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ extra-y := head.o vmlinux.lds
+ 
+-obj-y += entry.o atomic.o signal.o traps.o irq.o time.o vdso.o
++obj-y += entry.o atomic.o signal.o traps.o irq.o time.o vdso.o vdso/
+ obj-y += power.o syscall.o syscall_table.o setup.o
+ obj-y += process.o cpu-probe.o ptrace.o stacktrace.o
+ obj-y += probes/
+diff -urpN test-tree/arch/riscv/boot/dts/Makefile milky/arch/riscv/boot/dts/Makefile
+--- test-tree/arch/riscv/boot/dts/Makefile	2024-05-23 20:16:39.669036050 -0400
++++ milky/arch/riscv/boot/dts/Makefile	2024-04-27 21:57:40.169216708 -0400
+@@ -1,5 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ subdir-y += sifive
+ subdir-y += kendryte
++subdir-y += thead
++subdir-y += cvitek
+ 
+ obj-$(CONFIG_BUILTIN_DTB) := $(addsuffix /, $(subdir-y))
+diff -urpN test-tree/arch/riscv/kernel/Makefile milky/arch/riscv/kernel/Makefile
+--- test-tree/arch/riscv/kernel/Makefile	2024-05-23 20:16:39.677036024 -0400
++++ milky/arch/riscv/kernel/Makefile	2024-04-27 21:57:40.177216682 -0400
+@@ -4,8 +4,9 @@
+ #
+ 
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_ftrace.o	= -pg
+-CFLAGS_REMOVE_patch.o	= -pg
++CFLAGS_REMOVE_ftrace.o	= $(CC_FLAGS_FTRACE)
++CFLAGS_REMOVE_patch.o	= $(CC_FLAGS_FTRACE)
++CFLAGS_REMOVE_sbi.o	= $(CC_FLAGS_FTRACE)
+ endif
+ 
+ extra-y += head.o
+@@ -29,10 +30,13 @@ obj-y	+= riscv_ksyms.o
+ obj-y	+= stacktrace.o
+ obj-y	+= cacheinfo.o
+ obj-y	+= patch.o
++obj-y	+= probes/
+ obj-$(CONFIG_MMU) += vdso.o vdso/
++obj-$(CONFIG_VECTOR_EMU) += soft_vector/
+ 
+ obj-$(CONFIG_RISCV_M_MODE)	+= traps_misaligned.o
+ obj-$(CONFIG_FPU)		+= fpu.o
++obj-$(CONFIG_VECTOR)		+= vector.o
+ obj-$(CONFIG_SMP)		+= smpboot.o
+ obj-$(CONFIG_SMP)		+= smp.o
+ obj-$(CONFIG_SMP)		+= cpu_ops.o
+@@ -57,4 +61,8 @@ obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
+ 
+ obj-$(CONFIG_EFI)		+= efi.o
+ 
++obj-$(CONFIG_COMPAT)		+= compat_syscall_table.o
++obj-$(CONFIG_COMPAT)		+= compat_signal.o
++obj-$(CONFIG_COMPAT)		+= compat_vdso/
++
+ clean:
+diff -urpN test-tree/arch/riscv/kernel/vdso/Makefile milky/arch/riscv/kernel/vdso/Makefile
+--- test-tree/arch/riscv/kernel/vdso/Makefile	2024-05-23 20:16:39.677036024 -0400
++++ milky/arch/riscv/kernel/vdso/Makefile	2024-04-27 21:57:40.233216501 -0400
+@@ -23,15 +23,18 @@ ifneq ($(c-gettimeofday-y),)
+ endif
+ 
+ # Build rules
+-targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds vdso-dummy.o
++targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds
+ obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
+ 
+-obj-y += vdso.o vdso-syms.o
++obj-y += vdso.o
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
+ 
+ # Disable -pg to prevent insert call site
+ CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) -Os
+ 
++# Kernel must build with -Ox
++CFLAGS_vgettimeofday.o += -O2
++
+ # Disable gcov profiling for VDSO code
+ GCOV_PROFILE := n
+ KCOV_INSTRUMENT := n
+@@ -40,39 +43,32 @@ KCOV_INSTRUMENT := n
+ $(obj)/vdso.o: $(obj)/vdso.so
+ 
+ # link rule for the .so file, .lds has to be first
+-SYSCFLAGS_vdso.so.dbg = $(c_flags)
+-$(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
++$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
+ 	$(call if_changed,vdsold)
+-SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+-	-Wl,--build-id=sha1 -Wl,--hash-style=both
+-
+-# We also create a special relocatable object that should mirror the symbol
+-# table and layout of the linked DSO. With ld --just-symbols we can then
+-# refer to these symbols in the kernel code rather than hand-coded addresses.
+-$(obj)/vdso-syms.S: $(obj)/vdso.so FORCE
+-	$(call if_changed,so2s)
++LDFLAGS_vdso.so.dbg = -shared -S -soname=linux-vdso.so.1 \
++	--build-id=sha1 --hash-style=both --eh-frame-hdr
+ 
+ # strip rule for the .so file
+ $(obj)/%.so: OBJCOPYFLAGS := -S
+ $(obj)/%.so: $(obj)/%.so.dbg FORCE
+ 	$(call if_changed,objcopy)
+ 
++# Generate VDSO offsets using helper script
++gen-vdsosym := $(srctree)/$(src)/gen_vdso_offsets.sh
++quiet_cmd_vdsosym = VDSOSYM $@
++	cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
++
++include/generated/vdso-offsets.h: $(obj)/vdso.so.dbg FORCE
++	$(call if_changed,vdsosym)
++
+ # actual build commands
+ # The DSO images are built using a special linker script
+-# Add -lgcc so rv32 gets static muldi3 and lshrdi3 definitions.
+ # Make sure only to export the intended __vdso_xxx symbol offsets.
+ quiet_cmd_vdsold = VDSOLD  $@
+-      cmd_vdsold = $(CC) $(KBUILD_CFLAGS) $(call cc-option, -no-pie) -nostdlib -nostartfiles $(SYSCFLAGS_$(@F)) \
+-                           -Wl,-T,$(filter-out FORCE,$^) -o $@.tmp && \
+-                   $(CROSS_COMPILE)objcopy \
+-                           $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
++      cmd_vdsold = $(LD) $(ld_flags) -T $(filter-out FORCE,$^) -o $@.tmp && \
++                   $(OBJCOPY) $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
+                    rm $@.tmp
+ 
+-# Extracts symbol offsets from the VDSO, converting them into an assembly file
+-# that contains the same symbols at the same offsets.
+-quiet_cmd_so2s = SO2S    $@
+-      cmd_so2s = $(NM) -D $< | $(srctree)/$(src)/so2s.sh > $@
+-
+ # install commands for the unstripped file
+ quiet_cmd_vdso_install = INSTALL $@
+       cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
+diff -urpN test-tree/arch/riscv/lib/Makefile milky/arch/riscv/lib/Makefile
+--- test-tree/arch/riscv/lib/Makefile	2024-05-23 20:16:39.677036024 -0400
++++ milky/arch/riscv/lib/Makefile	2024-04-27 21:57:40.233216501 -0400
+@@ -4,3 +4,5 @@ lib-y			+= memcpy.o
+ lib-y			+= memset.o
+ lib-$(CONFIG_MMU)	+= uaccess.o
+ lib-$(CONFIG_64BIT)	+= tishift.o
++
++obj-$(CONFIG_FUNCTION_ERROR_INJECTION) += error-inject.o
+diff -urpN test-tree/arch/riscv/Makefile milky/arch/riscv/Makefile
+--- test-tree/arch/riscv/Makefile	2024-05-23 20:16:39.669036050 -0400
++++ milky/arch/riscv/Makefile	2024-04-27 21:57:40.169216708 -0400
+@@ -12,6 +12,8 @@ OBJCOPYFLAGS    := -O binary
+ LDFLAGS_vmlinux :=
+ ifeq ($(CONFIG_DYNAMIC_FTRACE),y)
+ 	LDFLAGS_vmlinux := --no-relax
++	KBUILD_CPPFLAGS += -DCC_USING_PATCHABLE_FUNCTION_ENTRY
++	CC_FLAGS_FTRACE := -fpatchable-function-entry=8
+ endif
+ 
+ ifeq ($(CONFIG_64BIT)$(CONFIG_CMODEL_MEDLOW),yy)
+@@ -26,6 +28,11 @@ ifeq ($(CONFIG_ARCH_RV64I),y)
+ 	KBUILD_CFLAGS += -mabi=lp64
+ 	KBUILD_AFLAGS += -mabi=lp64
+ 
++# workaround for C906 ldd performance issue
++ifeq ($(CONFIG_ARCH_CVITEK),y)
++	KBUILD_CFLAGS += -mno-ldd
++endif
++
+ 	KBUILD_LDFLAGS += -melf64lriscv
+ else
+ 	BITS := 32
+@@ -37,16 +44,26 @@ else
+ endif
+ 
+ # ISA string setting
+-riscv-march-$(CONFIG_ARCH_RV32I)	:= rv32ima
+-riscv-march-$(CONFIG_ARCH_RV64I)	:= rv64ima
+-riscv-march-$(CONFIG_FPU)		:= $(riscv-march-y)fd
+-riscv-march-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-y)c
+-KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
+-KBUILD_AFLAGS += -march=$(riscv-march-y)
++riscv-march-cflags-$(CONFIG_ARCH_RV32I)		:= rv32ima
++riscv-march-cflags-$(CONFIG_ARCH_RV64I)		:= rv64ima
++riscv-march-cflags-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-cflags-y)c
++
++riscv-march-aflags-$(CONFIG_ARCH_RV32I)		:= rv32ima
++riscv-march-aflags-$(CONFIG_ARCH_RV64I)		:= rv64ima
++riscv-march-aflags-$(CONFIG_FPU)		:= $(riscv-march-aflags-y)fd
++riscv-march-aflags-$(CONFIG_RISCV_ISA_C)	:= $(riscv-march-aflags-y)c
++riscv-march-aflags-$(CONFIG_VECTOR_1_0)		:= $(riscv-march-aflags-y)v
++riscv-march-aflags-$(CONFIG_VECTOR_0_7)		:= $(riscv-march-aflags-y)v0p7
++riscv-march-aflags-$(CONFIG_RISCV_ISA_THEAD)	:= $(riscv-march-aflags-y)xthead
++
++KBUILD_CFLAGS += -march=$(riscv-march-cflags-y) -Wa,-march=$(riscv-march-aflags-y)
++KBUILD_AFLAGS += -march=$(riscv-march-aflags-y)
+ 
+ KBUILD_CFLAGS += -mno-save-restore
+ KBUILD_CFLAGS += -DCONFIG_PAGE_OFFSET=$(CONFIG_PAGE_OFFSET)
+ 
++machine-$(CONFIG_ARCH_CVITEK)       += cvitek
++
+ ifeq ($(CONFIG_CMODEL_MEDLOW),y)
+ 	KBUILD_CFLAGS += -mcmodel=medlow
+ endif
+@@ -82,6 +99,16 @@ libs-$(CONFIG_EFI_STUB) += $(objtree)/dr
+ PHONY += vdso_install
+ vdso_install:
+ 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso $@
++	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
++		$(build)=arch/riscv/kernel/compat_vdso $@)
++
++ifeq ($(CONFIG_MMU),y)
++prepare: vdso_prepare
++vdso_prepare: prepare0
++	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
++	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
++		$(build)=arch/riscv/kernel/compat_vdso include/generated/compat_vdso-offsets.h)
++endif
+ 
+ ifeq ($(CONFIG_RISCV_M_MODE)$(CONFIG_SOC_KENDRYTE),yy)
+ KBUILD_IMAGE := $(boot)/loader.bin
+diff -urpN test-tree/arch/riscv/mm/Makefile milky/arch/riscv/mm/Makefile
+--- test-tree/arch/riscv/mm/Makefile	2024-05-23 20:16:39.677036024 -0400
++++ milky/arch/riscv/mm/Makefile	2024-04-27 21:57:40.233216501 -0400
+@@ -2,7 +2,8 @@
+ 
+ CFLAGS_init.o := -mcmodel=medany
+ ifdef CONFIG_FTRACE
+-CFLAGS_REMOVE_init.o = -pg
++CFLAGS_REMOVE_init.o = $(CC_FLAGS_FTRACE)
++CFLAGS_REMOVE_cacheflush.o = $(CC_FLAGS_FTRACE)
+ endif
+ 
+ KCOV_INSTRUMENT_init.o := n
+@@ -12,6 +13,10 @@ obj-y += extable.o
+ obj-$(CONFIG_MMU) += fault.o pageattr.o
+ obj-y += cacheflush.o
+ obj-y += context.o
++obj-y += dma-mapping.o
++obj-y += ioremap.o
++obj-y += asid.o
++obj-y += context.o
+ 
+ ifeq ($(CONFIG_MMU),y)
+ obj-$(CONFIG_SMP) += tlbflush.o
+diff -urpN test-tree/drivers/clk/Makefile milky/drivers/clk/Makefile
+--- test-tree/drivers/clk/Makefile	2024-05-23 20:16:39.885035363 -0400
++++ milky/drivers/clk/Makefile	2024-04-27 21:57:40.849214509 -0400
+@@ -124,3 +124,4 @@ endif
+ obj-$(CONFIG_ARCH_ZX)			+= zte/
+ obj-$(CONFIG_ARCH_ZYNQ)			+= zynq/
+ obj-$(CONFIG_COMMON_CLK_ZYNQMP)         += zynqmp/
++obj-$(CONFIG_COMMON_CLK_CVITEK)     += cvitek/
+diff -urpN test-tree/drivers/dma/Makefile milky/drivers/dma/Makefile
+--- test-tree/drivers/dma/Makefile	2024-05-23 20:16:39.961035122 -0400
++++ milky/drivers/dma/Makefile	2024-04-27 21:57:41.209213344 -0400
+@@ -87,3 +87,4 @@ obj-y += mediatek/
+ obj-y += qcom/
+ obj-y += ti/
+ obj-y += xilinx/
++obj-y += cvitek/
+diff -urpN test-tree/drivers/i2c/busses/Makefile milky/drivers/i2c/busses/Makefile
+--- test-tree/drivers/i2c/busses/Makefile	2024-05-23 20:16:40.313034002 -0400
++++ milky/drivers/i2c/busses/Makefile	2024-04-27 21:57:42.509209140 -0400
+@@ -57,6 +57,7 @@ i2c-designware-platform-y 				:= i2c-des
+ i2c-designware-platform-$(CONFIG_I2C_DESIGNWARE_BAYTRAIL) += i2c-designware-baytrail.o
+ obj-$(CONFIG_I2C_DESIGNWARE_PCI)			+= i2c-designware-pci.o
+ i2c-designware-pci-y					:= i2c-designware-pcidrv.o
++obj-$(CONFIG_I2C_DESIGNWARE_ICE)			+= i2c-designware-ice.o
+ obj-$(CONFIG_I2C_DIGICOLOR)	+= i2c-digicolor.o
+ obj-$(CONFIG_I2C_EFM32)		+= i2c-efm32.o
+ obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
+diff -urpN test-tree/drivers/Makefile milky/drivers/Makefile
+--- test-tree/drivers/Makefile	2024-05-23 20:16:39.841035503 -0400
++++ milky/drivers/Makefile	2024-04-27 21:57:40.693215014 -0400
+@@ -189,3 +189,4 @@ obj-$(CONFIG_GNSS)		+= gnss/
+ obj-$(CONFIG_INTERCONNECT)	+= interconnect/
+ obj-$(CONFIG_COUNTER)		+= counter/
+ obj-$(CONFIG_MOST)		+= most/
++obj-$(CONFIG_EFUSE)             += efuse/
+diff -urpN test-tree/drivers/mmc/host/Makefile milky/drivers/mmc/host/Makefile
+--- test-tree/drivers/mmc/host/Makefile	2024-05-23 20:16:40.589033125 -0400
++++ milky/drivers/mmc/host/Makefile	2024-04-27 21:57:43.529205841 -0400
+@@ -94,6 +94,7 @@ obj-$(CONFIG_MMC_SDHCI_OF_AT91)		+= sdhc
+ obj-$(CONFIG_MMC_SDHCI_OF_ESDHC)	+= sdhci-of-esdhc.o
+ obj-$(CONFIG_MMC_SDHCI_OF_HLWD)		+= sdhci-of-hlwd.o
+ obj-$(CONFIG_MMC_SDHCI_OF_DWCMSHC)	+= sdhci-of-dwcmshc.o
++obj-$(CONFIG_MMC_SDHCI_OF_LIGHT_MPW)	+= sdhci-of-light-mpw.o
+ obj-$(CONFIG_MMC_SDHCI_OF_SPARX5)	+= sdhci-of-sparx5.o
+ obj-$(CONFIG_MMC_SDHCI_BCM_KONA)	+= sdhci-bcm-kona.o
+ obj-$(CONFIG_MMC_SDHCI_IPROC)		+= sdhci-iproc.o
+@@ -104,6 +105,7 @@ obj-$(CONFIG_MMC_SDHCI_BRCMSTB)		+= sdhc
+ obj-$(CONFIG_MMC_SDHCI_OMAP)		+= sdhci-omap.o
+ obj-$(CONFIG_MMC_SDHCI_SPRD)		+= sdhci-sprd.o
+ obj-$(CONFIG_MMC_CQHCI)			+= cqhci.o
++obj-$(CONFIG_MMC_SDHCI_CVI)		+= cvitek/
+ obj-$(CONFIG_MMC_HSQ)			+= mmc_hsq.o
+ 
+ ifeq ($(CONFIG_CB710_DEBUG),y)
+diff -urpN test-tree/drivers/mtd/nand/raw/Makefile milky/drivers/mtd/nand/raw/Makefile
+--- test-tree/drivers/mtd/nand/raw/Makefile	2024-05-23 20:16:40.601033087 -0400
++++ milky/drivers/mtd/nand/raw/Makefile	2024-04-27 21:57:43.537205816 -0400
+@@ -58,6 +58,7 @@ obj-$(CONFIG_MTD_NAND_STM32_FMC2)	+= stm
+ obj-$(CONFIG_MTD_NAND_MESON)		+= meson_nand.o
+ obj-$(CONFIG_MTD_NAND_CADENCE)		+= cadence-nand-controller.o
+ obj-$(CONFIG_MTD_NAND_ARASAN)		+= arasan-nand-controller.o
++obj-$(CONFIG_MTD_NAND_CVSNFC)		+= cvitek/
+ 
+ nand-objs := nand_base.o nand_legacy.o nand_bbt.o nand_timings.o nand_ids.o
+ nand-objs += nand_onfi.o
+diff -urpN test-tree/drivers/mtd/spi-nor/controllers/Makefile milky/drivers/mtd/spi-nor/controllers/Makefile
+--- test-tree/drivers/mtd/spi-nor/controllers/Makefile	2024-05-23 20:16:40.609033062 -0400
++++ milky/drivers/mtd/spi-nor/controllers/Makefile	2024-04-27 21:57:43.545205789 -0400
+@@ -5,3 +5,4 @@ obj-$(CONFIG_SPI_NXP_SPIFI)	+= nxp-spifi
+ obj-$(CONFIG_SPI_INTEL_SPI)	+= intel-spi.o
+ obj-$(CONFIG_SPI_INTEL_SPI_PCI)	+= intel-spi-pci.o
+ obj-$(CONFIG_SPI_INTEL_SPI_PLATFORM)	+= intel-spi-platform.o
++obj-$(CONFIG_SPI_CVI_SPIF)  += cvi-spif.o
+diff -urpN test-tree/drivers/mtd/spi-nor/Makefile milky/drivers/mtd/spi-nor/Makefile
+--- test-tree/drivers/mtd/spi-nor/Makefile	2024-05-23 20:16:40.609033062 -0400
++++ milky/drivers/mtd/spi-nor/Makefile	2024-04-27 21:57:43.545205789 -0400
+@@ -15,6 +15,7 @@ spi-nor-objs			+= micron-st.o
+ spi-nor-objs			+= spansion.o
+ spi-nor-objs			+= sst.o
+ spi-nor-objs			+= winbond.o
++spi-nor-objs			+= cvitek_support_list.o
+ spi-nor-objs			+= xilinx.o
+ spi-nor-objs			+= xmc.o
+ obj-$(CONFIG_MTD_SPI_NOR)	+= spi-nor.o
+diff -urpN test-tree/drivers/net/ethernet/stmicro/stmmac/Makefile milky/drivers/net/ethernet/stmicro/stmmac/Makefile
+--- test-tree/drivers/net/ethernet/stmicro/stmmac/Makefile	2024-05-23 20:16:40.729032680 -0400
++++ milky/drivers/net/ethernet/stmicro/stmmac/Makefile	2024-04-27 21:57:43.821204897 -0400
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
+-obj-$(CONFIG_STMMAC_ETH) += stmmac.o
++obj-$(CONFIG_STMMAC_ETH) += stmmac.o dwmac-thead.o
+ stmmac-objs:= stmmac_main.o stmmac_ethtool.o stmmac_mdio.o ring_mode.o	\
+ 	      chain_mode.o dwmac_lib.o dwmac1000_core.o dwmac1000_dma.o	\
+ 	      dwmac100_core.o dwmac100_dma.o enh_desc.o norm_desc.o	\
+@@ -12,6 +12,7 @@ stmmac-$(CONFIG_STMMAC_SELFTESTS) += stm
+ 
+ # Ordering matters. Generic driver must be last.
+ obj-$(CONFIG_STMMAC_PLATFORM)	+= stmmac-platform.o
++obj-$(CONFIG_DWMAC_CVITEK)      += dwmac-cvitek.o
+ obj-$(CONFIG_DWMAC_ANARION)	+= dwmac-anarion.o
+ obj-$(CONFIG_DWMAC_IPQ806X)	+= dwmac-ipq806x.o
+ obj-$(CONFIG_DWMAC_LPC18XX)	+= dwmac-lpc18xx.o
+diff -urpN test-tree/drivers/net/phy/Makefile milky/drivers/net/phy/Makefile
+--- test-tree/drivers/net/phy/Makefile	2024-05-23 20:16:40.741032642 -0400
++++ milky/drivers/net/phy/Makefile	2024-04-27 21:57:43.837204846 -0400
+@@ -48,6 +48,7 @@ obj-$(CONFIG_BCM_CYGNUS_PHY)	+= bcm-cygn
+ obj-$(CONFIG_BCM_NET_PHYLIB)	+= bcm-phy-lib.o
+ obj-$(CONFIG_BROADCOM_PHY)	+= broadcom.o
+ obj-$(CONFIG_CICADA_PHY)	+= cicada.o
++obj-$(CONFIG_CVITEK_PHY)	+= cvitek.o
+ obj-$(CONFIG_CORTINA_PHY)	+= cortina.o
+ obj-$(CONFIG_DAVICOM_PHY)	+= davicom.o
+ obj-$(CONFIG_DP83640_PHY)	+= dp83640.o
+diff -urpN test-tree/drivers/net/wireless/Makefile milky/drivers/net/wireless/Makefile
+--- test-tree/drivers/net/wireless/Makefile	2024-05-23 20:16:40.753032603 -0400
++++ milky/drivers/net/wireless/Makefile	2024-04-27 21:57:43.849204806 -0400
+@@ -20,6 +20,8 @@ obj-$(CONFIG_WLAN_VENDOR_ST) += st/
+ obj-$(CONFIG_WLAN_VENDOR_TI) += ti/
+ obj-$(CONFIG_WLAN_VENDOR_ZYDAS) += zydas/
+ obj-$(CONFIG_WLAN_VENDOR_QUANTENNA) += quantenna/
++obj-$(CONFIG_WLAN_VENDOR_ICOMMSEMI) += icommsemi/
++obj-$(CONFIG_WLAN_VENDOR_AICSEMI) += aicsemi/
+ 
+ # 16-bit wireless PCMCIA client drivers
+ obj-$(CONFIG_PCMCIA_RAYCS)	+= ray_cs.o
+diff -urpN test-tree/drivers/net/wireless/realtek/Makefile milky/drivers/net/wireless/realtek/Makefile
+--- test-tree/drivers/net/wireless/realtek/Makefile	2024-05-23 20:16:40.813032413 -0400
++++ milky/drivers/net/wireless/realtek/Makefile	2024-04-27 21:57:43.921204573 -0400
+@@ -8,4 +8,5 @@ obj-$(CONFIG_RTL8187)		+= rtl818x/
+ obj-$(CONFIG_RTLWIFI)		+= rtlwifi/
+ obj-$(CONFIG_RTL8XXXU)		+= rtl8xxxu/
+ obj-$(CONFIG_RTW88)		+= rtw88/
++obj-$(CONFIG_RTL8188FU)     	+= rtl8188f/
+ 
+diff -urpN test-tree/drivers/perf/Makefile milky/drivers/perf/Makefile
+--- test-tree/drivers/perf/Makefile	2024-05-23 20:16:40.865032248 -0400
++++ milky/drivers/perf/Makefile	2024-04-27 21:57:43.997204328 -0400
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0
++obj-$(CONFIG_RISCV) += thead_c900_pmu.o
+ obj-$(CONFIG_ARM_CCI_PMU) += arm-cci.o
+ obj-$(CONFIG_ARM_CCN) += arm-ccn.o
+ obj-$(CONFIG_ARM_CMN) += arm-cmn.o
+@@ -13,3 +14,4 @@ obj-$(CONFIG_QCOM_L3_PMU) += qcom_l3_pmu
+ obj-$(CONFIG_THUNDERX2_PMU) += thunderx2_pmu.o
+ obj-$(CONFIG_XGENE_PMU) += xgene_pmu.o
+ obj-$(CONFIG_ARM_SPE_PMU) += arm_spe_pmu.o
++obj-$(CONFIG_RISCV) += thead_c900_pmu_v1.o
+diff -urpN test-tree/drivers/pinctrl/Makefile milky/drivers/pinctrl/Makefile
+--- test-tree/drivers/pinctrl/Makefile	2024-05-23 20:16:40.873032222 -0400
++++ milky/drivers/pinctrl/Makefile	2024-04-27 21:57:44.005204302 -0400
+@@ -72,3 +72,4 @@ obj-y				+= mediatek/
+ obj-$(CONFIG_PINCTRL_ZX)	+= zte/
+ obj-y				+= cirrus/
+ obj-$(CONFIG_PINCTRL_VISCONTI)	+= visconti/
++obj-$(CONFIG_ARCH_CVITEK)   += cvitek/
+diff -urpN test-tree/drivers/power/reset/Makefile milky/drivers/power/reset/Makefile
+--- test-tree/drivers/power/reset/Makefile	2024-05-23 20:16:40.905032120 -0400
++++ milky/drivers/power/reset/Makefile	2024-04-27 21:57:44.037204198 -0400
+@@ -33,3 +33,4 @@ obj-$(CONFIG_REBOOT_MODE) += reboot-mode
+ obj-$(CONFIG_SYSCON_REBOOT_MODE) += syscon-reboot-mode.o
+ obj-$(CONFIG_POWER_RESET_SC27XX) += sc27xx-poweroff.o
+ obj-$(CONFIG_NVMEM_REBOOT_MODE) += nvmem-reboot-mode.o
++obj-y += cvi-reboot.o
+diff -urpN test-tree/drivers/reset/Makefile milky/drivers/reset/Makefile
+--- test-tree/drivers/reset/Makefile	2024-05-23 20:16:40.925032057 -0400
++++ milky/drivers/reset/Makefile	2024-04-27 21:57:44.057204134 -0400
+@@ -33,4 +33,5 @@ obj-$(CONFIG_RESET_UNIPHIER) += reset-un
+ obj-$(CONFIG_RESET_UNIPHIER_GLUE) += reset-uniphier-glue.o
+ obj-$(CONFIG_RESET_ZYNQ) += reset-zynq.o
+ obj-$(CONFIG_ARCH_ZYNQMP) += reset-zynqmp.o
+-
++obj-$(CONFIG_ARCH_CVITEK) += reset-cvitek.o
++obj-$(CONFIG_ARCH_CVITEK) += clk-reset-cvitek.o
+diff -urpN test-tree/drivers/soc/Makefile milky/drivers/soc/Makefile
+--- test-tree/drivers/soc/Makefile	2024-05-23 20:16:41.001031815 -0400
++++ milky/drivers/soc/Makefile	2024-04-27 21:57:44.297203358 -0400
+@@ -29,3 +29,4 @@ obj-$(CONFIG_PLAT_VERSATILE)	+= versatil
+ obj-y				+= xilinx/
+ obj-$(CONFIG_ARCH_ZX)		+= zte/
+ obj-$(CONFIG_SOC_KENDRYTE)	+= kendryte/
++obj-$(CONFIG_ARCH_CVITEK)   += cvitek/
+diff -urpN test-tree/drivers/staging/android/ion/Makefile milky/drivers/staging/android/ion/Makefile
+--- test-tree/drivers/staging/android/ion/Makefile	2024-05-23 20:16:41.029031726 -0400
++++ milky/drivers/staging/android/ion/Makefile	2024-04-27 21:57:44.357203163 -0400
+@@ -1,4 +1,11 @@
+ # SPDX-License-Identifier: GPL-2.0
+ obj-$(CONFIG_ION) += ion.o ion_heap.o
+ obj-$(CONFIG_ION_SYSTEM_HEAP) += ion_system_heap.o ion_page_pool.o
++obj-$(CONFIG_ION_CARVEOUT_HEAP) += ion_carveout_heap.o
++obj-$(CONFIG_ION_CHUNK_HEAP) += ion_chunk_heap.o
+ obj-$(CONFIG_ION_CMA_HEAP) += ion_cma_heap.o
++obj-$(CONFIG_ION_CVITEK) += cvitek/
++
++ifdef CONFIG_COMPAT
++obj-$(CONFIG_ION) += compat_ion.o
++endif
+diff -urpN test-tree/drivers/staging/fbtft/Makefile milky/drivers/staging/fbtft/Makefile
+--- test-tree/drivers/staging/fbtft/Makefile	2024-05-23 20:16:41.041031687 -0400
++++ milky/drivers/staging/fbtft/Makefile	2024-04-27 21:57:44.385203073 -0400
+@@ -17,6 +17,7 @@ obj-$(CONFIG_FB_TFT_ILI9340)     += fb_i
+ obj-$(CONFIG_FB_TFT_ILI9341)     += fb_ili9341.o
+ obj-$(CONFIG_FB_TFT_ILI9481)     += fb_ili9481.o
+ obj-$(CONFIG_FB_TFT_ILI9486)     += fb_ili9486.o
++obj-$(CONFIG_FB_TFT_JD9853)      += fb_jd9853.o
+ obj-$(CONFIG_FB_TFT_PCD8544)     += fb_pcd8544.o
+ obj-$(CONFIG_FB_TFT_RA8875)      += fb_ra8875.o
+ obj-$(CONFIG_FB_TFT_S6D02A1)     += fb_s6d02a1.o
+diff -urpN test-tree/drivers/tee/Makefile milky/drivers/tee/Makefile
+--- test-tree/drivers/tee/Makefile	2024-05-23 20:16:41.141031370 -0400
++++ milky/drivers/tee/Makefile	2024-04-27 21:57:45.057200900 -0400
+@@ -3,5 +3,6 @@ obj-$(CONFIG_TEE) += tee.o
+ tee-objs += tee_core.o
+ tee-objs += tee_shm.o
+ tee-objs += tee_shm_pool.o
++obj-$(CONFIG_ARCH_CVITEK) += tee_cv_private.o
+ obj-$(CONFIG_OPTEE) += optee/
+ obj-$(CONFIG_AMDTEE) += amdtee/
+diff -urpN test-tree/drivers/thermal/Makefile milky/drivers/thermal/Makefile
+--- test-tree/drivers/thermal/Makefile	2024-05-23 20:16:41.141031370 -0400
++++ milky/drivers/thermal/Makefile	2024-04-27 21:57:45.061200887 -0400
+@@ -62,3 +62,7 @@ obj-$(CONFIG_UNIPHIER_THERMAL)	+= uniphi
+ obj-$(CONFIG_AMLOGIC_THERMAL)     += amlogic_thermal.o
+ obj-$(CONFIG_SPRD_THERMAL)	+= sprd_thermal.o
+ obj-$(CONFIG_KHADAS_MCU_FAN_THERMAL)	+= khadas_mcu_fan.o
++obj-$(CONFIG_CV181X_THERMAL)	+= cv181x_thermal.o
++obj-$(CONFIG_CV180X_THERMAL)	+= cv180x_thermal.o
++obj-$(CONFIG_CV1835_THERMAL)    += cv1835_thermal.o
++obj-$(CONFIG_CV182X_THERMAL)    += cv182x_thermal.o
+diff -urpN test-tree/drivers/usb/common/Makefile milky/drivers/usb/common/Makefile
+--- test-tree/drivers/usb/common/Makefile	2024-05-23 20:16:41.165031294 -0400
++++ milky/drivers/usb/common/Makefile	2024-04-27 21:57:45.117200705 -0400
+@@ -9,5 +9,10 @@ usb-common-$(CONFIG_TRACING)	  += debug.
+ usb-common-$(CONFIG_USB_LED_TRIG) += led.o
+ 
+ obj-$(CONFIG_USB_CONN_GPIO)	+= usb-conn-gpio.o
++ifeq ($(CONFIG_CVITEK_USB_LEGACY),y)
++usbotg-y		:= usb-otg.o usb-otg-fsm.o
++obj-$(CONFIG_USB_OTG)	+= usbotg.o
++else
+ obj-$(CONFIG_USB_OTG_FSM) += usb-otg-fsm.o
++endif
+ obj-$(CONFIG_USB_ULPI_BUS)	+= ulpi.o
+diff -urpN test-tree/drivers/usb/dwc2/Makefile milky/drivers/usb/dwc2/Makefile
+--- test-tree/drivers/usb/dwc2/Makefile	2024-05-23 20:16:41.169031280 -0400
++++ milky/drivers/usb/dwc2/Makefile	2024-04-27 21:57:45.121200692 -0400
+@@ -3,7 +3,10 @@ ccflags-$(CONFIG_USB_DWC2_DEBUG)	+= -DDE
+ ccflags-$(CONFIG_USB_DWC2_VERBOSE)	+= -DVERBOSE_DEBUG
+ 
+ obj-$(CONFIG_USB_DWC2)			+= dwc2.o
+-dwc2-y					:= core.o core_intr.o platform.o drd.o
++dwc2-y					:= core.o core_intr.o platform.o
++ifneq ($(CONFIG_USB_ROLE_SWITCH),)
++	dwc2-y				+= drd.o
++endif
+ dwc2-y					+= params.o
+ 
+ ifneq ($(filter y,$(CONFIG_USB_DWC2_HOST) $(CONFIG_USB_DWC2_DUAL_ROLE)),)
+ obj-$(CONFIG_USB_ULPI_BUS)	+= ulpi.o
+diff -urpN test-tree/drivers/video/fbdev/Makefile milky/drivers/video/fbdev/Makefile
+--- test-tree/drivers/video/fbdev/Makefile	2024-05-23 20:16:41.213031141 -0400
++++ milky/drivers/video/fbdev/Makefile	2024-04-27 21:57:45.193200460 -0400
+@@ -128,7 +128,7 @@ obj-$(CONFIG_FB_OF)               += off
+ obj-$(CONFIG_FB_MX3)		  += mx3fb.o
+ obj-$(CONFIG_FB_DA8XX)		  += da8xx-fb.o
+ obj-$(CONFIG_FB_SSD1307)	  += ssd1307fb.o
+-obj-$(CONFIG_FB_SIMPLE)           += simplefb.o
++obj-$(CONFIG_FB_SIMPLE)           += simplefb.o dc8000-fb.o
+ 
+ # the test framebuffer is last
+ obj-$(CONFIG_FB_VIRTUAL)          += vfb.o
+diff -urpN test-tree/drivers/watchdog/Makefile milky/drivers/watchdog/Makefile
+--- test-tree/drivers/watchdog/Makefile	2024-05-23 20:16:41.241031052 -0400
++++ milky/drivers/watchdog/Makefile	2024-04-27 21:57:45.245200292 -0400
+@@ -67,6 +67,7 @@ obj-$(CONFIG_STMP3XXX_RTC_WATCHDOG) += s
+ obj-$(CONFIG_TS4800_WATCHDOG) += ts4800_wdt.o
+ obj-$(CONFIG_TS72XX_WATCHDOG) += ts72xx_wdt.o
+ obj-$(CONFIG_IMX2_WDT) += imx2_wdt.o
++obj-$(CONFIG_ICE_WDT) += ice_wdt.o
+ obj-$(CONFIG_IMX_SC_WDT) += imx_sc_wdt.o
+ obj-$(CONFIG_IMX7ULP_WDT) += imx7ulp_wdt.o
+ obj-$(CONFIG_UX500_WATCHDOG) += ux500_wdt.o
+diff -urpN test-tree/scripts/kconfig/Makefile milky/scripts/kconfig/Makefile
+--- test-tree/scripts/kconfig/Makefile	2024-05-23 20:16:42.153028153 -0400
++++ milky/scripts/kconfig/Makefile	2024-04-27 21:57:47.837191909 -0400
+@@ -25,6 +25,38 @@ xconfig: $(obj)/qconf
+ gconfig: $(obj)/gconf
+ 	$(Q)$< $(silent) $(Kconfig)
+ 
++PHONY += scriptconfig iscriptconfig kmenuconfig guiconfig dumpvarsconfig setconfig
++
++PYTHONCMD ?= python
++kpython := PYTHONPATH=$(srctree)/Kconfiglib:$$PYTHONPATH $(PYTHONCMD)
++
++ifneq ($(filter scriptconfig,$(MAKECMDGOALS)),)
++ifndef SCRIPT
++$(error Use "make scriptconfig SCRIPT=<path to script> [SCRIPT_ARG=<argument>]")
++endif
++endif
++
++scriptconfig:
++	$(Q)$(kpython) $(SCRIPT) $(Kconfig) $(if $(SCRIPT_ARG),"$(SCRIPT_ARG)")
++
++setconfig:
++	$(Q)$(kpython) $(srctree)/Kconfiglib/setconfig.py --kconfig $(Kconfig) $(SCRIPT_ARG)
++
++iscriptconfig:
++	$(Q)$(kpython) -i -c \
++	  "import kconfiglib; \
++	   kconf = kconfiglib.Kconfig('$(Kconfig)'); \
++	   print('A Kconfig instance \'kconf\' for the architecture $(ARCH) has been created.')"
++
++kmenuconfig:
++	$(Q)$(kpython) $(srctree)/Kconfiglib/menuconfig.py $(Kconfig)
++
++guiconfig:
++	$(Q)$(kpython) $(srctree)/Kconfiglib/guiconfig.py $(Kconfig)
++
++dumpvarsconfig:
++	$(Q)$(kpython) $(srctree)/Kconfiglib/examples/dumpvars.py $(Kconfig)
++
+ menuconfig: $(obj)/mconf
+ 	$(Q)$< $(silent) $(Kconfig)
+ 
+diff -urpN test-tree/sound/soc/Makefile milky/sound/soc/Makefile
+--- test-tree/sound/soc/Makefile	2024-05-23 20:16:42.217027949 -0400
++++ milky/sound/soc/Makefile	2024-04-27 21:57:47.893191727 -0400
+@@ -30,6 +30,7 @@ obj-$(CONFIG_SND_SOC)	+= atmel/
+ obj-$(CONFIG_SND_SOC)	+= au1x/
+ obj-$(CONFIG_SND_SOC)	+= bcm/
+ obj-$(CONFIG_SND_SOC)	+= cirrus/
++obj-$(CONFIG_SND_SOC)	+= cvitek/
+ obj-$(CONFIG_SND_SOC)	+= dwc/
+ obj-$(CONFIG_SND_SOC)	+= fsl/
+ obj-$(CONFIG_SND_SOC)	+= hisilicon/
+diff -urpN test-tree/tools/spi/Makefile milky/tools/spi/Makefile
+--- test-tree/tools/spi/Makefile	2024-05-23 20:16:42.397027377 -0400
++++ milky/tools/spi/Makefile	2024-04-27 21:57:48.777188868 -0400
+@@ -12,7 +12,7 @@ endif
+ # (this improves performance and avoids hard-to-debug behaviour);
+ MAKEFLAGS += -r
+ 
+-CFLAGS += -O2 -Wall -g -D_GNU_SOURCE -I$(OUTPUT)include
++CFLAGS += -O2 -Wall -static -g -D_GNU_SOURCE -I$(OUTPUT)include
+ 
+ ALL_TARGETS := spidev_test spidev_fdx
+ ALL_PROGRAMS := $(patsubst %,$(OUTPUT)%,$(ALL_TARGETS))
+diff -urpN test-tree/tools/testing/selftests/android/ion/Makefile milky/tools/testing/selftests/android/ion/Makefile
+--- test-tree/tools/testing/selftests/android/ion/Makefile	2024-05-23 20:16:42.405027351 -0400
++++ milky/tools/testing/selftests/android/ion/Makefile	2024-04-27 21:57:48.781188856 -0400
+@@ -3,7 +3,7 @@
+ INCLUDEDIR := -I. -I../../../../../drivers/staging/android/uapi/ -I../../../../../usr/include/
+ CFLAGS := $(CFLAGS) $(INCLUDEDIR) -Wall -O2 -g
+ 
+-TEST_GEN_FILES := ionapp_export ionapp_import ionmap_test
++TEST_GEN_FILES := ionapp_export ionapp_import ionmap_test iongetsize_test
+ 
+ all: $(TEST_GEN_FILES)
+ 
+@@ -18,3 +18,4 @@ include ../../lib.mk
+ $(OUTPUT)/ionapp_export: ionapp_export.c ipcsocket.c ionutils.c
+ $(OUTPUT)/ionapp_import: ionapp_import.c ipcsocket.c ionutils.c
+ $(OUTPUT)/ionmap_test: ionmap_test.c ionutils.c ipcsocket.c
++$(OUTPUT)/iongetsize_test: iongetsize_test.c
+\ No newline at end of file

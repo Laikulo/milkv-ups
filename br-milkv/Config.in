@@ -1,8 +1,12 @@
-
+# Packages provided by milk-v explicitly
 source "$BR2_EXTERNAL_MILKV_PATH/package/cmatrix/Config.in"
 source "$BR2_EXTERNAL_MILKV_PATH/package/cvi-pinmux/Config.in"
 source "$BR2_EXTERNAL_MILKV_PATH/package/duo-pinmux/Config.in"
 source "$BR2_EXTERNAL_MILKV_PATH/package/ncnn/Config.in"
-source "$BR2_EXTERNAL_MILKV_PATH/package/python-evdev/Config.in"
 source "$BR2_EXTERNAL_MILKV_PATH/package/python-freetype/Config.in"
 source "$BR2_EXTERNAL_MILKV_PATH/package/python-pinpong/Config.in"
+# Now in upstream buildroot
+source "$BR2_EXTERNAL_MILKV_PATH/package/python-evdev/Config.in"
+
+# Packages extracted from SDK
+source "$BR2_EXTERNAL_MILKV_PATH/package/milkvkernel/Config.in"
