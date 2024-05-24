@@ -1,0 +1,2631 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv1/inc/abi/ckmmu.h milky/arch/csky/abiv1/inc/abi/ckmmu.h
+--- test-tree/arch/csky/abiv1/inc/abi/ckmmu.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv1/inc/abi/ckmmu.h	2024-05-21 05:22:27.000000000 -0400
+@@ -89,13 +89,14 @@ static inline void tlb_invalid_indexed(v
+ 	cpwcr("cpcr8", 0x02000000);
+ }
+ 
+-static inline void setup_pgd(unsigned long pgd, bool kernel)
++static inline void setup_pgd(pgd_t *pgd, int asid)
+ {
+-	cpwcr("cpcr29", pgd | BIT(0));
++	cpwcr("cpcr29", __pa(pgd) | BIT(0));
++	write_mmu_entryhi(asid);
+ }
+ 
+-static inline unsigned long get_pgd(void)
++static inline pgd_t *get_pgd(void)
+ {
+-	return cprcr("cpcr29") & ~BIT(0);
++	return __va(cprcr("cpcr29") & ~BIT(0));
+ }
+ #endif /* __ASM_CSKY_CKMMUV1_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv1/inc/abi/pgtable-bits.h milky/arch/csky/abiv1/inc/abi/pgtable-bits.h
+--- test-tree/arch/csky/abiv1/inc/abi/pgtable-bits.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv1/inc/abi/pgtable-bits.h	2024-05-21 05:22:27.000000000 -0400
+@@ -5,33 +5,46 @@
+ #define __ASM_CSKY_PGTABLE_BITS_H
+ 
+ /* implemented in software */
+-#define _PAGE_ACCESSED		(1<<3)
+-#define PAGE_ACCESSED_BIT	(3)
+-
++#define _PAGE_PRESENT		(1<<0)
+ #define _PAGE_READ		(1<<1)
+ #define _PAGE_WRITE		(1<<2)
+-#define _PAGE_PRESENT		(1<<0)
+-
++#define _PAGE_ACCESSED		(1<<3)
+ #define _PAGE_MODIFIED		(1<<4)
+-#define PAGE_MODIFIED_BIT	(4)
+ 
+ /* implemented in hardware */
+ #define _PAGE_GLOBAL		(1<<6)
+-
+ #define _PAGE_VALID		(1<<7)
+-#define PAGE_VALID_BIT		(7)
+-
+ #define _PAGE_DIRTY		(1<<8)
+-#define PAGE_DIRTY_BIT		(8)
+ 
+ #define _PAGE_CACHE		(3<<9)
+ #define _PAGE_UNCACHE		(2<<9)
+ #define _PAGE_SO		_PAGE_UNCACHE
+-
+ #define _CACHE_MASK		(7<<9)
+ 
+-#define _CACHE_CACHED		(_PAGE_VALID | _PAGE_CACHE)
+-#define _CACHE_UNCACHED		(_PAGE_VALID | _PAGE_UNCACHE)
++#define _CACHE_CACHED		_PAGE_CACHE
++#define _CACHE_UNCACHED		_PAGE_UNCACHE
++
++#define _PAGE_PROT_NONE		_PAGE_READ
++
++/*
++ * Encode and decode a swap entry
++ *
++ * Format of swap PTE:
++ *     bit          0:    _PAGE_PRESENT (zero)
++ *     bit          1:    _PAGE_READ (zero)
++ *     bit      2 - 5:    swap type[0 - 3]
++ *     bit          6:    _PAGE_GLOBAL (zero)
++ *     bit          7:    _PAGE_VALID (zero)
++ *     bit          8:    swap type[4]
++ *     bit     9 - 31:    swap offset
++ */
++#define __swp_type(x)			((((x).val >> 2) & 0xf) | \
++					(((x).val >> 4) & 0x10))
++#define __swp_offset(x)			((x).val >> 9)
++#define __swp_entry(type, offset)	((swp_entry_t) { \
++					((type & 0xf) << 2) | \
++					((type & 0x10) << 4) | \
++					((offset) << 9)})
+ 
+ #define HAVE_ARCH_UNMAPPED_AREA
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv1/inc/abi/regdef.h milky/arch/csky/abiv1/inc/abi/regdef.h
+--- test-tree/arch/csky/abiv1/inc/abi/regdef.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv1/inc/abi/regdef.h	2024-05-21 05:22:27.000000000 -0400
+@@ -4,7 +4,12 @@
+ #ifndef __ASM_CSKY_REGDEF_H
+ #define __ASM_CSKY_REGDEF_H
+ 
++#ifdef __ASSEMBLY__
+ #define syscallid	r1
++#else
++#define syscallid	"r1"
++#endif
++
+ #define regs_syscallid(regs) regs->regs[9]
+ #define regs_fp(regs) regs->regs[2]
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv1/inc/abi/vdso.h milky/arch/csky/abiv1/inc/abi/vdso.h
+--- test-tree/arch/csky/abiv1/inc/abi/vdso.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv1/inc/abi/vdso.h	2024-05-21 05:22:27.000000000 -0400
+@@ -1,17 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ 
+-#include <linux/uaccess.h>
++#ifndef __ABI_CSKY_VDSO_H
++#define __ABI_CSKY_VDSO_H
+ 
+-static inline int setup_vdso_page(unsigned short *ptr)
+-{
+-	int err = 0;
++/* movi r1, 127; addi r1, (139 - 127) */
++#define SET_SYSCALL_ID	.long 0x20b167f1
+ 
+-	/* movi r1, 127 */
+-	err |= __put_user(0x67f1, ptr + 0);
+-	/* addi r1, (139 - 127) */
+-	err |= __put_user(0x20b1, ptr + 1);
+-	/* trap 0 */
+-	err |= __put_user(0x0008, ptr + 2);
+-
+-	return err;
+-}
++#endif /* __ABI_CSKY_VDSO_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv2/cacheflush.c milky/arch/csky/abiv2/cacheflush.c
+--- test-tree/arch/csky/abiv2/cacheflush.c	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv2/cacheflush.c	2024-05-21 05:22:27.000000000 -0400
+@@ -12,6 +12,9 @@ void update_mmu_cache(struct vm_area_str
+ 	unsigned long addr;
+ 	struct page *page;
+ 
++	if (!pfn_valid(pte_pfn(*pte)))
++		return;
++
+ 	page = pfn_to_page(pte_pfn(*pte));
+ 	if (page == ZERO_PAGE(0))
+ 		return;
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv2/inc/abi/ckmmu.h milky/arch/csky/abiv2/inc/abi/ckmmu.h
+--- test-tree/arch/csky/abiv2/inc/abi/ckmmu.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv2/inc/abi/ckmmu.h	2024-05-21 05:22:27.000000000 -0400
+@@ -78,8 +78,13 @@ static inline void tlb_read(void)
+ static inline void tlb_invalid_all(void)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.alls\n":::"memory");
+ 	sync_is();
++	asm volatile(
++		"tlbi.alls	\n"
++		"sync.i		\n"
++		:
++		:
++		: "memory");
+ #else
+ 	mtcr("cr<8, 15>", 0x04000000);
+ #endif
+@@ -88,8 +93,13 @@ static inline void tlb_invalid_all(void)
+ static inline void local_tlb_invalid_all(void)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.all\n":::"memory");
+ 	sync_is();
++	asm volatile(
++		"tlbi.all	\n"
++		"sync.i		\n"
++		:
++		:
++		: "memory");
+ #else
+ 	tlb_invalid_all();
+ #endif
+@@ -100,16 +110,31 @@ static inline void tlb_invalid_indexed(v
+ 	mtcr("cr<8, 15>", 0x02000000);
+ }
+ 
+-static inline void setup_pgd(unsigned long pgd, bool kernel)
++#define NOP32 ".long 0x4820c400\n"
++
++static inline void setup_pgd(pgd_t *pgd, int asid)
+ {
+-	if (kernel)
+-		mtcr("cr<28, 15>", pgd | BIT(0));
+-	else
+-		mtcr("cr<29, 15>", pgd | BIT(0));
++#ifdef CONFIG_CPU_HAS_TLBI
++	sync_is();
++#else
++	mb();
++#endif
++	asm volatile(
++#ifdef CONFIG_CPU_HAS_TLBI
++		"mtcr %1, cr<28, 15>	\n"
++#endif
++		"mtcr %1, cr<29, 15>	\n"
++		"mtcr %0, cr< 4, 15>	\n"
++		".rept 64		\n"
++		NOP32
++		".endr			\n"
++		:
++		:"r"(asid), "r"(__pa(pgd) | BIT(0))
++		:"memory");
+ }
+ 
+-static inline unsigned long get_pgd(void)
++static inline pgd_t *get_pgd(void)
+ {
+-	return mfcr("cr<29, 15>") & ~BIT(0);
++	return __va(mfcr("cr<29, 15>") & ~BIT(0));
+ }
+ #endif /* __ASM_CSKY_CKMMUV2_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv2/inc/abi/entry.h milky/arch/csky/abiv2/inc/abi/entry.h
+--- test-tree/arch/csky/abiv2/inc/abi/entry.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv2/inc/abi/entry.h	2024-05-21 05:22:27.000000000 -0400
+@@ -26,6 +26,9 @@
+ 	stw	tls, (sp, 0)
+ 	stw	lr, (sp, 4)
+ 
++	RD_MEH	lr
++	WR_MEH	lr
++
+ 	mfcr	lr, epc
+ 	movi	tls, \epc_inc
+ 	add	lr, tls
+@@ -231,6 +234,16 @@
+ 	mtcr	\rx, cr<8, 15>
+ .endm
+ 
++#ifdef CONFIG_PAGE_OFFSET_80000000
++#define MSA_SET cr<30, 15>
++#define MSA_CLR cr<31, 15>
++#endif
++
++#ifdef CONFIG_PAGE_OFFSET_A0000000
++#define MSA_SET cr<31, 15>
++#define MSA_CLR cr<30, 15>
++#endif
++
+ .macro SETUP_MMU
+ 	/* Init psr and enable ee */
+ 	lrw	r6, DEFAULT_PSR_VALUE
+@@ -281,15 +294,15 @@
+ 	 * 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+ 	 *   BA     Reserved  SH  WA  B   SO SEC  C   D   V
+ 	 */
+-	mfcr	r6, cr<30, 15> /* Get MSA0 */
++	mfcr	r6, MSA_SET /* Get MSA */
+ 2:
+ 	lsri	r6, 29
+ 	lsli	r6, 29
+ 	addi	r6, 0x1ce
+-	mtcr	r6, cr<30, 15> /* Set MSA0 */
++	mtcr	r6, MSA_SET /* Set MSA */
+ 
+ 	movi    r6, 0
+-	mtcr	r6, cr<31, 15> /* Clr MSA1 */
++	mtcr	r6, MSA_CLR /* Clr MSA */
+ 
+ 	/* enable MMU */
+ 	mfcr    r6, cr18
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv2/inc/abi/pgtable-bits.h milky/arch/csky/abiv2/inc/abi/pgtable-bits.h
+--- test-tree/arch/csky/abiv2/inc/abi/pgtable-bits.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv2/inc/abi/pgtable-bits.h	2024-05-21 05:22:27.000000000 -0400
+@@ -6,32 +6,44 @@
+ 
+ /* implemented in software */
+ #define _PAGE_ACCESSED		(1<<7)
+-#define PAGE_ACCESSED_BIT	(7)
+-
+ #define _PAGE_READ		(1<<8)
+ #define _PAGE_WRITE		(1<<9)
+ #define _PAGE_PRESENT		(1<<10)
+-
+ #define _PAGE_MODIFIED		(1<<11)
+-#define PAGE_MODIFIED_BIT	(11)
+ 
+ /* implemented in hardware */
+ #define _PAGE_GLOBAL		(1<<0)
+-
+ #define _PAGE_VALID		(1<<1)
+-#define PAGE_VALID_BIT		(1)
+-
+ #define _PAGE_DIRTY		(1<<2)
+-#define PAGE_DIRTY_BIT		(2)
+ 
+ #define _PAGE_SO		(1<<5)
+ #define _PAGE_BUF		(1<<6)
+-
+ #define _PAGE_CACHE		(1<<3)
+-
+ #define _CACHE_MASK		_PAGE_CACHE
+ 
+-#define _CACHE_CACHED		(_PAGE_VALID | _PAGE_CACHE | _PAGE_BUF)
+-#define _CACHE_UNCACHED		(_PAGE_VALID)
++#define _CACHE_CACHED		(_PAGE_CACHE | _PAGE_BUF)
++#define _CACHE_UNCACHED		(0)
++
++#define _PAGE_PROT_NONE		_PAGE_WRITE
++
++/*
++ * Encode and decode a swap entry
++ *
++ * Format of swap PTE:
++ *     bit          0:    _PAGE_GLOBAL (zero)
++ *     bit          1:    _PAGE_VALID (zero)
++ *     bit      2 - 6:    swap type
++ *     bit      7 - 8:    swap offset[0 - 1]
++ *     bit          9:    _PAGE_WRITE (zero)
++ *     bit         10:    _PAGE_PRESENT (zero)
++ *     bit    11 - 31:    swap offset[2 - 22]
++ */
++#define __swp_type(x)			(((x).val >> 2) & 0x1f)
++#define __swp_offset(x)			((((x).val >> 7) & 0x3) | \
++					(((x).val >> 9) & 0x7ffffc))
++#define __swp_entry(type, offset)	((swp_entry_t) { \
++					((type & 0x1f) << 2) | \
++					((offset & 0x3) << 7) | \
++					((offset & 0x7ffffc) << 9)})
+ 
+ #endif /* __ASM_CSKY_PGTABLE_BITS_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv2/inc/abi/regdef.h milky/arch/csky/abiv2/inc/abi/regdef.h
+--- test-tree/arch/csky/abiv2/inc/abi/regdef.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv2/inc/abi/regdef.h	2024-05-21 05:22:27.000000000 -0400
+@@ -4,7 +4,12 @@
+ #ifndef __ASM_CSKY_REGDEF_H
+ #define __ASM_CSKY_REGDEF_H
+ 
++#ifdef __ASSEMBLY__
+ #define syscallid	r7
++#else
++#define syscallid	"r7"
++#endif
++
+ #define regs_syscallid(regs) regs->regs[3]
+ #define regs_fp(regs) regs->regs[4]
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/abiv2/inc/abi/vdso.h milky/arch/csky/abiv2/inc/abi/vdso.h
+--- test-tree/arch/csky/abiv2/inc/abi/vdso.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/abiv2/inc/abi/vdso.h	2024-05-21 05:22:27.000000000 -0400
+@@ -3,21 +3,7 @@
+ #ifndef __ABI_CSKY_VDSO_H
+ #define __ABI_CSKY_VDSO_H
+ 
+-#include <linux/uaccess.h>
++/* movi r7, 173 */
++#define SET_SYSCALL_ID	.long 0x008bea07
+ 
+-static inline int setup_vdso_page(unsigned short *ptr)
+-{
+-	int err = 0;
+-
+-	/* movi r7, 173 */
+-	err |= __put_user(0xea07, ptr);
+-	err |= __put_user(0x008b,      ptr+1);
+-
+-	/* trap 0 */
+-	err |= __put_user(0xc000,   ptr+2);
+-	err |= __put_user(0x2020,   ptr+3);
+-
+-	return err;
+-}
+-
+-#endif /* __ABI_CSKY_STRING_H */
++#endif /* __ABI_CSKY_VDSO_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/atomic.h milky/arch/csky/include/asm/atomic.h
+--- test-tree/arch/csky/include/asm/atomic.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/include/asm/atomic.h	1969-12-31 19:00:00.000000000 -0500
+@@ -1,212 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-
+-#ifndef __ASM_CSKY_ATOMIC_H
+-#define __ASM_CSKY_ATOMIC_H
+-
+-#include <linux/version.h>
+-#include <asm/cmpxchg.h>
+-#include <asm/barrier.h>
+-
+-#ifdef CONFIG_CPU_HAS_LDSTEX
+-
+-#define __atomic_add_unless __atomic_add_unless
+-static inline int __atomic_add_unless(atomic_t *v, int a, int u)
+-{
+-	unsigned long tmp, ret;
+-
+-	smp_mb();
+-
+-	asm volatile (
+-	"1:	ldex.w		%0, (%3) \n"
+-	"	mov		%1, %0   \n"
+-	"	cmpne		%0, %4   \n"
+-	"	bf		2f	 \n"
+-	"	add		%0, %2   \n"
+-	"	stex.w		%0, (%3) \n"
+-	"	bez		%0, 1b   \n"
+-	"2:				 \n"
+-		: "=&r" (tmp), "=&r" (ret)
+-		: "r" (a), "r"(&v->counter), "r"(u)
+-		: "memory");
+-
+-	if (ret != u)
+-		smp_mb();
+-
+-	return ret;
+-}
+-
+-#define ATOMIC_OP(op, c_op)						\
+-static inline void atomic_##op(int i, atomic_t *v)			\
+-{									\
+-	unsigned long tmp;						\
+-									\
+-	asm volatile (							\
+-	"1:	ldex.w		%0, (%2) \n"				\
+-	"	" #op "		%0, %1   \n"				\
+-	"	stex.w		%0, (%2) \n"				\
+-	"	bez		%0, 1b   \n"				\
+-		: "=&r" (tmp)						\
+-		: "r" (i), "r"(&v->counter)				\
+-		: "memory");						\
+-}
+-
+-#define ATOMIC_OP_RETURN(op, c_op)					\
+-static inline int atomic_##op##_return(int i, atomic_t *v)		\
+-{									\
+-	unsigned long tmp, ret;						\
+-									\
+-	smp_mb();							\
+-	asm volatile (							\
+-	"1:	ldex.w		%0, (%3) \n"				\
+-	"	" #op "		%0, %2   \n"				\
+-	"	mov		%1, %0   \n"				\
+-	"	stex.w		%0, (%3) \n"				\
+-	"	bez		%0, 1b   \n"				\
+-		: "=&r" (tmp), "=&r" (ret)				\
+-		: "r" (i), "r"(&v->counter)				\
+-		: "memory");						\
+-	smp_mb();							\
+-									\
+-	return ret;							\
+-}
+-
+-#define ATOMIC_FETCH_OP(op, c_op)					\
+-static inline int atomic_fetch_##op(int i, atomic_t *v)			\
+-{									\
+-	unsigned long tmp, ret;						\
+-									\
+-	smp_mb();							\
+-	asm volatile (							\
+-	"1:	ldex.w		%0, (%3) \n"				\
+-	"	mov		%1, %0   \n"				\
+-	"	" #op "		%0, %2   \n"				\
+-	"	stex.w		%0, (%3) \n"				\
+-	"	bez		%0, 1b   \n"				\
+-		: "=&r" (tmp), "=&r" (ret)				\
+-		: "r" (i), "r"(&v->counter)				\
+-		: "memory");						\
+-	smp_mb();							\
+-									\
+-	return ret;							\
+-}
+-
+-#else /* CONFIG_CPU_HAS_LDSTEX */
+-
+-#include <linux/irqflags.h>
+-
+-#define __atomic_add_unless __atomic_add_unless
+-static inline int __atomic_add_unless(atomic_t *v, int a, int u)
+-{
+-	unsigned long tmp, ret, flags;
+-
+-	raw_local_irq_save(flags);
+-
+-	asm volatile (
+-	"	ldw		%0, (%3) \n"
+-	"	mov		%1, %0   \n"
+-	"	cmpne		%0, %4   \n"
+-	"	bf		2f	 \n"
+-	"	add		%0, %2   \n"
+-	"	stw		%0, (%3) \n"
+-	"2:				 \n"
+-		: "=&r" (tmp), "=&r" (ret)
+-		: "r" (a), "r"(&v->counter), "r"(u)
+-		: "memory");
+-
+-	raw_local_irq_restore(flags);
+-
+-	return ret;
+-}
+-
+-#define ATOMIC_OP(op, c_op)						\
+-static inline void atomic_##op(int i, atomic_t *v)			\
+-{									\
+-	unsigned long tmp, flags;					\
+-									\
+-	raw_local_irq_save(flags);					\
+-									\
+-	asm volatile (							\
+-	"	ldw		%0, (%2) \n"				\
+-	"	" #op "		%0, %1   \n"				\
+-	"	stw		%0, (%2) \n"				\
+-		: "=&r" (tmp)						\
+-		: "r" (i), "r"(&v->counter)				\
+-		: "memory");						\
+-									\
+-	raw_local_irq_restore(flags);					\
+-}
+-
+-#define ATOMIC_OP_RETURN(op, c_op)					\
+-static inline int atomic_##op##_return(int i, atomic_t *v)		\
+-{									\
+-	unsigned long tmp, ret, flags;					\
+-									\
+-	raw_local_irq_save(flags);					\
+-									\
+-	asm volatile (							\
+-	"	ldw		%0, (%3) \n"				\
+-	"	" #op "		%0, %2   \n"				\
+-	"	stw		%0, (%3) \n"				\
+-	"	mov		%1, %0   \n"				\
+-		: "=&r" (tmp), "=&r" (ret)				\
+-		: "r" (i), "r"(&v->counter)				\
+-		: "memory");						\
+-									\
+-	raw_local_irq_restore(flags);					\
+-									\
+-	return ret;							\
+-}
+-
+-#define ATOMIC_FETCH_OP(op, c_op)					\
+-static inline int atomic_fetch_##op(int i, atomic_t *v)			\
+-{									\
+-	unsigned long tmp, ret, flags;					\
+-									\
+-	raw_local_irq_save(flags);					\
+-									\
+-	asm volatile (							\
+-	"	ldw		%0, (%3) \n"				\
+-	"	mov		%1, %0   \n"				\
+-	"	" #op "		%0, %2   \n"				\
+-	"	stw		%0, (%3) \n"				\
+-		: "=&r" (tmp), "=&r" (ret)				\
+-		: "r" (i), "r"(&v->counter)				\
+-		: "memory");						\
+-									\
+-	raw_local_irq_restore(flags);					\
+-									\
+-	return ret;							\
+-}
+-
+-#endif /* CONFIG_CPU_HAS_LDSTEX */
+-
+-#define atomic_add_return atomic_add_return
+-ATOMIC_OP_RETURN(add, +)
+-#define atomic_sub_return atomic_sub_return
+-ATOMIC_OP_RETURN(sub, -)
+-
+-#define atomic_fetch_add atomic_fetch_add
+-ATOMIC_FETCH_OP(add, +)
+-#define atomic_fetch_sub atomic_fetch_sub
+-ATOMIC_FETCH_OP(sub, -)
+-#define atomic_fetch_and atomic_fetch_and
+-ATOMIC_FETCH_OP(and, &)
+-#define atomic_fetch_or atomic_fetch_or
+-ATOMIC_FETCH_OP(or, |)
+-#define atomic_fetch_xor atomic_fetch_xor
+-ATOMIC_FETCH_OP(xor, ^)
+-
+-#define atomic_and atomic_and
+-ATOMIC_OP(and, &)
+-#define atomic_or atomic_or
+-ATOMIC_OP(or, |)
+-#define atomic_xor atomic_xor
+-ATOMIC_OP(xor, ^)
+-
+-#undef ATOMIC_FETCH_OP
+-#undef ATOMIC_OP_RETURN
+-#undef ATOMIC_OP
+-
+-#include <asm-generic/atomic.h>
+-
+-#endif /* __ASM_CSKY_ATOMIC_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/barrier.h milky/arch/csky/include/asm/barrier.h
+--- test-tree/arch/csky/include/asm/barrier.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/include/asm/barrier.h	2024-05-21 05:22:27.000000000 -0400
+@@ -8,6 +8,61 @@
+ 
+ #define nop()	asm volatile ("nop\n":::"memory")
+ 
++#ifdef CONFIG_SMP
++
++/*
++ * bar.brwarws: ordering barrier for all load/store instructions
++ *              before/after
++ *
++ * |31|30 26|25 21|20 16|15  10|9   5|4           0|
++ *  1  10000 00000 00000 100001	00001 0 bw br aw ar
++ *
++ * b: before
++ * a: after
++ * r: read
++ * w: write
++ *
++ * Here are all combinations:
++ *
++ * bar.brw
++ * bar.br
++ * bar.bw
++ * bar.arw
++ * bar.ar
++ * bar.aw
++ * bar.brwarw
++ * bar.brarw
++ * bar.bwarw
++ * bar.brwar
++ * bar.brwaw
++ * bar.brar
++ * bar.bwaw
++ */
++#define __bar_brw()	asm volatile (".long 0x842cc000\n":::"memory")
++#define __bar_br()	asm volatile (".long 0x8424c000\n":::"memory")
++#define __bar_bw()	asm volatile (".long 0x8428c000\n":::"memory")
++#define __bar_arw()	asm volatile (".long 0x8423c000\n":::"memory")
++#define __bar_ar()	asm volatile (".long 0x8421c000\n":::"memory")
++#define __bar_aw()	asm volatile (".long 0x8422c000\n":::"memory")
++#define __bar_brwarw()	asm volatile (".long 0x842fc000\n":::"memory")
++#define __bar_brarw()	asm volatile (".long 0x8427c000\n":::"memory")
++#define __bar_bwarw()	asm volatile (".long 0x842bc000\n":::"memory")
++#define __bar_brwar()	asm volatile (".long 0x842dc000\n":::"memory")
++#define __bar_brwaw()	asm volatile (".long 0x842ec000\n":::"memory")
++#define __bar_brar()	asm volatile (".long 0x8425c000\n":::"memory")
++#define __bar_brar()	asm volatile (".long 0x8425c000\n":::"memory")
++#define __bar_bwaw()	asm volatile (".long 0x842ac000\n":::"memory")
++
++#define __smp_mb()	__bar_brwarw()
++#define __smp_rmb()	__bar_brar()
++#define __smp_wmb()	__bar_bwaw()
++
++#define ACQUIRE_FENCE		".long 0x8427c000\n"
++#define __smp_acquire_fence()	__bar_brarw()
++#define __smp_release_fence()	__bar_brwaw()
++
++#endif /* CONFIG_SMP */
++
+ /*
+  * sync:        completion barrier, all sync.xx instructions
+  *              guarantee the last response recieved by bus transaction
+@@ -15,31 +70,14 @@
+  * sync.s:      inherit from sync, but also shareable to other cores
+  * sync.i:      inherit from sync, but also flush cpu pipeline
+  * sync.is:     the same with sync.i + sync.s
+- *
+- * bar.brwarw:  ordering barrier for all load/store instructions before it
+- * bar.brwarws: ordering barrier for all load/store instructions before it
+- *						and shareable to other cores
+- * bar.brar:    ordering barrier for all load       instructions before it
+- * bar.brars:   ordering barrier for all load       instructions before it
+- *						and shareable to other cores
+- * bar.bwaw:    ordering barrier for all store      instructions before it
+- * bar.bwaws:   ordering barrier for all store      instructions before it
+- *						and shareable to other cores
+  */
++#define mb()		asm volatile ("sync\n":::"memory")
+ 
+ #ifdef CONFIG_CPU_HAS_CACHEV2
+-#define mb()		asm volatile ("sync.s\n":::"memory")
+-
+-#ifdef CONFIG_SMP
+-#define __smp_mb()	asm volatile ("bar.brwarws\n":::"memory")
+-#define __smp_rmb()	asm volatile ("bar.brars\n":::"memory")
+-#define __smp_wmb()	asm volatile ("bar.bwaws\n":::"memory")
+-#endif /* CONFIG_SMP */
+-
+-#define sync_is()	asm volatile ("sync.is\n":::"memory")
+-
+-#else /* !CONFIG_CPU_HAS_CACHEV2 */
+-#define mb()		asm volatile ("sync\n":::"memory")
++/*
++ * Using three sync.is to prevent speculative PTW
++ */
++#define sync_is()	asm volatile ("sync.is\nsync.is\nsync.is\n":::"memory")
+ #endif
+ 
+ #include <asm-generic/barrier.h>
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/bug.h milky/arch/csky/include/asm/bug.h
+--- test-tree/arch/csky/include/asm/bug.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/include/asm/bug.h	2024-05-21 05:22:27.000000000 -0400
+@@ -21,6 +21,8 @@ do {					\
+ struct pt_regs;
+ 
+ void die(struct pt_regs *regs, const char *str);
++void do_trap(struct pt_regs *regs, int signo, int code, unsigned long addr);
++
+ void show_regs(struct pt_regs *regs);
+ void show_code(struct pt_regs *regs);
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/cmpxchg.h milky/arch/csky/include/asm/cmpxchg.h
+--- test-tree/arch/csky/include/asm/cmpxchg.h	2024-05-24 09:21:48.386277568 -0400
++++ milky/arch/csky/include/asm/cmpxchg.h	2024-05-21 05:22:27.000000000 -0400
+@@ -3,12 +3,12 @@
+ #ifndef __ASM_CSKY_CMPXCHG_H
+ #define __ASM_CSKY_CMPXCHG_H
+ 
+-#ifdef CONFIG_CPU_HAS_LDSTEX
++#ifdef CONFIG_SMP
+ #include <asm/barrier.h>
+ 
+ extern void __bad_xchg(void);
+ 
+-#define __xchg(new, ptr, size)					\
++#define __xchg_relaxed(new, ptr, size)				\
+ ({								\
+ 	__typeof__(ptr) __ptr = (ptr);				\
+ 	__typeof__(new) __new = (new);				\
+@@ -16,7 +16,6 @@ extern void __bad_xchg(void);
+ 	unsigned long tmp;					\
+ 	switch (size) {						\
+ 	case 4:							\
+-		smp_mb();					\
+ 		asm volatile (					\
+ 		"1:	ldex.w		%0, (%3) \n"		\
+ 		"	mov		%1, %2   \n"		\
+@@ -25,7 +24,6 @@ extern void __bad_xchg(void);
+ 			: "=&r" (__ret), "=&r" (tmp)		\
+ 			: "r" (__new), "r"(__ptr)		\
+ 			:);					\
+-		smp_mb();					\
+ 		break;						\
+ 	default:						\
+ 		__bad_xchg();					\
+@@ -33,9 +31,10 @@ extern void __bad_xchg(void);
+ 	__ret;							\
+ })
+ 
+-#define xchg(ptr, x)	(__xchg((x), (ptr), sizeof(*(ptr))))
++#define xchg_relaxed(ptr, x) \
++		(__xchg_relaxed((x), (ptr), sizeof(*(ptr))))
+ 
+-#define __cmpxchg(ptr, old, new, size)				\
++#define __cmpxchg_relaxed(ptr, old, new, size)			\
+ ({								\
+ 	__typeof__(ptr) __ptr = (ptr);				\
+ 	__typeof__(new) __new = (new);				\
+@@ -44,7 +43,6 @@ extern void __bad_xchg(void);
+ 	__typeof__(*(ptr)) __ret;				\
+ 	switch (size) {						\
+ 	case 4:							\
+-		smp_mb();					\
+ 		asm volatile (					\
+ 		"1:	ldex.w		%0, (%3) \n"		\
+ 		"	cmpne		%0, %4   \n"		\
+@@ -56,7 +54,6 @@ extern void __bad_xchg(void);
+ 			: "=&r" (__ret), "=&r" (__tmp)		\
+ 			: "r" (__new), "r"(__ptr), "r"(__old)	\
+ 			:);					\
+-		smp_mb();					\
+ 		break;						\
+ 	default:						\
+ 		__bad_xchg();					\
+@@ -64,8 +61,18 @@ extern void __bad_xchg(void);
+ 	__ret;							\
+ })
+ 
+-#define cmpxchg(ptr, o, n) \
+-	(__cmpxchg((ptr), (o), (n), sizeof(*(ptr))))
++#define cmpxchg_relaxed(ptr, o, n) \
++	(__cmpxchg_relaxed((ptr), (o), (n), sizeof(*(ptr))))
++
++#define cmpxchg(ptr, o, n) 					\
++({								\
++	__typeof__(*(ptr)) __ret;				\
++	__smp_release_fence();					\
++	__ret = cmpxchg_relaxed(ptr, o, n);			\
++	__smp_acquire_fence();					\
++	__ret;							\
++})
++
+ #else
+ #include <asm-generic/cmpxchg.h>
+ #endif
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/memory.h milky/arch/csky/include/asm/memory.h
+--- test-tree/arch/csky/include/asm/memory.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/memory.h	2024-05-21 05:22:27.000000000 -0400
+@@ -10,7 +10,7 @@
+ 
+ #define FIXADDR_TOP	_AC(0xffffc000, UL)
+ #define PKMAP_BASE	_AC(0xff800000, UL)
+-#define VMALLOC_START	_AC(0xc0008000, UL)
++#define VMALLOC_START	(PAGE_OFFSET + LOWMEM_LIMIT + (PAGE_SIZE * 8))
+ #define VMALLOC_END	(PKMAP_BASE - (PAGE_SIZE * 2))
+ 
+ #ifdef CONFIG_HAVE_TCM
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/mmu_context.h milky/arch/csky/include/asm/mmu_context.h
+--- test-tree/arch/csky/include/asm/mmu_context.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/mmu_context.h	2024-05-21 05:22:27.000000000 -0400
+@@ -14,12 +14,6 @@
+ #include <linux/sched.h>
+ #include <abi/ckmmu.h>
+ 
+-#define TLBMISS_HANDLER_SETUP_PGD(pgd) \
+-	setup_pgd(__pa(pgd), false)
+-
+-#define TLBMISS_HANDLER_SETUP_PGD_KERNEL(pgd) \
+-	setup_pgd(__pa(pgd), true)
+-
+ #define ASID_MASK		((1 << CONFIG_CPU_ASID_BITS) - 1)
+ #define cpu_asid(mm)		(atomic64_read(&mm->context.asid) & ASID_MASK)
+ 
+@@ -41,8 +35,7 @@ switch_mm(struct mm_struct *prev, struct
+ 	if (prev != next)
+ 		check_and_switch_context(next, cpu);
+ 
+-	TLBMISS_HANDLER_SETUP_PGD(next->pgd);
+-	write_mmu_entryhi(next->context.asid.counter);
++	setup_pgd(next->pgd, next->context.asid.counter);
+ 
+ 	flush_icache_deferred(next);
+ }
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/page.h milky/arch/csky/include/asm/page.h
+--- test-tree/arch/csky/include/asm/page.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/page.h	2024-05-21 05:22:27.000000000 -0400
+@@ -24,7 +24,7 @@
+  * address region. We use them mapping kernel 1GB direct-map address area and
+  * for more than 1GB of memory we use highmem.
+  */
+-#define PAGE_OFFSET	0x80000000
++#define PAGE_OFFSET	CONFIG_PAGE_OFFSET
+ #define SSEG_SIZE	0x20000000
+ #define LOWMEM_LIMIT	(SSEG_SIZE * 2)
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/pgalloc.h milky/arch/csky/include/asm/pgalloc.h
+--- test-tree/arch/csky/include/asm/pgalloc.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/pgalloc.h	2024-05-21 05:22:27.000000000 -0400
+@@ -71,7 +71,7 @@ do {							\
+ } while (0)
+ 
+ extern void pagetable_init(void);
+-extern void pre_mmu_init(void);
++extern void mmu_init(unsigned long min_pfn, unsigned long max_pfn);
+ extern void pre_trap_init(void);
+ 
+ #endif /* __ASM_CSKY_PGALLOC_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/pgtable.h milky/arch/csky/include/asm/pgtable.h
+--- test-tree/arch/csky/include/asm/pgtable.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/pgtable.h	2024-05-21 05:22:27.000000000 -0400
+@@ -14,7 +14,7 @@
+ #define PGDIR_SIZE		(1UL << PGDIR_SHIFT)
+ #define PGDIR_MASK		(~(PGDIR_SIZE-1))
+ 
+-#define USER_PTRS_PER_PGD	(0x80000000UL/PGDIR_SIZE)
++#define USER_PTRS_PER_PGD	(PAGE_OFFSET/PGDIR_SIZE)
+ #define FIRST_USER_ADDRESS	0UL
+ 
+ /*
+@@ -34,23 +34,13 @@
+ 
+ #define pmd_page(pmd)	(pfn_to_page(pmd_phys(pmd) >> PAGE_SHIFT))
+ #define pte_clear(mm, addr, ptep)	set_pte((ptep), \
+-	(((unsigned int) addr & PAGE_OFFSET) ? __pte(_PAGE_GLOBAL) : __pte(0)))
++	(((unsigned int) addr >= PAGE_OFFSET) ? __pte(_PAGE_GLOBAL) : __pte(0)))
+ #define pte_none(pte)		(!(pte_val(pte) & ~_PAGE_GLOBAL))
+ #define pte_present(pte)	(pte_val(pte) & _PAGE_PRESENT)
+ #define pte_pfn(x)	((unsigned long)((x).pte_low >> PAGE_SHIFT))
+ #define pfn_pte(pfn, prot) __pte(((unsigned long long)(pfn) << PAGE_SHIFT) \
+ 				| pgprot_val(prot))
+ 
+-#define __READABLE	(_PAGE_READ | _PAGE_VALID | _PAGE_ACCESSED)
+-#define __WRITEABLE	(_PAGE_WRITE | _PAGE_DIRTY | _PAGE_MODIFIED)
+-
+-#define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_MODIFIED | \
+-			 _CACHE_MASK)
+-
+-#define __swp_type(x)			(((x).val >> 4) & 0xff)
+-#define __swp_offset(x)			((x).val >> 12)
+-#define __swp_entry(type, offset)	((swp_entry_t) {((type) << 4) | \
+-					((offset) << 12) })
+ #define __pte_to_swp_entry(pte)		((swp_entry_t) { pte_val(pte) })
+ #define __swp_entry_to_pte(x)		((pte_t) { (x).val })
+ 
+@@ -59,41 +49,51 @@
+ 					pgprot_val(pgprot))
+ 
+ /*
+- * CSKY can't do page protection for execute, and considers that the same like
+- * read. Also, write permissions imply read permissions. This is the closest
+- * we can get by reasonable means..
++ * C-SKY only has VALID and DIRTY bit in hardware. So we need to use the
++ * two bits emulate PRESENT, READ, WRITE, EXEC, MODIFIED, ACCESSED.
+  */
+-#define PAGE_NONE	__pgprot(_PAGE_PRESENT | _CACHE_CACHED)
+-#define PAGE_SHARED	__pgprot(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED)
++
++#define PAGE_NONE	__pgprot(_PAGE_PROT_NONE)
++#define PAGE_READ	__pgprot(_PAGE_BASE | _PAGE_READ | \
+ 				_CACHE_CACHED)
+-#define PAGE_COPY	__pgprot(_PAGE_PRESENT | _PAGE_READ | _CACHE_CACHED)
+-#define PAGE_READONLY	__pgprot(_PAGE_PRESENT | _PAGE_READ | _CACHE_CACHED)
+-#define PAGE_KERNEL	__pgprot(_PAGE_PRESENT | __READABLE | __WRITEABLE | \
+-				_PAGE_GLOBAL | _CACHE_CACHED)
+-#define PAGE_USERIO	__pgprot(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++#define PAGE_WRITE	__pgprot(_PAGE_BASE | _PAGE_READ | _PAGE_WRITE | \
+ 				_CACHE_CACHED)
+ 
+-#define _PAGE_IOREMAP \
+-	(_PAGE_PRESENT | __READABLE | __WRITEABLE | _PAGE_GLOBAL | \
+-	 _CACHE_UNCACHED | _PAGE_SO)
++#define PAGE_KERNEL	__pgprot(_PAGE_BASE | _PAGE_READ | _PAGE_VALID | \
++				_PAGE_WRITE | _PAGE_DIRTY | _PAGE_MODIFIED | \
++				_PAGE_GLOBAL | \
++				_CACHE_CACHED)
++
++#define _PAGE_IOREMAP		(_PAGE_BASE | _PAGE_READ | _PAGE_VALID | \
++				_PAGE_WRITE | _PAGE_DIRTY | _PAGE_MODIFIED | \
++				_PAGE_GLOBAL | \
++				_CACHE_UNCACHED | _PAGE_SO)
++
++#define _PAGE_CHG_MASK	(~(unsigned long) \
++				(_PAGE_PRESENT | _PAGE_READ | _PAGE_WRITE | \
++				_CACHE_MASK | _PAGE_GLOBAL))
++
++#define MAX_SWAPFILES_CHECK() \
++		BUILD_BUG_ON(MAX_SWAPFILES_SHIFT != 5)
+ 
+ #define __P000	PAGE_NONE
+-#define __P001	PAGE_READONLY
+-#define __P010	PAGE_COPY
+-#define __P011	PAGE_COPY
+-#define __P100	PAGE_READONLY
+-#define __P101	PAGE_READONLY
+-#define __P110	PAGE_COPY
+-#define __P111	PAGE_COPY
++#define __P001	PAGE_READ
++#define __P010	PAGE_READ
++#define __P011	PAGE_READ
++#define __P100	PAGE_READ
++#define __P101	PAGE_READ
++#define __P110	PAGE_READ
++#define __P111	PAGE_READ
+ 
+ #define __S000	PAGE_NONE
+-#define __S001	PAGE_READONLY
+-#define __S010	PAGE_SHARED
+-#define __S011	PAGE_SHARED
+-#define __S100	PAGE_READONLY
+-#define __S101	PAGE_READONLY
+-#define __S110	PAGE_SHARED
+-#define __S111	PAGE_SHARED
++#define __S001	PAGE_READ
++#define __S010	PAGE_WRITE
++#define __S011	PAGE_WRITE
++#define __S100	PAGE_READ
++#define __S101	PAGE_READ
++#define __S110	PAGE_WRITE
++#define __S111	PAGE_WRITE
+ 
+ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+ #define ZERO_PAGE(vaddr)	(virt_to_page(empty_zero_page))
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/processor.h milky/arch/csky/include/asm/processor.h
+--- test-tree/arch/csky/include/asm/processor.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/processor.h	2024-05-21 05:22:27.000000000 -0400
+@@ -28,7 +28,7 @@ extern struct cpuinfo_csky cpu_data[];
+  * for a 64 bit kernel expandable to 8192EB, of which the current CSKY
+  * implementations will "only" be able to use 1TB ...
+  */
+-#define TASK_SIZE       0x7fff8000UL
++#define TASK_SIZE	(PAGE_OFFSET - (PAGE_SIZE * 8))
+ 
+ #ifdef __KERNEL__
+ #define STACK_TOP       TASK_SIZE
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/segment.h milky/arch/csky/include/asm/segment.h
+--- test-tree/arch/csky/include/asm/segment.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/segment.h	2024-05-21 05:22:27.000000000 -0400
+@@ -10,7 +10,7 @@ typedef struct {
+ 
+ #define KERNEL_DS		((mm_segment_t) { 0xFFFFFFFF })
+ 
+-#define USER_DS			((mm_segment_t) { 0x80000000UL })
++#define USER_DS			((mm_segment_t) { PAGE_OFFSET })
+ #define get_fs()		(current_thread_info()->addr_limit)
+ #define set_fs(x)		(current_thread_info()->addr_limit = (x))
+ #define uaccess_kernel()	(get_fs().seg == KERNEL_DS.seg)
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/spinlock.h milky/arch/csky/include/asm/spinlock.h
+--- test-tree/arch/csky/include/asm/spinlock.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/spinlock.h	2024-05-21 05:22:27.000000000 -0400
+@@ -6,8 +6,6 @@
+ #include <linux/spinlock_types.h>
+ #include <asm/barrier.h>
+ 
+-#ifdef CONFIG_QUEUED_RWLOCKS
+-
+ /*
+  * Ticket-based spin-locking.
+  */
+@@ -88,169 +86,4 @@ static inline int arch_spin_is_contended
+ 
+ #include <asm/qrwlock.h>
+ 
+-/* See include/linux/spinlock.h */
+-#define smp_mb__after_spinlock()	smp_mb()
+-
+-#else /* CONFIG_QUEUED_RWLOCKS */
+-
+-/*
+- * Test-and-set spin-locking.
+- */
+-static inline void arch_spin_lock(arch_spinlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	bnez		%0, 1b   \n"
+-		"	movi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-	smp_mb();
+-}
+-
+-static inline void arch_spin_unlock(arch_spinlock_t *lock)
+-{
+-	smp_mb();
+-	WRITE_ONCE(lock->lock, 0);
+-}
+-
+-static inline int arch_spin_trylock(arch_spinlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	bnez		%0, 2f   \n"
+-		"	movi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		"	movi		%0, 0    \n"
+-		"2:				 \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-
+-	if (!tmp)
+-		smp_mb();
+-
+-	return !tmp;
+-}
+-
+-#define arch_spin_is_locked(x)	(READ_ONCE((x)->lock) != 0)
+-
+-/*
+- * read lock/unlock/trylock
+- */
+-static inline void arch_read_lock(arch_rwlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	blz		%0, 1b   \n"
+-		"	addi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-	smp_mb();
+-}
+-
+-static inline void arch_read_unlock(arch_rwlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	smp_mb();
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	subi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-}
+-
+-static inline int arch_read_trylock(arch_rwlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	blz		%0, 2f   \n"
+-		"	addi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		"	movi		%0, 0    \n"
+-		"2:				 \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-
+-	if (!tmp)
+-		smp_mb();
+-
+-	return !tmp;
+-}
+-
+-/*
+- * write lock/unlock/trylock
+- */
+-static inline void arch_write_lock(arch_rwlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	bnez		%0, 1b   \n"
+-		"	subi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-	smp_mb();
+-}
+-
+-static inline void arch_write_unlock(arch_rwlock_t *lock)
+-{
+-	smp_mb();
+-	WRITE_ONCE(lock->lock, 0);
+-}
+-
+-static inline int arch_write_trylock(arch_rwlock_t *lock)
+-{
+-	u32 *p = &lock->lock;
+-	u32 tmp;
+-
+-	asm volatile (
+-		"1:	ldex.w		%0, (%1) \n"
+-		"	bnez		%0, 2f   \n"
+-		"	subi		%0, 1    \n"
+-		"	stex.w		%0, (%1) \n"
+-		"	bez		%0, 1b   \n"
+-		"	movi		%0, 0    \n"
+-		"2:				 \n"
+-		: "=&r" (tmp)
+-		: "r"(p)
+-		: "cc");
+-
+-	if (!tmp)
+-		smp_mb();
+-
+-	return !tmp;
+-}
+-
+-#endif /* CONFIG_QUEUED_RWLOCKS */
+ #endif /* __ASM_CSKY_SPINLOCK_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/spinlock_types.h milky/arch/csky/include/asm/spinlock_types.h
+--- test-tree/arch/csky/include/asm/spinlock_types.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/spinlock_types.h	2024-05-21 05:22:27.000000000 -0400
+@@ -22,16 +22,6 @@ typedef struct {
+ 
+ #define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
+ 
+-#ifdef CONFIG_QUEUED_RWLOCKS
+ #include <asm-generic/qrwlock_types.h>
+ 
+-#else /* CONFIG_NR_CPUS > 2 */
+-
+-typedef struct {
+-	u32 lock;
+-} arch_rwlock_t;
+-
+-#define __ARCH_RW_LOCK_UNLOCKED		{ 0 }
+-
+-#endif /* CONFIG_QUEUED_RWLOCKS */
+ #endif /* __ASM_CSKY_SPINLOCK_TYPES_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/thread_info.h milky/arch/csky/include/asm/thread_info.h
+--- test-tree/arch/csky/include/asm/thread_info.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/thread_info.h	2024-05-21 05:22:27.000000000 -0400
+@@ -6,7 +6,6 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
+-#include <linux/version.h>
+ #include <asm/types.h>
+ #include <asm/page.h>
+ #include <asm/processor.h>
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/include/asm/vdso.h milky/arch/csky/include/asm/vdso.h
+--- test-tree/arch/csky/include/asm/vdso.h	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/include/asm/vdso.h	2024-05-21 05:22:27.000000000 -0400
+@@ -3,10 +3,25 @@
+ #ifndef __ASM_CSKY_VDSO_H
+ #define __ASM_CSKY_VDSO_H
+ 
+-#include <abi/vdso.h>
++#include <linux/types.h>
+ 
+-struct csky_vdso {
+-	unsigned short rt_signal_retcode[4];
++#ifndef GENERIC_TIME_VSYSCALL
++struct vdso_data {
+ };
++#endif
++
++/*
++ * The VDSO symbols are mapped into Linux so we can just use regular symbol
++ * addressing to get their offsets in userspace.  The symbols are mapped at an
++ * offset of 0, but since the linker must support setting weak undefined
++ * symbols to the absolute address 0 it also happens to support other low
++ * addresses even when the code model suggests those low addresses would not
++ * otherwise be availiable.
++ */
++#define VDSO_SYMBOL(base, name)							\
++({										\
++	extern const char __vdso_##name[];					\
++	(void __user *)((unsigned long)(base) + __vdso_##name);			\
++})
+ 
+ #endif /* __ASM_CSKY_VDSO_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/atomic.S milky/arch/csky/kernel/atomic.S
+--- test-tree/arch/csky/kernel/atomic.S	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/kernel/atomic.S	2024-05-21 05:22:27.000000000 -0400
+@@ -14,6 +14,10 @@
+  */
+ ENTRY(csky_cmpxchg)
+ 	USPTOKSP
++
++	RD_MEH	a3
++	WR_MEH	a3
++
+ 	mfcr	a3, epc
+ 	addi	a3, TRAP0_SIZE
+ 
+@@ -36,11 +40,11 @@ ENTRY(csky_cmpxchg)
+ 2:
+ 	sync.is
+ #else
+-1:
++GLOBAL(csky_cmpxchg_ldw)
+ 	ldw	a3, (a2)
+ 	cmpne	a0, a3
+ 	bt16	3f
+-2:
++GLOBAL(csky_cmpxchg_stw)
+ 	stw	a1, (a2)
+ 3:
+ #endif
+@@ -55,19 +59,3 @@ ENTRY(csky_cmpxchg)
+ 	KSPTOUSP
+ 	rte
+ END(csky_cmpxchg)
+-
+-#ifndef CONFIG_CPU_HAS_LDSTEX
+-/*
+- * Called from tlbmodified exception
+- */
+-ENTRY(csky_cmpxchg_fixup)
+-	mfcr	a0, epc
+-	lrw	a1, 2b
+-	cmpne	a1, a0
+-	bt	1f
+-	subi	a1, (2b - 1b)
+-	stw	a1, (sp, LSAVE_PC)
+-1:
+-	rts
+-END(csky_cmpxchg_fixup)
+-#endif
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/entry.S milky/arch/csky/kernel/entry.S
+--- test-tree/arch/csky/kernel/entry.S	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/kernel/entry.S	2024-05-21 05:22:27.000000000 -0400
+@@ -13,10 +13,6 @@
+ #include <asm/page.h>
+ #include <asm/thread_info.h>
+ 
+-#define PTE_INDX_MSK    0xffc
+-#define PTE_INDX_SHIFT  10
+-#define _PGDIR_SHIFT    22
+-
+ .macro	zero_fp
+ #ifdef CONFIG_STACKTRACE
+ 	movi	r8, 0
+@@ -41,108 +37,15 @@
+ #endif
+ .endm
+ 
+-.macro tlbop_begin name, val0, val1, val2
+-ENTRY(csky_\name)
+-	mtcr    a3, ss2
+-	mtcr    r6, ss3
+-	mtcr    a2, ss4
+-
+-	RD_PGDR	r6
+-	RD_MEH	a3
+-#ifdef CONFIG_CPU_HAS_TLBI
+-	tlbi.vaas a3
+-	sync.is
+-
+-	btsti	a3, 31
+-	bf	1f
+-	RD_PGDR_K r6
+-1:
+-#else
+-	bgeni	a2, 31
+-	WR_MCIR	a2
+-	bgeni	a2, 25
+-	WR_MCIR	a2
+-#endif
+-	bclri   r6, 0
+-	lrw	a2, va_pa_offset
+-	ld.w	a2, (a2, 0)
+-	subu	r6, a2
+-	bseti	r6, 31
+-
+-	mov     a2, a3
+-	lsri    a2, _PGDIR_SHIFT
+-	lsli    a2, 2
+-	addu    r6, a2
+-	ldw     r6, (r6)
+-
+-	lrw	a2, va_pa_offset
+-	ld.w	a2, (a2, 0)
+-	subu	r6, a2
+-	bseti	r6, 31
+-
+-	lsri    a3, PTE_INDX_SHIFT
+-	lrw     a2, PTE_INDX_MSK
+-	and     a3, a2
+-	addu    r6, a3
+-	ldw     a3, (r6)
+-
+-	movi	a2, (_PAGE_PRESENT | \val0)
+-	and     a3, a2
+-	cmpne   a3, a2
+-	bt	\name
+-
+-	/* First read/write the page, just update the flags */
+-	ldw     a3, (r6)
+-	bgeni   a2, PAGE_VALID_BIT
+-	bseti   a2, PAGE_ACCESSED_BIT
+-	bseti   a2, \val1
+-	bseti   a2, \val2
+-	or      a3, a2
+-	stw     a3, (r6)
+-
+-	/* Some cpu tlb-hardrefill bypass the cache */
+-#ifdef CONFIG_CPU_NEED_TLBSYNC
+-	movi	a2, 0x22
+-	bseti	a2, 6
+-	mtcr	r6, cr22
+-	mtcr	a2, cr17
+-	sync
+-#endif
+-
+-	mfcr    a3, ss2
+-	mfcr    r6, ss3
+-	mfcr    a2, ss4
+-	rte
+-\name:
+-	mfcr    a3, ss2
+-	mfcr    r6, ss3
+-	mfcr    a2, ss4
++.text
++ENTRY(csky_pagefault)
+ 	SAVE_ALL 0
+-.endm
+-.macro tlbop_end is_write
+ 	zero_fp
+ 	context_tracking
+-	RD_MEH	a2
+-	psrset  ee, ie
++	psrset  ee
+ 	mov     a0, sp
+-	movi    a1, \is_write
+ 	jbsr    do_page_fault
+ 	jmpi    ret_from_exception
+-.endm
+-
+-.text
+-
+-tlbop_begin tlbinvalidl, _PAGE_READ, PAGE_VALID_BIT, PAGE_ACCESSED_BIT
+-tlbop_end 0
+-
+-tlbop_begin tlbinvalids, _PAGE_WRITE, PAGE_DIRTY_BIT, PAGE_MODIFIED_BIT
+-tlbop_end 1
+-
+-tlbop_begin tlbmodified, _PAGE_WRITE, PAGE_DIRTY_BIT, PAGE_MODIFIED_BIT
+-#ifndef CONFIG_CPU_HAS_LDSTEX
+-jbsr csky_cmpxchg_fixup
+-#endif
+-tlbop_end 1
+ 
+ ENTRY(csky_systemcall)
+ 	SAVE_ALL TRAP0_SIZE
+@@ -314,6 +217,9 @@ ENTRY(csky_trap)
+ ENTRY(csky_get_tls)
+ 	USPTOKSP
+ 
++	RD_MEH	a0
++	WR_MEH	a0
++
+ 	/* increase epc for continue */
+ 	mfcr	a0, epc
+ 	addi	a0, TRAP0_SIZE
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/head.S milky/arch/csky/kernel/head.S
+--- test-tree/arch/csky/kernel/head.S	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/kernel/head.S	2024-05-21 05:22:27.000000000 -0400
+@@ -21,10 +21,16 @@ END(_start)
+ ENTRY(_start_smp_secondary)
+ 	SETUP_MMU
+ 
+-	/* copy msa1 from CPU0 */
+-	lrw     r6, secondary_msa1
++#ifdef CONFIG_PAGE_OFFSET_80000000
++	lrw	r6, secondary_msa1
+ 	ld.w	r6, (r6, 0)
+ 	mtcr	r6, cr<31, 15>
++#endif
++
++	lrw     r6, secondary_pgd
++	ld.w	r6, (r6, 0)
++	mtcr	r6, cr<28, 15>
++	mtcr	r6, cr<29, 15>
+ 
+ 	/* set stack point */
+ 	lrw     r6, secondary_stack
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/perf_event.c milky/arch/csky/kernel/perf_event.c
+--- test-tree/arch/csky/kernel/perf_event.c	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/kernel/perf_event.c	2024-05-21 05:22:27.000000000 -0400
+@@ -87,7 +87,7 @@ static int csky_pmu_irq;
+ })
+ 
+ /* cycle counter */
+-static uint64_t csky_pmu_read_cc(void)
++uint64_t csky_pmu_read_cc(void)
+ {
+ 	uint32_t lo, hi, tmp;
+ 	uint64_t result;
+@@ -1319,7 +1319,7 @@ int csky_pmu_device_probe(struct platfor
+ 		pr_notice("[perf] PMU request irq fail!\n");
+ 	}
+ 
+-	ret = cpuhp_setup_state(CPUHP_AP_PERF_ONLINE, "AP_PERF_ONLINE",
++	ret = cpuhp_setup_state(CPUHP_AP_PERF_CSKY_ONLINE, "AP_PERF_ONLINE",
+ 				csky_pmu_starting_cpu,
+ 				csky_pmu_dying_cpu);
+ 	if (ret) {
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/probes/simulate-insn.c milky/arch/csky/kernel/probes/simulate-insn.c
+--- test-tree/arch/csky/kernel/probes/simulate-insn.c	2024-05-24 09:21:48.390277555 -0400
++++ milky/arch/csky/kernel/probes/simulate-insn.c	2024-05-21 05:22:27.000000000 -0400
+@@ -274,9 +274,9 @@ void __kprobes
+ simulate_bnezad32(u32 opcode, long addr, struct pt_regs *regs)
+ {
+ 	unsigned long tmp = opcode & 0x1f;
+-	unsigned long val;
++	long val;
+ 
+-	csky_insn_reg_get_val(regs, tmp, &val);
++	csky_insn_reg_get_val(regs, tmp, (unsigned long *)&val);
+ 
+ 	val -= 1;
+ 
+@@ -286,7 +286,7 @@ simulate_bnezad32(u32 opcode, long addr,
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+ 
+-	csky_insn_reg_set_val(regs, tmp, val);
++	csky_insn_reg_set_val(regs, tmp, (unsigned long)val);
+ }
+ 
+ void __kprobes
+@@ -297,13 +297,11 @@ simulate_bhsz32(u32 opcode, long addr, s
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val >= 0) {
++	if ((long) val >= 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+@@ -314,13 +312,11 @@ simulate_bhz32(u32 opcode, long addr, st
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val > 0) {
++	if ((long) val > 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+@@ -331,13 +327,11 @@ simulate_blsz32(u32 opcode, long addr, s
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val <= 0) {
++	if ((long) val <= 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+@@ -348,13 +342,11 @@ simulate_blz32(u32 opcode, long addr, st
+ 
+ 	csky_insn_reg_get_val(regs, tmp, &val);
+ 
+-	if (val < 0) {
++	if ((long) val < 0) {
+ 		instruction_pointer_set(regs,
+ 			addr + sign_extend32((opcode & 0xffff0000) >> 15, 15));
+ 	} else
+ 		instruction_pointer_set(regs, addr + 4);
+-
+-	csky_insn_reg_set_val(regs, tmp, val);
+ }
+ 
+ void __kprobes
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/ptrace.c milky/arch/csky/kernel/ptrace.c
+--- test-tree/arch/csky/kernel/ptrace.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/ptrace.c	2024-05-21 05:22:27.000000000 -0400
+@@ -22,6 +22,7 @@
+ #include <asm/asm-offsets.h>
+ 
+ #include <abi/regdef.h>
++#include <abi/ckmmu.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/syscalls.h>
+@@ -83,7 +84,7 @@ static int gpr_get(struct task_struct *t
+ 	/* Abiv1 regs->tls is fake and we need sync here. */
+ 	regs->tls = task_thread_info(target)->tp_value;
+ 
+-	return membuf_write(&to, regs, sizeof(regs));
++	return membuf_write(&to, regs, sizeof(*regs));
+ }
+ 
+ static int gpr_set(struct task_struct *target,
+@@ -343,6 +344,124 @@ asmlinkage void syscall_trace_exit(struc
+ 		trace_sys_exit(regs, syscall_get_return_value(current, regs));
+ }
+ 
++#ifdef CONFIG_CPU_CK860
++static void show_iutlb(void)
++{
++	int entry, i;
++	unsigned long flags;
++	unsigned long oldpid;
++	unsigned long entryhi[16], entrylo0[16], entrylo1[16];
++
++	oldpid = read_mmu_entryhi();
++
++	entry = 0x8000;
++
++	local_irq_save(flags);
++
++	for (i = 0; i < 16; i++) {
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi[i]  = read_mmu_entryhi();
++		entrylo0[i] = read_mmu_entrylo0();
++		entrylo1[i] = read_mmu_entrylo1();
++
++		entry++;
++	}
++
++	local_irq_restore(flags);
++
++	write_mmu_entryhi(oldpid);
++
++	printk("\n\n\n");
++	for (i = 0; i < 16; i++)
++		printk("iutlb[%d]:	entryhi - 0x%lx;	entrylo0 - 0x%lx;"
++		       "	entrylo1 - 0x%lx\n",
++			 i, entryhi[i], entrylo0[i], entrylo1[i]);
++	printk("\n\n\n");
++}
++
++static void show_dutlb(void)
++{
++	int entry, i;
++	unsigned long flags;
++	unsigned long oldpid;
++	unsigned long entryhi[16], entrylo0[16], entrylo1[16];
++
++	oldpid = read_mmu_entryhi();
++
++	entry = 0x4000;
++
++	local_irq_save(flags);
++
++	for (i = 0; i < 16; i++) {
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi[i]  = read_mmu_entryhi();
++		entrylo0[i] = read_mmu_entrylo0();
++		entrylo1[i] = read_mmu_entrylo1();
++
++		entry++;
++	}
++
++	local_irq_restore(flags);
++
++	write_mmu_entryhi(oldpid);
++
++	printk("\n\n\n");
++	for (i = 0; i < 16; i++)
++		printk("dutlb[%d]:	entryhi - 0x%lx;	entrylo0 - 0x%lx;"
++		       "	entrylo1 - 0x%lx\n",
++			 i, entryhi[i], entrylo0[i], entrylo1[i]);
++	printk("\n\n\n");
++}
++
++static unsigned long entryhi[1024], entrylo0[1024], entrylo1[1024];
++static void show_jtlb(void)
++{
++	int entry;
++	unsigned long flags;
++	unsigned long oldpid;
++
++	oldpid = read_mmu_entryhi();
++
++	entry = 0;
++
++	local_irq_save(flags);
++	while (entry < 1024) {
++		write_mmu_index(entry);
++		tlb_read();
++		entryhi[entry]  = read_mmu_entryhi();
++		entrylo0[entry] = read_mmu_entrylo0();
++		entrylo1[entry] = read_mmu_entrylo1();
++
++		entry++;
++	}
++	local_irq_restore(flags);
++
++	write_mmu_entryhi(oldpid);
++
++	printk("\n\n\n");
++
++	for (entry = 0; entry < 1024; entry++)
++		printk("jtlb[%x]:	entryhi - 0x%lx;	entrylo0 - 0x%lx;"
++		       "	entrylo1 - 0x%lx\n",
++			 entry, entryhi[entry], entrylo0[entry], entrylo1[entry]);
++	printk("\n\n\n");
++}
++
++static void show_tlb(void)
++{
++	show_iutlb();
++	show_dutlb();
++	show_jtlb();
++}
++#else
++static void show_tlb(void)
++{
++	return;
++}
++#endif
++
+ void show_regs(struct pt_regs *fp)
+ {
+ 	pr_info("\nCURRENT PROCESS:\n\n");
+@@ -363,9 +482,10 @@ void show_regs(struct pt_regs *fp)
+ 
+ 	pr_info("PC: 0x%08lx (%pS)\n", (long)fp->pc, (void *)fp->pc);
+ 	pr_info("LR: 0x%08lx (%pS)\n", (long)fp->lr, (void *)fp->lr);
+-	pr_info("SP: 0x%08lx\n", (long)fp);
+-	pr_info("orig_a0: 0x%08lx\n", fp->orig_a0);
++	pr_info("SP: 0x%08lx\n", (long)fp->usp);
+ 	pr_info("PSR: 0x%08lx\n", (long)fp->sr);
++	pr_info("orig_a0: 0x%08lx\n", fp->orig_a0);
++	pr_info("PT_REGS: 0x%08lx\n", (long)fp);
+ 
+ 	pr_info(" a0: 0x%08lx   a1: 0x%08lx   a2: 0x%08lx   a3: 0x%08lx\n",
+ 		fp->a0, fp->a1, fp->a2, fp->a3);
+@@ -395,5 +515,7 @@ void show_regs(struct pt_regs *fp)
+ 		fp->regs[8], fp->regs[9]);
+ #endif
+ 
++	show_tlb();
++
+ 	return;
+ }
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/setup.c milky/arch/csky/kernel/setup.c
+--- test-tree/arch/csky/kernel/setup.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/setup.c	2024-05-21 05:22:27.000000000 -0400
+@@ -45,13 +45,17 @@ static void __init csky_memblock_init(vo
+ 
+ 	if (size >= lowmem_size) {
+ 		max_low_pfn = min_low_pfn + lowmem_size;
++#ifdef CONFIG_PAGE_OFFSET_80000000
+ 		write_mmu_msa1(read_mmu_msa0() + SSEG_SIZE);
++#endif
+ 	} else if (size > sseg_size) {
+ 		max_low_pfn = min_low_pfn + sseg_size;
+ 	}
+ 
+ 	max_zone_pfn[ZONE_NORMAL] = max_low_pfn;
+ 
++	mmu_init(min_low_pfn, max_low_pfn);
++
+ #ifdef CONFIG_HIGHMEM
+ 	max_zone_pfn[ZONE_HIGHMEM] = max_pfn;
+ 
+@@ -101,16 +105,26 @@ void __init setup_arch(char **cmdline_p)
+ unsigned long va_pa_offset;
+ EXPORT_SYMBOL(va_pa_offset);
+ 
++static inline unsigned long read_mmu_msa(void)
++{
++#ifdef CONFIG_PAGE_OFFSET_80000000
++	return read_mmu_msa0();
++#endif
++
++#ifdef CONFIG_PAGE_OFFSET_A0000000
++	return read_mmu_msa1();
++#endif
++}
++
+ asmlinkage __visible void __init csky_start(unsigned int unused,
+ 					    void *dtb_start)
+ {
+ 	/* Clean up bss section */
+ 	memset(__bss_start, 0, __bss_stop - __bss_start);
+ 
+-	va_pa_offset = read_mmu_msa0() & ~(SSEG_SIZE - 1);
++	va_pa_offset = read_mmu_msa() & ~(SSEG_SIZE - 1);
+ 
+ 	pre_trap_init();
+-	pre_mmu_init();
+ 
+ 	if (dtb_start == NULL)
+ 		early_init_dt_scan(__dtb_start);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/signal.c milky/arch/csky/kernel/signal.c
+--- test-tree/arch/csky/kernel/signal.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/signal.c	2024-05-21 05:22:27.000000000 -0400
+@@ -134,7 +134,6 @@ setup_rt_frame(struct ksignal *ksig, sig
+ {
+ 	struct rt_sigframe *frame;
+ 	int err = 0;
+-	struct csky_vdso *vdso = current->mm->context.vdso;
+ 
+ 	frame = get_sigframe(ksig, regs, sizeof(*frame));
+ 	if (!access_ok(frame, sizeof(*frame)))
+@@ -152,7 +151,8 @@ setup_rt_frame(struct ksignal *ksig, sig
+ 		return -EFAULT;
+ 
+ 	/* Set up to return from userspace. */
+-	regs->lr = (unsigned long)(vdso->rt_signal_retcode);
++	regs->lr = (unsigned long)VDSO_SYMBOL(
++		current->mm->context.vdso, rt_sigreturn);
+ 
+ 	/*
+ 	 * Set up registers for signal handler.
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/smp.c milky/arch/csky/kernel/smp.c
+--- test-tree/arch/csky/kernel/smp.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/smp.c	2024-05-21 05:22:27.000000000 -0400
+@@ -203,8 +203,8 @@ volatile unsigned int secondary_hint;
+ volatile unsigned int secondary_hint2;
+ volatile unsigned int secondary_ccr;
+ volatile unsigned int secondary_stack;
+-
+-unsigned long secondary_msa1;
++volatile unsigned int secondary_msa1;
++volatile unsigned int secondary_pgd;
+ 
+ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
+ {
+@@ -216,6 +216,7 @@ int __cpu_up(unsigned int cpu, struct ta
+ 	secondary_hint2 = mfcr("cr<21, 1>");
+ 	secondary_ccr  = mfcr("cr18");
+ 	secondary_msa1 = read_mmu_msa1();
++	secondary_pgd = mfcr("cr<29, 15>");
+ 
+ 	/*
+ 	 * Because other CPUs are in reset status, we must flush data
+@@ -262,8 +263,6 @@ void csky_start_secondary(void)
+ 
+ 	flush_tlb_all();
+ 	write_mmu_pagemask(0);
+-	TLBMISS_HANDLER_SETUP_PGD(swapper_pg_dir);
+-	TLBMISS_HANDLER_SETUP_PGD_KERNEL(swapper_pg_dir);
+ 
+ #ifdef CONFIG_CPU_HAS_FPU
+ 	init_fpu();
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/traps.c milky/arch/csky/kernel/traps.c
+--- test-tree/arch/csky/kernel/traps.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/traps.c	2024-05-21 05:22:27.000000000 -0400
+@@ -39,9 +39,7 @@ asmlinkage void csky_cmpxchg(void);
+ asmlinkage void csky_get_tls(void);
+ asmlinkage void csky_irq(void);
+ 
+-asmlinkage void csky_tlbinvalidl(void);
+-asmlinkage void csky_tlbinvalids(void);
+-asmlinkage void csky_tlbmodified(void);
++asmlinkage void csky_pagefault(void);
+ 
+ /* Defined in head.S */
+ asmlinkage void _start_smp_secondary(void);
+@@ -66,9 +64,9 @@ void __init trap_init(void)
+ 	VEC_INIT(VEC_TRAP3, csky_get_tls);
+ 
+ 	/* setup MMU TLB exception */
+-	VEC_INIT(VEC_TLBINVALIDL, csky_tlbinvalidl);
+-	VEC_INIT(VEC_TLBINVALIDS, csky_tlbinvalids);
+-	VEC_INIT(VEC_TLBMODIFIED, csky_tlbmodified);
++	VEC_INIT(VEC_TLBINVALIDL, csky_pagefault);
++	VEC_INIT(VEC_TLBINVALIDS, csky_pagefault);
++	VEC_INIT(VEC_TLBMODIFIED, csky_pagefault);
+ 
+ #ifdef CONFIG_CPU_HAS_FPU
+ 	init_fpu();
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/vdso.c milky/arch/csky/kernel/vdso.c
+--- test-tree/arch/csky/kernel/vdso.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/vdso.c	2024-05-21 05:22:27.000000000 -0400
+@@ -1,86 +1,107 @@
+ // SPDX-License-Identifier: GPL-2.0
+ // Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
+ 
+-#include <linux/kernel.h>
+-#include <linux/err.h>
+-#include <linux/sched.h>
+-#include <linux/mm.h>
+-#include <linux/init.h>
+ #include <linux/binfmts.h>
+ #include <linux/elf.h>
+-#include <linux/vmalloc.h>
+-#include <linux/unistd.h>
+-#include <linux/uaccess.h>
++#include <linux/err.h>
++#include <linux/mm.h>
++#include <linux/slab.h>
+ 
++#include <asm/page.h>
++#ifdef GENERIC_TIME_VSYSCALL
++#include <vdso/datapage.h>
++#else
+ #include <asm/vdso.h>
+-#include <asm/cacheflush.h>
++#endif
+ 
+-static struct page *vdso_page;
++extern char vdso_start[], vdso_end[];
+ 
+-static int __init init_vdso(void)
+-{
+-	struct csky_vdso *vdso;
+-	int err = 0;
+-
+-	vdso_page = alloc_page(GFP_KERNEL);
+-	if (!vdso_page)
+-		panic("Cannot allocate vdso");
++static unsigned int vdso_pages;
++static struct page **vdso_pagelist;
+ 
+-	vdso = vmap(&vdso_page, 1, 0, PAGE_KERNEL);
+-	if (!vdso)
+-		panic("Cannot map vdso");
++/*
++ * The vDSO data page.
++ */
++static union {
++	struct vdso_data	data;
++	u8			page[PAGE_SIZE];
++} vdso_data_store __page_aligned_data;
++struct vdso_data *vdso_data = &vdso_data_store.data;
+ 
+-	clear_page(vdso);
++static int __init vdso_init(void)
++{
++	unsigned int i;
+ 
+-	err = setup_vdso_page(vdso->rt_signal_retcode);
+-	if (err)
+-		panic("Cannot set signal return code, err: %x.", err);
++	vdso_pages = (vdso_end - vdso_start) >> PAGE_SHIFT;
++	vdso_pagelist =
++		kcalloc(vdso_pages + 1, sizeof(struct page *), GFP_KERNEL);
++	if (unlikely(vdso_pagelist == NULL)) {
++		pr_err("vdso: pagelist allocation failed\n");
++		return -ENOMEM;
++	}
+ 
+-	dcache_wb_range((unsigned long)vdso, (unsigned long)vdso + 16);
++	for (i = 0; i < vdso_pages; i++) {
++		struct page *pg;
+ 
+-	vunmap(vdso);
++		pg = virt_to_page(vdso_start + (i << PAGE_SHIFT));
++		vdso_pagelist[i] = pg;
++	}
++	vdso_pagelist[i] = virt_to_page(vdso_data);
+ 
+ 	return 0;
+ }
+-subsys_initcall(init_vdso);
++arch_initcall(vdso_init);
+ 
+-int arch_setup_additional_pages(struct linux_binprm *bprm, int uses_interp)
++int arch_setup_additional_pages(struct linux_binprm *bprm,
++	int uses_interp)
+ {
+-	int ret;
+-	unsigned long addr;
+ 	struct mm_struct *mm = current->mm;
++	unsigned long vdso_base, vdso_len;
++	int ret;
+ 
+-	mmap_write_lock(mm);
++	vdso_len = (vdso_pages + 1) << PAGE_SHIFT;
+ 
+-	addr = get_unmapped_area(NULL, STACK_TOP, PAGE_SIZE, 0, 0);
+-	if (IS_ERR_VALUE(addr)) {
+-		ret = addr;
+-		goto up_fail;
++	mmap_write_lock(mm);
++	vdso_base = get_unmapped_area(NULL, 0, vdso_len, 0, 0);
++	if (IS_ERR_VALUE(vdso_base)) {
++		ret = vdso_base;
++		goto end;
+ 	}
+ 
+-	ret = install_special_mapping(
+-			mm,
+-			addr,
+-			PAGE_SIZE,
+-			VM_READ|VM_EXEC|VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
+-			&vdso_page);
+-	if (ret)
+-		goto up_fail;
+-
+-	mm->context.vdso = (void *)addr;
++	/*
++	 * Put vDSO base into mm struct. We need to do this before calling
++	 * install_special_mapping or the perf counter mmap tracking code
++	 * will fail to recognise it as a vDSO (since arch_vma_name fails).
++	 */
++	mm->context.vdso = (void *)vdso_base;
++
++	ret =
++	   install_special_mapping(mm, vdso_base, vdso_pages << PAGE_SHIFT,
++		(VM_READ | VM_EXEC | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC),
++		vdso_pagelist);
++
++	if (unlikely(ret)) {
++		mm->context.vdso = NULL;
++		goto end;
++	}
+ 
+-up_fail:
++	vdso_base += (vdso_pages << PAGE_SHIFT);
++	ret = install_special_mapping(mm, vdso_base, PAGE_SIZE,
++		(VM_READ | VM_MAYREAD), &vdso_pagelist[vdso_pages]);
++
++	if (unlikely(ret))
++		mm->context.vdso = NULL;
++end:
+ 	mmap_write_unlock(mm);
+ 	return ret;
+ }
+ 
+ const char *arch_vma_name(struct vm_area_struct *vma)
+ {
+-	if (vma->vm_mm == NULL)
+-		return NULL;
+-
+-	if (vma->vm_start == (long)vma->vm_mm->context.vdso)
++	if (vma->vm_mm && (vma->vm_start == (long)vma->vm_mm->context.vdso))
+ 		return "[vdso]";
+-	else
+-		return NULL;
++	if (vma->vm_mm && (vma->vm_start ==
++			   (long)vma->vm_mm->context.vdso + PAGE_SIZE))
++		return "[vdso_data]";
++	return NULL;
+ }
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/kernel/vmlinux.lds.S milky/arch/csky/kernel/vmlinux.lds.S
+--- test-tree/arch/csky/kernel/vmlinux.lds.S	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/kernel/vmlinux.lds.S	2024-05-21 05:22:27.000000000 -0400
+@@ -33,6 +33,7 @@ SECTIONS
+ 
+ 	.text : AT(ADDR(.text) - LOAD_OFFSET) {
+ 		_text = .;
++		VBR_BASE
+ 		IRQENTRY_TEXT
+ 		SOFTIRQENTRY_TEXT
+ 		TEXT_TEXT
+@@ -104,7 +105,6 @@ SECTIONS
+ 
+ 	EXCEPTION_TABLE(L1_CACHE_BYTES)
+ 	BSS_SECTION(L1_CACHE_BYTES, PAGE_SIZE, L1_CACHE_BYTES)
+-	VBR_BASE
+ 	_end = . ;
+ 
+ 	STABS_DEBUG
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/mm/fault.c milky/arch/csky/mm/fault.c
+--- test-tree/arch/csky/mm/fault.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/mm/fault.c	2024-05-21 05:22:27.000000000 -0400
+@@ -1,29 +1,10 @@
+ // SPDX-License-Identifier: GPL-2.0
+ // Copyright (C) 2018 Hangzhou C-SKY Microsystems co.,ltd.
+ 
+-#include <linux/signal.h>
+-#include <linux/module.h>
+-#include <linux/sched.h>
+-#include <linux/interrupt.h>
+-#include <linux/kernel.h>
+-#include <linux/errno.h>
+-#include <linux/string.h>
+-#include <linux/types.h>
+-#include <linux/ptrace.h>
+-#include <linux/mman.h>
+-#include <linux/mm.h>
+-#include <linux/smp.h>
+-#include <linux/version.h>
+-#include <linux/vt_kern.h>
+ #include <linux/extable.h>
+-#include <linux/uaccess.h>
+-#include <linux/perf_event.h>
+ #include <linux/kprobes.h>
+-
+-#include <asm/hardirq.h>
+-#include <asm/mmu_context.h>
+-#include <asm/traps.h>
+-#include <asm/page.h>
++#include <linux/mmu_context.h>
++#include <linux/perf_event.h>
+ 
+ int fixup_exception(struct pt_regs *regs)
+ {
+@@ -39,180 +20,287 @@ int fixup_exception(struct pt_regs *regs
+ 	return 0;
+ }
+ 
+-/*
+- * This routine handles page faults. It determines the address,
+- * and the problem, and then passes it off to one of the appropriate
+- * routines.
+- */
+-asmlinkage void do_page_fault(struct pt_regs *regs, unsigned long write,
+-			      unsigned long mmu_meh)
++static inline bool is_write(struct pt_regs *regs)
+ {
+-	struct vm_area_struct *vma = NULL;
+-	struct task_struct *tsk = current;
+-	struct mm_struct *mm = tsk->mm;
+-	int si_code;
+-	int fault;
+-	unsigned long address = mmu_meh & PAGE_MASK;
++	switch (trap_no(regs)) {
++	case VEC_TLBINVALIDS:
++		return true;
++	case VEC_TLBMODIFIED:
++		return true;
++	}
+ 
+-	if (kprobe_page_fault(regs, tsk->thread.trap_no))
++	return false;
++}
++
++#ifdef CONFIG_CPU_HAS_LDSTEX
++static inline void csky_cmpxchg_fixup(struct pt_regs *regs)
++{
++	return;
++}
++#else
++extern unsigned long csky_cmpxchg_ldw;
++extern unsigned long csky_cmpxchg_stw;
++static inline void csky_cmpxchg_fixup(struct pt_regs *regs)
++{
++	if (trap_no(regs) != VEC_TLBMODIFIED)
+ 		return;
+ 
+-	si_code = SEGV_MAPERR;
++	if (instruction_pointer(regs) == csky_cmpxchg_stw)
++		instruction_pointer_set(regs, csky_cmpxchg_ldw);
++	return;
++}
++#endif
++
++static inline void no_context(struct pt_regs *regs, unsigned long addr)
++{
++	current->thread.trap_no = trap_no(regs);
++
++	/* Are we prepared to handle this kernel fault? */
++	if (fixup_exception(regs))
++		return;
+ 
+-#ifndef CONFIG_CPU_HAS_TLBI
+ 	/*
+-	 * We fault-in kernel-space virtual memory on-demand. The
+-	 * 'reference' page table is init_mm.pgd.
+-	 *
+-	 * NOTE! We MUST NOT take any locks for this case. We may
+-	 * be in an interrupt or a critical region, and should
+-	 * only copy the information from the master page table,
+-	 * nothing more.
++	 * Oops. The kernel tried to access some bad page. We'll have to
++	 * terminate things with extreme prejudice.
+ 	 */
+-	if (unlikely(address >= VMALLOC_START) &&
+-	    unlikely(address <= VMALLOC_END)) {
++	bust_spinlocks(1);
++	pr_alert("Unable to handle kernel paging request at virtual "
++		 "addr 0x%08lx, pc: 0x%08lx\n", addr, regs->pc);
++	die(regs, "Oops");
++	do_exit(SIGKILL);
++}
++
++static inline void mm_fault_error(struct pt_regs *regs, unsigned long addr, vm_fault_t fault)
++{
++	current->thread.trap_no = trap_no(regs);
++
++	if (fault & VM_FAULT_OOM) {
+ 		/*
+-		 * Synchronize this task's top level page-table
+-		 * with the 'reference' page table.
+-		 *
+-		 * Do _not_ use "tsk" here. We might be inside
+-		 * an interrupt in the middle of a task switch..
++		 * We ran out of memory, call the OOM killer, and return the userspace
++		 * (which will retry the fault, or kill us if we got oom-killed).
+ 		 */
+-		int offset = pgd_index(address);
+-		pgd_t *pgd, *pgd_k;
+-		pud_t *pud, *pud_k;
+-		pmd_t *pmd, *pmd_k;
+-		pte_t *pte_k;
+-
+-		unsigned long pgd_base;
+-
+-		pgd_base = (unsigned long)__va(get_pgd());
+-		pgd = (pgd_t *)pgd_base + offset;
+-		pgd_k = init_mm.pgd + offset;
+-
+-		if (!pgd_present(*pgd_k))
+-			goto no_context;
+-		set_pgd(pgd, *pgd_k);
+-
+-		pud = (pud_t *)pgd;
+-		pud_k = (pud_t *)pgd_k;
+-		if (!pud_present(*pud_k))
+-			goto no_context;
+-
+-		pmd = pmd_offset(pud, address);
+-		pmd_k = pmd_offset(pud_k, address);
+-		if (!pmd_present(*pmd_k))
+-			goto no_context;
+-		set_pmd(pmd, *pmd_k);
+-
+-		pte_k = pte_offset_kernel(pmd_k, address);
+-		if (!pte_present(*pte_k))
+-			goto no_context;
++		if (!user_mode(regs)) {
++			no_context(regs, addr);
++			return;
++		}
++		pagefault_out_of_memory();
++		return;
++	} else if (fault & VM_FAULT_SIGBUS) {
++		/* Kernel mode? Handle exceptions or die */
++		if (!user_mode(regs)) {
++			no_context(regs, addr);
++			return;
++		}
++		do_trap(regs, SIGBUS, BUS_ADRERR, addr);
+ 		return;
+ 	}
+-#endif
++	BUG();
++}
+ 
+-	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
++static inline void bad_area(struct pt_regs *regs, struct mm_struct *mm, int code, unsigned long addr)
++{
+ 	/*
+-	 * If we're in an interrupt or have no user
+-	 * context, we must not take the fault..
++	 * Something tried to access memory that isn't in our memory map.
++	 * Fix it, but check if it's kernel or user first.
+ 	 */
+-	if (in_atomic() || !mm)
+-		goto bad_area_nosemaphore;
++	mmap_read_unlock(mm);
++	/* User mode accesses just cause a SIGSEGV */
++	if (user_mode(regs)) {
++		do_trap(regs, SIGSEGV, code, addr);
++		return;
++	}
++
++	no_context(regs, addr);
++}
++
++static inline void vmalloc_fault(struct pt_regs *regs, int code, unsigned long addr)
++{
++	pgd_t *pgd, *pgd_k;
++	pud_t *pud, *pud_k;
++	pmd_t *pmd, *pmd_k;
++	pte_t *pte_k;
++	int offset;
++
++	/* User mode accesses just cause a SIGSEGV */
++	if (user_mode(regs)) {
++		do_trap(regs, SIGSEGV, code, addr);
++		return;
++	}
+ 
+-	mmap_read_lock(mm);
+-	vma = find_vma(mm, address);
+-	if (!vma)
+-		goto bad_area;
+-	if (vma->vm_start <= address)
+-		goto good_area;
+-	if (!(vma->vm_flags & VM_GROWSDOWN))
+-		goto bad_area;
+-	if (expand_stack(vma, address))
+-		goto bad_area;
+ 	/*
+-	 * Ok, we have a good vm_area for this memory access, so
+-	 * we can handle it..
++	 * Synchronize this task's top level page-table
++	 * with the 'reference' page table.
++	 *
++	 * Do _not_ use "tsk" here. We might be inside
++	 * an interrupt in the middle of a task switch..
+ 	 */
+-good_area:
+-	si_code = SEGV_ACCERR;
++	offset = pgd_index(addr);
++
++	pgd = get_pgd() + offset;
++	pgd_k = init_mm.pgd + offset;
++
++	if (!pgd_present(*pgd_k)) {
++		no_context(regs, addr);
++		return;
++	}
++	set_pgd(pgd, *pgd_k);
++
++	pud = (pud_t *)pgd;
++	pud_k = (pud_t *)pgd_k;
++	if (!pud_present(*pud_k)) {
++		no_context(regs, addr);
++		return;
++	}
++
++	pmd = pmd_offset(pud, addr);
++	pmd_k = pmd_offset(pud_k, addr);
++	if (!pmd_present(*pmd_k)) {
++		no_context(regs, addr);
++		return;
++	}
++	set_pmd(pmd, *pmd_k);
+ 
+-	if (write) {
++	pte_k = pte_offset_kernel(pmd_k, addr);
++	if (!pte_present(*pte_k)) {
++		no_context(regs, addr);
++		return;
++	}
++
++	flush_tlb_one(addr);
++}
++
++static inline bool access_error(struct pt_regs *regs, struct vm_area_struct *vma)
++{
++	if (is_write(regs)) {
+ 		if (!(vma->vm_flags & VM_WRITE))
+-			goto bad_area;
++			return true;
+ 	} else {
+ 		if (unlikely(!vma_is_accessible(vma)))
+-			goto bad_area;
++			return true;
+ 	}
++	return false;
++}
++
++/*
++ * This routine handles page faults.  It determines the address and the
++ * problem, and then passes it off to one of the appropriate routines.
++ */
++asmlinkage void do_page_fault(struct pt_regs *regs)
++{
++	struct task_struct *tsk;
++	struct vm_area_struct *vma;
++	struct mm_struct *mm;
++	unsigned long addr = read_mmu_entryhi() & PAGE_MASK;
++	unsigned int flags = FAULT_FLAG_DEFAULT;
++	int code = SEGV_MAPERR;
++	vm_fault_t fault;
++
++	tsk = current;
++	mm = tsk->mm;
++
++	csky_cmpxchg_fixup(regs);
++
++	if (kprobe_page_fault(regs, tsk->thread.trap_no))
++		return;
+ 
+ 	/*
+-	 * If for any reason at all we couldn't handle the fault,
+-	 * make sure we exit gracefully rather than endlessly redo
+-	 * the fault.
++	 * Fault-in kernel-space virtual memory on-demand.
++	 * The 'reference' page table is init_mm.pgd.
++	 *
++	 * NOTE! We MUST NOT take any locks for this case. We may
++	 * be in an interrupt or a critical region, and should
++	 * only copy the information from the master page table,
++	 * nothing more.
+ 	 */
+-	fault = handle_mm_fault(vma, address, write ? FAULT_FLAG_WRITE : 0,
+-				regs);
+-	if (unlikely(fault & VM_FAULT_ERROR)) {
+-		if (fault & VM_FAULT_OOM)
+-			goto out_of_memory;
+-		else if (fault & VM_FAULT_SIGBUS)
+-			goto do_sigbus;
+-		else if (fault & VM_FAULT_SIGSEGV)
+-			goto bad_area;
+-		BUG();
++	if (unlikely((addr >= VMALLOC_START) && (addr <= VMALLOC_END))) {
++		vmalloc_fault(regs, code, addr);
++		return;
+ 	}
+-	mmap_read_unlock(mm);
+-	return;
++
++	/* Enable interrupts if they were enabled in the parent context. */
++	if (likely(regs->sr & BIT(6)))
++		local_irq_enable();
+ 
+ 	/*
+-	 * Something tried to access memory that isn't in our memory map..
+-	 * Fix it, but check if it's kernel or user first..
++	 * If we're in an interrupt, have no user context, or are running
++	 * in an atomic region, then we must not take the fault.
+ 	 */
+-bad_area:
+-	mmap_read_unlock(mm);
+-
+-bad_area_nosemaphore:
+-	/* User mode accesses just cause a SIGSEGV */
+-	if (user_mode(regs)) {
+-		tsk->thread.trap_no = trap_no(regs);
+-		force_sig_fault(SIGSEGV, si_code, (void __user *)address);
++	if (unlikely(faulthandler_disabled() || !mm)) {
++		no_context(regs, addr);
+ 		return;
+ 	}
+ 
+-no_context:
+-	tsk->thread.trap_no = trap_no(regs);
++	if (user_mode(regs))
++		flags |= FAULT_FLAG_USER;
+ 
+-	/* Are we prepared to handle this kernel fault? */
+-	if (fixup_exception(regs))
++	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
++
++	if (is_write(regs))
++		flags |= FAULT_FLAG_WRITE;
++retry:
++	mmap_read_lock(mm);
++	vma = find_vma(mm, addr);
++	if (unlikely(!vma)) {
++		bad_area(regs, mm, code, addr);
++		return;
++	}
++	if (likely(vma->vm_start <= addr))
++		goto good_area;
++	if (unlikely(!(vma->vm_flags & VM_GROWSDOWN))) {
++		bad_area(regs, mm, code, addr);
+ 		return;
++	}
++	if (unlikely(expand_stack(vma, addr))) {
++		bad_area(regs, mm, code, addr);
++		return;
++	}
+ 
+ 	/*
+-	 * Oops. The kernel tried to access some bad page. We'll have to
+-	 * terminate things with extreme prejudice.
++	 * Ok, we have a good vm_area for this memory access, so
++	 * we can handle it.
+ 	 */
+-	bust_spinlocks(1);
+-	pr_alert("Unable to handle kernel paging request at virtual "
+-		 "address 0x%08lx, pc: 0x%08lx\n", address, regs->pc);
+-	die(regs, "Oops");
++good_area:
++	code = SEGV_ACCERR;
++
++	if (unlikely(access_error(regs, vma))) {
++		bad_area(regs, mm, code, addr);
++		return;
++	}
+ 
+-out_of_memory:
+-	tsk->thread.trap_no = trap_no(regs);
++	/*
++	 * If for any reason at all we could not handle the fault,
++	 * make sure we exit gracefully rather than endlessly redo
++	 * the fault.
++	 */
++	fault = handle_mm_fault(vma, addr, flags, regs);
+ 
+ 	/*
+-	 * We ran out of memory, call the OOM killer, and return the userspace
+-	 * (which will retry the fault, or kill us if we got oom-killed).
++	 * If we need to retry but a fatal signal is pending, handle the
++	 * signal first. We do not need to release the mmap_lock because it
++	 * would already be released in __lock_page_or_retry in mm/filemap.c.
+ 	 */
+-	pagefault_out_of_memory();
+-	return;
++	if (fault_signal_pending(fault, regs)) {
++		if (!user_mode(regs))
++			no_context(regs, addr);
++		return;
++	}
+ 
+-do_sigbus:
+-	tsk->thread.trap_no = trap_no(regs);
++	if (unlikely((fault & VM_FAULT_RETRY) && (flags & FAULT_FLAG_ALLOW_RETRY))) {
++		flags |= FAULT_FLAG_TRIED;
+ 
+-	mmap_read_unlock(mm);
++		/*
++		 * No need to mmap_read_unlock(mm) as we would
++		 * have already released it in __lock_page_or_retry
++		 * in mm/filemap.c.
++		 */
++		goto retry;
++	}
+ 
+-	/* Kernel mode? Handle exceptions or die */
+-	if (!user_mode(regs))
+-		goto no_context;
++	mmap_read_unlock(mm);
+ 
+-	force_sig_fault(SIGBUS, BUS_ADRERR, (void __user *)address);
++	if (unlikely(fault & VM_FAULT_ERROR)) {
++		mm_fault_error(regs, addr, fault);
++		return;
++	}
++	return;
+ }
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/mm/init.c milky/arch/csky/mm/init.c
+--- test-tree/arch/csky/mm/init.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/mm/init.c	2024-05-21 05:22:27.000000000 -0400
+@@ -28,9 +28,15 @@
+ #include <asm/mmu_context.h>
+ #include <asm/sections.h>
+ #include <asm/tlb.h>
++#include <asm/cacheflush.h>
++
++#define PTRS_KERN_TABLE \
++		((PTRS_PER_PGD - USER_PTRS_PER_PGD) * PTRS_PER_PTE)
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __page_aligned_bss;
+ pte_t invalid_pte_table[PTRS_PER_PTE] __page_aligned_bss;
++pte_t kernel_pte_tables[PTRS_KERN_TABLE] __page_aligned_bss;
++
+ EXPORT_SYMBOL(invalid_pte_table);
+ unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)]
+ 						__page_aligned_bss;
+@@ -80,9 +86,9 @@ void __init mem_init(void)
+ #ifdef CONFIG_HIGHMEM
+ 	unsigned long tmp;
+ 
+-	max_mapnr = highend_pfn;
++	set_max_mapnr(highend_pfn - ARCH_PFN_OFFSET);
+ #else
+-	max_mapnr = max_low_pfn;
++	set_max_mapnr(max_low_pfn - ARCH_PFN_OFFSET);
+ #endif
+ 	high_memory = (void *) __va(max_low_pfn << PAGE_SHIFT);
+ 
+@@ -130,20 +136,35 @@ void pgd_init(unsigned long *p)
+ 
+ 	for (i = 0; i < PTRS_PER_PGD; i++)
+ 		p[i] = __pa(invalid_pte_table);
++
++	flush_tlb_all();
++	local_icache_inv_all(NULL);
+ }
+ 
+-void __init pre_mmu_init(void)
++void __init mmu_init(unsigned long min_pfn, unsigned long max_pfn)
+ {
+-	/*
+-	 * Setup page-table and enable TLB-hardrefill
+-	 */
++	int i;
++
++	for (i = 0; i < USER_PTRS_PER_PGD; i++)
++		swapper_pg_dir[i].pgd = __pa(invalid_pte_table);
++
++	for (i = USER_PTRS_PER_PGD; i < PTRS_PER_PGD; i++)
++		swapper_pg_dir[i].pgd =
++			__pa(kernel_pte_tables + (PTRS_PER_PTE * (i - USER_PTRS_PER_PGD)));
++
++	for (i = 0; i < PTRS_KERN_TABLE; i++)
++		set_pte(&kernel_pte_tables[i], __pte(_PAGE_GLOBAL));
++
++	for (i = min_pfn; i < max_pfn; i++)
++		set_pte(&kernel_pte_tables[i - PFN_DOWN(va_pa_offset)], pfn_pte(i, PAGE_KERNEL));
++
+ 	flush_tlb_all();
+-	pgd_init((unsigned long *)swapper_pg_dir);
+-	TLBMISS_HANDLER_SETUP_PGD(swapper_pg_dir);
+-	TLBMISS_HANDLER_SETUP_PGD_KERNEL(swapper_pg_dir);
++	local_icache_inv_all(NULL);
+ 
+ 	/* Setup page mask to 4k */
+ 	write_mmu_pagemask(0);
++
++	setup_pgd(swapper_pg_dir, 0);
+ }
+ 
+ void __init fixrange_init(unsigned long start, unsigned long end,
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/csky/mm/tlb.c milky/arch/csky/mm/tlb.c
+--- test-tree/arch/csky/mm/tlb.c	2024-05-24 09:21:48.394277542 -0400
++++ milky/arch/csky/mm/tlb.c	2024-05-21 05:22:27.000000000 -0400
+@@ -24,7 +24,13 @@ void flush_tlb_all(void)
+ void flush_tlb_mm(struct mm_struct *mm)
+ {
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.asids %0"::"r"(cpu_asid(mm)));
++	sync_is();
++	asm volatile(
++		"tlbi.asids %0	\n"
++		"sync.i		\n"
++		:
++		: "r" (cpu_asid(mm))
++		: "memory");
+ #else
+ 	tlb_invalid_all();
+ #endif
+@@ -53,11 +59,17 @@ void flush_tlb_range(struct vm_area_stru
+ 	end   &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
++	sync_is();
+ 	while (start < end) {
+-		asm volatile("tlbi.vas %0"::"r"(start | newpid));
++		asm volatile(
++			"tlbi.vas %0	\n"
++			:
++			: "r" (start | newpid)
++			: "memory");
++
+ 		start += 2*PAGE_SIZE;
+ 	}
+-	sync_is();
++	asm volatile("sync.i\n");
+ #else
+ 	{
+ 	unsigned long flags, oldpid;
+@@ -87,11 +99,17 @@ void flush_tlb_kernel_range(unsigned lon
+ 	end   &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
++	sync_is();
+ 	while (start < end) {
+-		asm volatile("tlbi.vaas %0"::"r"(start));
++		asm volatile(
++			"tlbi.vaas %0	\n"
++			:
++			: "r" (start)
++			: "memory");
++
+ 		start += 2*PAGE_SIZE;
+ 	}
+-	sync_is();
++	asm volatile("sync.i\n");
+ #else
+ 	{
+ 	unsigned long flags, oldpid;
+@@ -121,8 +139,13 @@ void flush_tlb_page(struct vm_area_struc
+ 	addr &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.vas %0"::"r"(addr | newpid));
+ 	sync_is();
++	asm volatile(
++		"tlbi.vas %0	\n"
++		"sync.i		\n"
++		:
++		: "r" (addr | newpid)
++		: "memory");
+ #else
+ 	{
+ 	int oldpid, idx;
+@@ -147,8 +170,13 @@ void flush_tlb_one(unsigned long addr)
+ 	addr &= TLB_ENTRY_SIZE_MASK;
+ 
+ #ifdef CONFIG_CPU_HAS_TLBI
+-	asm volatile("tlbi.vaas %0"::"r"(addr));
+ 	sync_is();
++	asm volatile(
++		"tlbi.vaas %0	\n"
++		"sync.i		\n"
++		:
++		: "r" (addr)
++		: "memory");
+ #else
+ 	{
+ 	int oldpid, idx;

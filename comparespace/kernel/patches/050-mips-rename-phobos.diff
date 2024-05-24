@@ -1,0 +1,16 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/mips/sgi-ip22/ip22-gio.c milky/arch/mips/sgi-ip22/ip22-gio.c
+--- test-tree/arch/mips/sgi-ip22/ip22-gio.c	2024-05-24 09:21:48.610276831 -0400
++++ milky/arch/mips/sgi-ip22/ip22-gio.c	2024-05-21 05:22:27.000000000 -0400
+@@ -19,9 +19,9 @@ static struct {
+ 	__u8	   id;
+ } gio_name_table[] = {
+ 	{ .name = "SGI Impact", .id = 0x10 },
+-	{ .name = "Phobos G160", .id = 0x35 },
+-	{ .name = "Phobos G130", .id = 0x36 },
+-	{ .name = "Phobos G100", .id = 0x37 },
++	{ .name = "CV180X G160", .id = 0x35 },
++	{ .name = "CV180X G130", .id = 0x36 },
++	{ .name = "CV180X G100", .id = 0x37 },
+ 	{ .name = "Set Engineering GFE", .id = 0x38 },
+ 	/* fake IDs */
+ 	{ .name = "SGI Newport", .id = 0x7e },

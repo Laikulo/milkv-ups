@@ -1,0 +1,3582 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/configs/defconfig milky/arch/riscv/configs/defconfig
+--- test-tree/arch/riscv/configs/defconfig	2024-05-24 09:21:48.826276120 -0400
++++ milky/arch/riscv/configs/defconfig	2024-05-21 05:22:27.000000000 -0400
+@@ -1,7 +1,6 @@
++# CONFIG_LOCALVERSION_AUTO is not set
+ CONFIG_SYSVIPC=y
+ CONFIG_POSIX_MQUEUE=y
+-CONFIG_NO_HZ_IDLE=y
+-CONFIG_HIGH_RES_TIMERS=y
+ CONFIG_IKCONFIG=y
+ CONFIG_IKCONFIG_PROC=y
+ CONFIG_CGROUPS=y
+@@ -14,12 +13,37 @@ CONFIG_CHECKPOINT_RESTORE=y
+ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_EXPERT=y
+ CONFIG_BPF_SYSCALL=y
+-CONFIG_SOC_SIFIVE=y
+-CONFIG_SOC_VIRT=y
++CONFIG_PERF_EVENTS=y
++CONFIG_SOC_THEAD=y
+ CONFIG_SMP=y
+-CONFIG_JUMP_LABEL=y
++
+ CONFIG_MODULES=y
+ CONFIG_MODULE_UNLOAD=y
++CONFIG_PARTITION_ADVANCED=y
++CONFIG_ACORN_PARTITION=y
++CONFIG_ACORN_PARTITION_CUMANA=y
++CONFIG_ACORN_PARTITION_EESOX=y
++CONFIG_ACORN_PARTITION_ICS=y
++CONFIG_ACORN_PARTITION_ADFS=y
++CONFIG_ACORN_PARTITION_POWERTEC=y
++CONFIG_ACORN_PARTITION_RISCIX=y
++CONFIG_AIX_PARTITION=y
++CONFIG_OSF_PARTITION=y
++CONFIG_AMIGA_PARTITION=y
++CONFIG_ATARI_PARTITION=y
++CONFIG_MAC_PARTITION=y
++CONFIG_BSD_DISKLABEL=y
++CONFIG_MINIX_SUBPARTITION=y
++CONFIG_SOLARIS_X86_PARTITION=y
++CONFIG_UNIXWARE_DISKLABEL=y
++CONFIG_LDM_PARTITION=y
++CONFIG_LDM_DEBUG=y
++CONFIG_SGI_PARTITION=y
++CONFIG_ULTRIX_PARTITION=y
++CONFIG_SUN_PARTITION=y
++CONFIG_KARMA_PARTITION=y
++CONFIG_SYSV68_PARTITION=y
++CONFIG_CMDLINE_PARTITION=y
+ CONFIG_NET=y
+ CONFIG_PACKET=y
+ CONFIG_UNIX=y
+@@ -33,101 +57,132 @@ CONFIG_IP_PNP_RARP=y
+ CONFIG_NETLINK_DIAG=y
+ CONFIG_NET_9P=y
+ CONFIG_NET_9P_VIRTIO=y
+-CONFIG_PCI=y
+-CONFIG_PCIEPORTBUS=y
+-CONFIG_PCI_HOST_GENERIC=y
+-CONFIG_PCIE_XILINX=y
++CONFIG_NET_9P_DEBUG=y
+ CONFIG_DEVTMPFS=y
+ CONFIG_DEVTMPFS_MOUNT=y
++CONFIG_MTD=y
++CONFIG_MTD_CMDLINE_PARTS=y
++CONFIG_MTD_SPI_NAND=y
++CONFIG_MTD_SPI_NOR=y
+ CONFIG_BLK_DEV_LOOP=y
+ CONFIG_VIRTIO_BLK=y
++CONFIG_EEPROM_AT24=y
++CONFIG_SCSI=y
+ CONFIG_BLK_DEV_SD=y
+-CONFIG_BLK_DEV_SR=y
+-CONFIG_SCSI_VIRTIO=y
+-CONFIG_ATA=y
+-CONFIG_SATA_AHCI=y
+-CONFIG_SATA_AHCI_PLATFORM=y
+ CONFIG_NETDEVICES=y
+ CONFIG_VIRTIO_NET=y
+ CONFIG_MACB=y
+-CONFIG_E1000E=y
+-CONFIG_R8169=y
+-CONFIG_MICROSEMI_PHY=y
+-CONFIG_INPUT_MOUSEDEV=y
++CONFIG_STMMAC_ETH=y
++# CONFIG_NET_VENDOR_SYNOPSYS is not set
++# CONFIG_NET_VENDOR_VIA is not set
++# CONFIG_NET_VENDOR_WIZNET is not set
++CONFIG_MARVELL_PHY=y
++# CONFIG_WLAN is not set
++CONFIG_INPUT_EVDEV=y
++CONFIG_KEYBOARD_GPIO=y
++# CONFIG_MOUSE_PS2 is not set
++CONFIG_INPUT_TOUCHSCREEN=y
++CONFIG_TOUCHSCREEN_GOODIX=y
++# CONFIG_SERIO_SERPORT is not set
+ CONFIG_SERIAL_8250=y
++# CONFIG_SERIAL_8250_DEPRECATED_OPTIONS is not set
+ CONFIG_SERIAL_8250_CONSOLE=y
++CONFIG_SERIAL_8250_NR_UARTS=5
++CONFIG_SERIAL_8250_RUNTIME_UARTS=5
++CONFIG_SERIAL_8250_DW=y
+ CONFIG_SERIAL_OF_PLATFORM=y
+ CONFIG_SERIAL_EARLYCON_RISCV_SBI=y
+ CONFIG_HVC_RISCV_SBI=y
+-CONFIG_VIRTIO_CONSOLE=y
+ CONFIG_HW_RANDOM=y
+ CONFIG_HW_RANDOM_VIRTIO=y
++CONFIG_I2C=y
++CONFIG_I2C_CHARDEV=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_DESIGNWARE_PLATFORM=y
++CONFIG_I2C_DESIGNWARE_ICE=y
+ CONFIG_SPI=y
+-CONFIG_SPI_SIFIVE=y
++CONFIG_SPI_DESIGNWARE=y
++CONFIG_SPI_DW_MMIO=y
+ # CONFIG_PTP_1588_CLOCK is not set
++CONFIG_GPIOLIB=y
++CONFIG_DEBUG_GPIO=y
++CONFIG_GPIO_SYSFS=y
++CONFIG_GPIO_DWAPB=y
+ CONFIG_POWER_RESET=y
+-CONFIG_DRM=y
+-CONFIG_DRM_RADEON=y
+-CONFIG_DRM_VIRTIO_GPU=y
+-CONFIG_FRAMEBUFFER_CONSOLE=y
+-CONFIG_USB=y
+-CONFIG_USB_XHCI_HCD=y
+-CONFIG_USB_XHCI_PLATFORM=y
+-CONFIG_USB_EHCI_HCD=y
+-CONFIG_USB_EHCI_HCD_PLATFORM=y
+-CONFIG_USB_OHCI_HCD=y
+-CONFIG_USB_OHCI_HCD_PLATFORM=y
+-CONFIG_USB_STORAGE=y
+-CONFIG_USB_UAS=y
++CONFIG_POWER_SUPPLY=y
++# CONFIG_HWMON is not set
++CONFIG_WATCHDOG=y
++CONFIG_FB=y
++CONFIG_FB_VIRTUAL=m
++CONFIG_FB_SIMPLE=y
++CONFIG_LCD_CLASS_DEVICE=y
++CONFIG_BACKLIGHT_CLASS_DEVICE=y
++# CONFIG_VGA_CONSOLE is not set
++CONFIG_USB_DWC3=y
++# CONFIG_USB_DWC3_OF_SIMPLE is not set
++CONFIG_USB_GADGET=y
++CONFIG_USB_MASS_STORAGE=m
++CONFIG_USB_G_SERIAL=m
++CONFIG_USB_ROLE_SWITCH=y
+ CONFIG_MMC=y
+-CONFIG_MMC_SPI=y
+-CONFIG_RTC_CLASS=y
+-CONFIG_VIRTIO_PCI=y
++CONFIG_MMC_DEBUG=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_PLTFM=y
++CONFIG_MMC_SDHCI_OF_LIGHT_MPW=y
++CONFIG_MMC_DW=y
++CONFIG_NEW_LEDS=y
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_TRIGGERS=y
++CONFIG_LEDS_TRIGGER_CPU=y
++CONFIG_DMADEVICES=y
++CONFIG_DW_AXI_DMAC=y
++CONFIG_DMATEST=y
++CONFIG_SYNC_FILE=y
+ CONFIG_VIRTIO_BALLOON=y
+-CONFIG_VIRTIO_INPUT=y
+ CONFIG_VIRTIO_MMIO=y
+-CONFIG_RPMSG_CHAR=y
+-CONFIG_RPMSG_VIRTIO=y
++CONFIG_SIFIVE_PLIC=y
++CONFIG_GENERIC_PHY=y
++CONFIG_RAS=y
++CONFIG_EXT2_FS=y
++CONFIG_EXT2_FS_XATTR=y
++CONFIG_EXT2_FS_POSIX_ACL=y
++CONFIG_EXT2_FS_SECURITY=y
+ CONFIG_EXT4_FS=y
+ CONFIG_EXT4_FS_POSIX_ACL=y
+ CONFIG_AUTOFS4_FS=y
++CONFIG_FUSE_FS=y
+ CONFIG_MSDOS_FS=y
+ CONFIG_VFAT_FS=y
++CONFIG_FAT_DEFAULT_UTF8=y
++CONFIG_EXFAT_FS=y
++CONFIG_NTFS_FS=y
++CONFIG_NTFS_RW=y
+ CONFIG_TMPFS=y
+ CONFIG_TMPFS_POSIX_ACL=y
++CONFIG_HFS_FS=y
++CONFIG_HFSPLUS_FS=y
+ CONFIG_NFS_FS=y
+ CONFIG_NFS_V4=y
+ CONFIG_NFS_V4_1=y
+ CONFIG_NFS_V4_2=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_9P_FS=y
++CONFIG_9P_FS_POSIX_ACL=y
++CONFIG_9P_FS_SECURITY=y
++CONFIG_NLS_CODEPAGE_437=y
++CONFIG_NLS_CODEPAGE_936=y
++CONFIG_NLS_CODEPAGE_1250=y
++CONFIG_NLS_CODEPAGE_1251=y
++CONFIG_LSM="lockdown,yama,loadpin,safesetid,integrity"
+ CONFIG_CRYPTO_USER_API_HASH=y
+ CONFIG_CRYPTO_DEV_VIRTIO=y
+ CONFIG_PRINTK_TIME=y
++CONFIG_DEBUG_INFO=y
++# CONFIG_ENABLE_MUST_CHECK is not set
++CONFIG_MAGIC_SYSRQ=y
+ CONFIG_DEBUG_FS=y
+-CONFIG_DEBUG_PAGEALLOC=y
+-CONFIG_SCHED_STACK_END_CHECK=y
+-CONFIG_DEBUG_VM=y
+-CONFIG_DEBUG_VM_PGFLAGS=y
+-CONFIG_DEBUG_MEMORY_INIT=y
+-CONFIG_DEBUG_PER_CPU_MAPS=y
+-CONFIG_SOFTLOCKUP_DETECTOR=y
+-CONFIG_WQ_WATCHDOG=y
+-CONFIG_DEBUG_TIMEKEEPING=y
+-CONFIG_DEBUG_RT_MUTEXES=y
+-CONFIG_DEBUG_SPINLOCK=y
+-CONFIG_DEBUG_MUTEXES=y
+-CONFIG_DEBUG_RWSEMS=y
++CONFIG_DETECT_HUNG_TASK=y
++CONFIG_DEFAULT_HUNG_TASK_TIMEOUT=60
+ CONFIG_DEBUG_ATOMIC_SLEEP=y
+-CONFIG_STACKTRACE=y
+-CONFIG_DEBUG_LIST=y
+-CONFIG_DEBUG_PLIST=y
+-CONFIG_DEBUG_SG=y
+ # CONFIG_RCU_TRACE is not set
+-CONFIG_RCU_EQS_DEBUG=y
+-CONFIG_DEBUG_BLOCK_EXT_DEVT=y
+-# CONFIG_FTRACE is not set
+-# CONFIG_RUNTIME_TESTING_MENU is not set
+-CONFIG_MEMTEST=y
+-# CONFIG_SYSFS_SYSCALL is not set
+-CONFIG_EFI=y
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/bug.h milky/arch/riscv/include/asm/bug.h
+--- test-tree/arch/riscv/include/asm/bug.h	2024-05-24 09:21:48.826276120 -0400
++++ milky/arch/riscv/include/asm/bug.h	2024-05-21 05:22:27.000000000 -0400
+@@ -85,6 +85,7 @@ do {								\
+ struct pt_regs;
+ struct task_struct;
+ 
++void __show_regs(struct pt_regs *regs);
+ void die(struct pt_regs *regs, const char *str);
+ void do_trap(struct pt_regs *regs, int signo, int code, unsigned long addr);
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/cacheflush.h milky/arch/riscv/include/asm/cacheflush.h
+--- test-tree/arch/riscv/include/asm/cacheflush.h	2024-05-24 09:21:48.826276120 -0400
++++ milky/arch/riscv/include/asm/cacheflush.h	2024-05-21 05:22:27.000000000 -0400
+@@ -42,6 +42,9 @@ void flush_icache_mm(struct mm_struct *m
+ 
+ #endif /* CONFIG_SMP */
+ 
++void dma_wbinv_range(unsigned long start, unsigned long end);
++void dma_wb_range(unsigned long start, unsigned long end);
++
+ /*
+  * Bits in sys_riscv_flush_icache()'s flags argument.
+  */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/csr.h milky/arch/riscv/include/asm/csr.h
+--- test-tree/arch/riscv/include/asm/csr.h	2024-05-24 09:21:48.826276120 -0400
++++ milky/arch/riscv/include/asm/csr.h	2024-05-21 05:22:27.000000000 -0400
+@@ -24,6 +24,21 @@
+ #define SR_FS_CLEAN	_AC(0x00004000, UL)
+ #define SR_FS_DIRTY	_AC(0x00006000, UL)
+ 
++#define SR_VS_OFF	_AC(0x00000000, UL)
++
++#if (defined(CONFIG_VECTOR_1_0) && defined(__THEAD_VERSION__))
++#define SR_VS		_AC(0x00000600, UL) /* Vector Status */
++#define SR_VS_INITIAL	_AC(0x00000200, UL)
++#define SR_VS_CLEAN	_AC(0x00000400, UL)
++#define SR_VS_DIRTY	_AC(0x00000600, UL)
++#else
++#define SR_VS		_AC(0x01800000, UL) /* Vector Status */
++#define SR_VS_INITIAL	_AC(0x00800000, UL)
++#define SR_VS_CLEAN	_AC(0x01000000, UL)
++#define SR_VS_DIRTY	_AC(0x01800000, UL)
++
++#endif
++
+ #define SR_XS		_AC(0x00018000, UL) /* Extension Status */
+ #define SR_XS_OFF	_AC(0x00000000, UL)
+ #define SR_XS_INITIAL	_AC(0x00008000, UL)
+@@ -36,6 +51,13 @@
+ #define SR_SD		_AC(0x8000000000000000, UL) /* FS/XS dirty */
+ #endif
+ 
++#ifdef CONFIG_COMPAT
++#define SR_UXL		_AC(0x300000000, UL) /* XLEN mask for U-mode */
++#define SR_UXL_32	_AC(0x100000000, UL) /* XLEN = 32 for U-mode */
++#define SR_UXL_64	_AC(0x200000000, UL) /* XLEN = 64 for U-mode */
++#define SR_UXL_SHIFT	32
++#endif
++
+ /* SATP flags */
+ #ifndef CONFIG_64BIT
+ #define SATP_PPN	_AC(0x003FFFFF, UL)
+@@ -45,6 +67,9 @@
+ #define SATP_PPN	_AC(0x00000FFFFFFFFFFF, UL)
+ #define SATP_MODE_39	_AC(0x8000000000000000, UL)
+ #define SATP_MODE	SATP_MODE_39
++#define SATP_ASID_BITS	16
++#define SATP_ASID_SHIFT	44
++#define SATP_ASID_MASK	_AC(0xFFFF, UL)
+ #endif
+ 
+ /* Exception cause high bit - is an interrupt if set */
+@@ -111,6 +136,18 @@
+ #define CSR_PMPADDR0		0x3b0
+ #define CSR_MHARTID		0xf14
+ 
++#define CSR_VSTART		0x8
++#define CSR_VXSAT		0x9
++#define CSR_VXRM		0xa
++#define CSR_VL			0xc20
++#define CSR_VTYPE		0xc21
++#define CSR_VLENB		0xc22
++
++#define CSR_SMIR		0x9c0
++#define CSR_SMEL		0x9c1
++#define CSR_SMEH		0x9c2
++#define CSR_SMCIR		0x9c3
++
+ #ifdef CONFIG_RISCV_M_MODE
+ # define CSR_STATUS	CSR_MSTATUS
+ # define CSR_IE		CSR_MIE
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/elf.h milky/arch/riscv/include/asm/elf.h
+--- test-tree/arch/riscv/include/asm/elf.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/elf.h	2024-05-21 05:22:27.000000000 -0400
+@@ -8,6 +8,8 @@
+ #ifndef _ASM_RISCV_ELF_H
+ #define _ASM_RISCV_ELF_H
+ 
++#include <uapi/linux/elf.h>
++#include <linux/compat.h>
+ #include <uapi/asm/elf.h>
+ #include <asm/auxvec.h>
+ #include <asm/byteorder.h>
+@@ -18,11 +20,13 @@
+  */
+ #define ELF_ARCH	EM_RISCV
+ 
++#ifndef ELF_CLASS
+ #ifdef CONFIG_64BIT
+ #define ELF_CLASS	ELFCLASS64
+ #else
+ #define ELF_CLASS	ELFCLASS32
+ #endif
++#endif
+ 
+ #define ELF_DATA	ELFDATA2LSB
+ 
+@@ -31,6 +35,8 @@
+  */
+ #define elf_check_arch(x) ((x)->e_machine == EM_RISCV)
+ 
++#define compat_elf_check_arch(x) ((x)->e_machine == EM_RISCV)
++
+ #define CORE_DUMP_USE_REGSET
+ #define ELF_EXEC_PAGESIZE	(PAGE_SIZE)
+ 
+@@ -57,11 +63,19 @@ extern unsigned long elf_hwcap;
+  */
+ #define ELF_PLATFORM	(NULL)
+ 
++#define COMPAT_ELF_PLATFORM	(NULL)
++
+ #ifdef CONFIG_MMU
+ #define ARCH_DLINFO						\
+ do {								\
++	/*							\
++	 * Note that we add ulong after elf_addr_t because	\
++	 * casting current->mm->context.vdso triggers a cast	\
++	 * warning of cast from pointer to integer for		\
++	 * COMPAT ELFCLASS32.					\
++	 */							\
+ 	NEW_AUX_ENT(AT_SYSINFO_EHDR,				\
+-		(elf_addr_t)current->mm->context.vdso);		\
++		(elf_addr_t)(ulong)current->mm->context.vdso);	\
+ 	NEW_AUX_ENT(AT_L1I_CACHESIZE,				\
+ 		get_cache_size(1, CACHE_TYPE_INST));		\
+ 	NEW_AUX_ENT(AT_L1I_CACHEGEOMETRY,			\
+@@ -81,4 +95,28 @@ extern int arch_setup_additional_pages(s
+ 	int uses_interp);
+ #endif /* CONFIG_MMU */
+ 
++#ifdef CONFIG_COMPAT
++
++#define SET_PERSONALITY(ex)					\
++do {    if ((ex).e_ident[EI_CLASS] == ELFCLASS32)		\
++		set_thread_flag(TIF_32BIT);			\
++	else							\
++		clear_thread_flag(TIF_32BIT);			\
++	if (personality(current->personality) != PER_LINUX32)	\
++		set_personality(PER_LINUX |			\
++			(current->personality & (~PER_MASK)));	\
++} while (0)
++
++#define COMPAT_ELF_ET_DYN_BASE		((TASK_SIZE_32 / 3) * 2)
++
++/* rv32 registers */
++typedef compat_ulong_t			compat_elf_greg_t;
++typedef compat_elf_greg_t		compat_elf_gregset_t[ELF_NGREG];
++
++extern int compat_arch_setup_additional_pages(struct linux_binprm *bprm,
++					      int uses_interp);
++#define compat_arch_setup_additional_pages \
++				compat_arch_setup_additional_pages
++
++#endif /* CONFIG_COMPAT */
+ #endif /* _ASM_RISCV_ELF_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/fixmap.h milky/arch/riscv/include/asm/fixmap.h
+--- test-tree/arch/riscv/include/asm/fixmap.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/fixmap.h	2024-05-21 05:22:27.000000000 -0400
+@@ -43,8 +43,6 @@ enum fixed_addresses {
+ 	__end_of_fixed_addresses
+ };
+ 
+-#define FIXMAP_PAGE_IO		PAGE_KERNEL
+-
+ #define __early_set_fixmap	__set_fixmap
+ 
+ #define __late_set_fixmap	__set_fixmap
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/kprobes.h milky/arch/riscv/include/asm/kprobes.h
+--- test-tree/arch/riscv/include/asm/kprobes.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/kprobes.h	2024-05-21 05:22:27.000000000 -0400
+@@ -11,4 +11,44 @@
+ 
+ #include <asm-generic/kprobes.h>
+ 
++#ifdef CONFIG_KPROBES
++#include <linux/types.h>
++#include <linux/ptrace.h>
++#include <linux/percpu.h>
++
++#define __ARCH_WANT_KPROBES_INSN_SLOT
++#define MAX_INSN_SIZE			2
++
++#define flush_insn_slot(p)		do { } while (0)
++#define kretprobe_blacklist_size	0
++
++#include <asm/probes.h>
++
++struct prev_kprobe {
++	struct kprobe *kp;
++	unsigned int status;
++};
++
++/* Single step context for kprobe */
++struct kprobe_step_ctx {
++	unsigned long ss_pending;
++	unsigned long match_addr;
++};
++
++/* per-cpu kprobe control block */
++struct kprobe_ctlblk {
++	unsigned int kprobe_status;
++	unsigned long saved_status;
++	struct prev_kprobe prev_kprobe;
++	struct kprobe_step_ctx ss_ctx;
++};
++
++void arch_remove_kprobe(struct kprobe *p);
++int kprobe_fault_handler(struct pt_regs *regs, unsigned int trapnr);
++bool kprobe_breakpoint_handler(struct pt_regs *regs);
++bool kprobe_single_step_handler(struct pt_regs *regs);
++void kretprobe_trampoline(void);
++void __kprobes *trampoline_probe_handler(struct pt_regs *regs);
++
++#endif /* CONFIG_KPROBES */
+ #endif /* _ASM_RISCV_KPROBES_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/mmu_context.h milky/arch/riscv/include/asm/mmu_context.h
+--- test-tree/arch/riscv/include/asm/mmu_context.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/mmu_context.h	2024-05-21 05:22:27.000000000 -0400
+@@ -12,19 +12,20 @@
+ 
+ #include <linux/mm.h>
+ #include <linux/sched.h>
++#include <asm/tlbflush.h>
++#include <asm/cacheflush.h>
++#include <asm/asid.h>
++
++#define ASID_MASK		((1 << SATP_ASID_BITS) - 1)
++#define cpu_asid(mm)		(atomic64_read(&mm->context.asid) & ASID_MASK)
++
++#define init_new_context(tsk,mm)	({ atomic64_set(&(mm)->context.asid, 0); 0; })
+ 
+ static inline void enter_lazy_tlb(struct mm_struct *mm,
+ 	struct task_struct *task)
+ {
+ }
+ 
+-/* Initialize context-related info for a new mm_struct */
+-static inline int init_new_context(struct task_struct *task,
+-	struct mm_struct *mm)
+-{
+-	return 0;
+-}
+-
+ static inline void destroy_context(struct mm_struct *mm)
+ {
+ }
+@@ -32,6 +33,8 @@ static inline void destroy_context(struc
+ void switch_mm(struct mm_struct *prev, struct mm_struct *next,
+ 	struct task_struct *task);
+ 
++void check_and_switch_context(struct mm_struct *mm, unsigned int cpu);
++
+ static inline void activate_mm(struct mm_struct *prev,
+ 			       struct mm_struct *next)
+ {
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/mmu.h milky/arch/riscv/include/asm/mmu.h
+--- test-tree/arch/riscv/include/asm/mmu.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/mmu.h	2024-05-21 05:22:27.000000000 -0400
+@@ -14,6 +14,8 @@ typedef struct {
+ 	unsigned long	end_brk;
+ #endif
+ 	void *vdso;
++	atomic64_t asid;
++	void *vdso_info;
+ #ifdef CONFIG_SMP
+ 	/* A local icache flush is needed before user execution can resume. */
+ 	cpumask_t icache_stale_mask;
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/page.h milky/arch/riscv/include/asm/page.h
+--- test-tree/arch/riscv/include/asm/page.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/page.h	2024-05-21 05:22:27.000000000 -0400
+@@ -16,6 +16,12 @@
+ #define PAGE_SIZE	(_AC(1, UL) << PAGE_SHIFT)
+ #define PAGE_MASK	(~(PAGE_SIZE - 1))
+ 
++#if __riscv_xlen == 64
++#define LOAD_OFFSET	0x200000
++#else
++#define LOAD_OFFSET	0x400000
++#endif
++
+ #ifdef CONFIG_64BIT
+ #define HUGE_MAX_HSTATE		2
+ #else
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/pgtable-64.h milky/arch/riscv/include/asm/pgtable-64.h
+--- test-tree/arch/riscv/include/asm/pgtable-64.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/pgtable-64.h	2024-05-21 05:22:27.000000000 -0400
+@@ -62,7 +62,7 @@ static inline void pud_clear(pud_t *pudp
+ 
+ static inline unsigned long pud_page_vaddr(pud_t pud)
+ {
+-	return (unsigned long)pfn_to_virt(pud_val(pud) >> _PAGE_PFN_SHIFT);
++	return (unsigned long)pfn_to_virt((pud_val(pud) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ static inline struct page *pud_page(pud_t pud)
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/pgtable-bits.h milky/arch/riscv/include/asm/pgtable-bits.h
+--- test-tree/arch/riscv/include/asm/pgtable-bits.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/pgtable-bits.h	2024-05-21 05:22:27.000000000 -0400
+@@ -24,6 +24,13 @@
+ #define _PAGE_DIRTY     (1 << 7)    /* Set by hardware on any write */
+ #define _PAGE_SOFT      (1 << 8)    /* Reserved for software */
+ 
++/* T-HEAD C9xx extend */
++#define _PAGE_SEC	(1UL << 59)   /* Security */
++#define _PAGE_SHARE	(1UL << 60)   /* Shareable */
++#define _PAGE_BUF	(1UL << 61)   /* Bufferable */
++#define _PAGE_CACHE	(1UL << 62)   /* Cacheable */
++#define _PAGE_SO	(1UL << 63)   /* Strong Order */
++
+ #define _PAGE_SPECIAL   _PAGE_SOFT
+ #define _PAGE_TABLE     _PAGE_PRESENT
+ 
+@@ -38,6 +45,9 @@
+ /* Set of bits to preserve across pte_modify() */
+ #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
+ 					  _PAGE_WRITE | _PAGE_EXEC |	\
+-					  _PAGE_USER | _PAGE_GLOBAL))
++					  _PAGE_USER | _PAGE_GLOBAL |	\
++					  _PAGE_SEC | _PAGE_SHARE |	\
++					  _PAGE_BUF | _PAGE_CACHE |	\
++					  _PAGE_SO ))
+ 
+ #endif /* _ASM_RISCV_PGTABLE_BITS_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/pgtable.h milky/arch/riscv/include/asm/pgtable.h
+--- test-tree/arch/riscv/include/asm/pgtable.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/pgtable.h	2024-05-21 05:22:27.000000000 -0400
+@@ -76,9 +76,11 @@
+ #define USER_PTRS_PER_PGD   (TASK_SIZE / PGDIR_SIZE)
+ 
+ /* Page protection bits */
+-#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER)
++#define _PAGE_BASE	(_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER | \
++			 _PAGE_SHARE | _PAGE_CACHE | _PAGE_BUF)
+ 
+-#define PAGE_NONE		__pgprot(_PAGE_PROT_NONE)
++#define PAGE_NONE		__pgprot(_PAGE_PROT_NONE | _PAGE_CACHE | \
++					 _PAGE_BUF | _PAGE_SHARE | _PAGE_SHARE)
+ #define PAGE_READ		__pgprot(_PAGE_BASE | _PAGE_READ)
+ #define PAGE_WRITE		__pgprot(_PAGE_BASE | _PAGE_READ | _PAGE_WRITE)
+ #define PAGE_EXEC		__pgprot(_PAGE_BASE | _PAGE_EXEC)
+@@ -95,8 +97,12 @@
+ #define _PAGE_KERNEL		(_PAGE_READ \
+ 				| _PAGE_WRITE \
+ 				| _PAGE_PRESENT \
++				| _PAGE_GLOBAL \
+ 				| _PAGE_ACCESSED \
+-				| _PAGE_DIRTY)
++				| _PAGE_DIRTY \
++				| _PAGE_CACHE \
++				| _PAGE_SHARE \
++				| _PAGE_BUF)
+ 
+ #define PAGE_KERNEL		__pgprot(_PAGE_KERNEL)
+ #define PAGE_KERNEL_EXEC	__pgprot(_PAGE_KERNEL | _PAGE_EXEC)
+@@ -111,7 +117,16 @@
+  * The RISC-V ISA doesn't yet specify how to query or modify PMAs, so we can't
+  * change the properties of memory regions.
+  */
+-#define _PAGE_IOREMAP _PAGE_KERNEL
++#define _PAGE_IOREMAP		(_PAGE_READ \
++				| _PAGE_WRITE \
++				| _PAGE_PRESENT \
++				| _PAGE_GLOBAL \
++				| _PAGE_ACCESSED \
++				| _PAGE_DIRTY \
++				| _PAGE_SHARE \
++				| _PAGE_SO)
++
++#define PAGE_KERNEL_IO		__pgprot(_PAGE_IOREMAP)
+ 
+ extern pgd_t swapper_pg_dir[];
+ 
+@@ -179,18 +194,18 @@ static inline unsigned long _pgd_pfn(pgd
+ 
+ static inline struct page *pmd_page(pmd_t pmd)
+ {
+-	return pfn_to_page(pmd_val(pmd) >> _PAGE_PFN_SHIFT);
++	return pfn_to_page((pmd_val(pmd) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+ {
+-	return (unsigned long)pfn_to_virt(pmd_val(pmd) >> _PAGE_PFN_SHIFT);
++	return (unsigned long)pfn_to_virt((pmd_val(pmd) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ /* Yields the page frame number (PFN) of a page table entry */
+ static inline unsigned long pte_pfn(pte_t pte)
+ {
+-	return (pte_val(pte) >> _PAGE_PFN_SHIFT);
++	return ((pte_val(pte) & _PAGE_CHG_MASK) >> _PAGE_PFN_SHIFT);
+ }
+ 
+ #define pte_page(x)     pfn_to_page(pte_pfn(x))
+@@ -407,6 +422,32 @@ static inline int ptep_clear_flush_young
+ 	return ptep_test_and_clear_young(vma, address, ptep);
+ }
+ 
++#define __HAVE_PHYS_MEM_ACCESS_PROT
++struct file;
++extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
++				     unsigned long size, pgprot_t vma_prot);
++
++#define pgprot_noncached pgprot_noncached
++static inline pgprot_t pgprot_noncached(pgprot_t _prot)
++{
++	unsigned long prot = pgprot_val(_prot);
++
++	prot &= ~(_PAGE_CACHE | _PAGE_BUF);
++	prot |= _PAGE_SO;
++
++	return __pgprot(prot);
++}
++
++#define pgprot_writecombine pgprot_writecombine
++static inline pgprot_t pgprot_writecombine(pgprot_t _prot)
++{
++	unsigned long prot = pgprot_val(_prot);
++
++	prot &= ~(_PAGE_CACHE | _PAGE_BUF);
++
++	return __pgprot(prot);
++}
++
+ /*
+  * Encode and decode a swap entry
+  *
+@@ -447,7 +488,16 @@ static inline int ptep_clear_flush_young
+  * Note that PGDIR_SIZE must evenly divide TASK_SIZE.
+  */
+ #ifdef CONFIG_64BIT
+-#define TASK_SIZE (PGDIR_SIZE * PTRS_PER_PGD / 2)
++#define TASK_SIZE_64	(PGDIR_SIZE * PTRS_PER_PGD / 2)
++
++#ifdef CONFIG_COMPAT
++#define TASK_SIZE_32	(_AC(0x80000000, UL) - PAGE_SIZE)
++#define TASK_SIZE	(test_thread_flag(TIF_32BIT) ? \
++			 TASK_SIZE_32 : TASK_SIZE_64)
++#else
++#define TASK_SIZE	TASK_SIZE_64
++#endif
++
+ #else
+ #define TASK_SIZE FIXADDR_START
+ #endif
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/processor.h milky/arch/riscv/include/asm/processor.h
+--- test-tree/arch/riscv/include/asm/processor.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/processor.h	2024-05-21 05:22:27.000000000 -0400
+@@ -19,7 +19,11 @@
+ #define TASK_UNMAPPED_BASE	PAGE_ALIGN(TASK_SIZE / 3)
+ 
+ #define STACK_TOP		TASK_SIZE
++#ifdef CONFIG_64BIT
++#define STACK_TOP_MAX		TASK_SIZE_64
++#else
+ #define STACK_TOP_MAX		STACK_TOP
++#endif
+ #define STACK_ALIGN		16
+ 
+ #ifndef __ASSEMBLY__
+@@ -27,6 +31,15 @@
+ struct task_struct;
+ struct pt_regs;
+ 
++#ifdef CONFIG_VECTOR_EMU
++struct vsetvl_info {
++	unsigned long last_vector_pc;
++	unsigned long regid;
++	unsigned long vl;
++	unsigned long vtype;
++};
++#endif
++
+ /* CPU-specific state of a task */
+ struct thread_struct {
+ 	/* Callee-saved registers */
+@@ -34,6 +47,11 @@ struct thread_struct {
+ 	unsigned long sp;	/* Kernel mode stack */
+ 	unsigned long s[12];	/* s[0]: frame pointer */
+ 	struct __riscv_d_ext_state fstate;
++	unsigned long bad_cause;
++	struct __riscv_v_state vstate;
++#ifdef CONFIG_VECTOR_EMU
++	struct vsetvl_info vsetvl_state;
++#endif
+ };
+ 
+ #define INIT_THREAD {					\
+@@ -52,6 +70,12 @@ struct thread_struct {
+ extern void start_thread(struct pt_regs *regs,
+ 			unsigned long pc, unsigned long sp);
+ 
++#ifdef CONFIG_COMPAT
++#define DEFAULT_MAP_WINDOW_64 TASK_SIZE_64
++#else
++#define DEFAULT_MAP_WINDOW_64 TASK_SIZE
++#endif
++
+ /* Free all resources held by a thread. */
+ static inline void release_thread(struct task_struct *dead_task)
+ {
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/ptrace.h milky/arch/riscv/include/asm/ptrace.h
+--- test-tree/arch/riscv/include/asm/ptrace.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/ptrace.h	2024-05-21 05:22:27.000000000 -0400
+@@ -8,6 +8,7 @@
+ 
+ #include <uapi/asm/ptrace.h>
+ #include <asm/csr.h>
++#include <linux/compiler.h>
+ 
+ #ifndef __ASSEMBLY__
+ 
+@@ -60,6 +61,7 @@ struct pt_regs {
+ 
+ #define user_mode(regs) (((regs)->status & SR_PP) == 0)
+ 
++#define MAX_REG_OFFSET offsetof(struct pt_regs, orig_a0)
+ 
+ /* Helpers for working with the instruction pointer */
+ static inline unsigned long instruction_pointer(struct pt_regs *regs)
+@@ -85,6 +87,12 @@ static inline void user_stack_pointer_se
+ 	regs->sp =  val;
+ }
+ 
++/* Valid only for Kernel mode traps. */
++static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
++{
++	return regs->sp;
++}
++
+ /* Helpers for working with the frame pointer */
+ static inline unsigned long frame_pointer(struct pt_regs *regs)
+ {
+@@ -101,6 +109,33 @@ static inline unsigned long regs_return_
+ 	return regs->a0;
+ }
+ 
++static inline void regs_set_return_value(struct pt_regs *regs,
++					 unsigned long val)
++{
++	regs->a0 = val;
++}
++
++extern int regs_query_register_offset(const char *name);
++extern unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
++					       unsigned int n);
++
++/**
++ * regs_get_register() - get register value from its offset
++ * @regs:	pt_regs from which register value is gotten
++ * @offset:	offset of the register.
++ *
++ * regs_get_register returns the value of a register whose offset from @regs.
++ * The @offset is the offset of the register in struct pt_regs.
++ * If @offset is bigger than MAX_REG_OFFSET, this returns 0.
++ */
++static inline unsigned long regs_get_register(struct pt_regs *regs,
++					      unsigned int offset)
++{
++	if (unlikely(offset > MAX_REG_OFFSET))
++		return 0;
++
++	return *(unsigned long *)((unsigned long)regs + offset);
++}
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_RISCV_PTRACE_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/sbi.h milky/arch/riscv/include/asm/sbi.h
+--- test-tree/arch/riscv/include/asm/sbi.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/sbi.h	2024-05-21 05:22:27.000000000 -0400
+@@ -97,6 +97,9 @@ struct sbiret sbi_ecall(int ext, int fid
+ 
+ void sbi_console_putchar(int ch);
+ int sbi_console_getchar(void);
++long sbi_get_mvendorid(void);
++long sbi_get_marchid(void);
++long sbi_get_mimpid(void);
+ void sbi_set_timer(uint64_t stime_value);
+ void sbi_shutdown(void);
+ void sbi_clear_ipi(void);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/set_memory.h milky/arch/riscv/include/asm/set_memory.h
+--- test-tree/arch/riscv/include/asm/set_memory.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/set_memory.h	2024-05-21 05:22:27.000000000 -0400
+@@ -27,14 +27,14 @@ int set_direct_map_default_noflush(struc
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+-#ifdef CONFIG_ARCH_HAS_STRICT_KERNEL_RWX
++#ifdef CONFIG_STRICT_KERNEL_RWX
+ #ifdef CONFIG_64BIT
+ #define SECTION_ALIGN (1 << 21)
+ #else
+ #define SECTION_ALIGN (1 << 22)
+ #endif
+-#else /* !CONFIG_ARCH_HAS_STRICT_KERNEL_RWX */
++#else /* !CONFIG_STRICT_KERNEL_RWX */
+ #define SECTION_ALIGN L1_CACHE_BYTES
+-#endif /* CONFIG_ARCH_HAS_STRICT_KERNEL_RWX */
++#endif /* CONFIG_STRICT_KERNEL_RWX */
+ 
+ #endif /* _ASM_RISCV_SET_MEMORY_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/switch_to.h milky/arch/riscv/include/asm/switch_to.h
+--- test-tree/arch/riscv/include/asm/switch_to.h	2024-05-24 09:21:48.830276108 -0400
++++ milky/arch/riscv/include/asm/switch_to.h	2024-05-21 05:22:27.000000000 -0400
+@@ -63,6 +63,52 @@ extern bool has_fpu;
+ #define __switch_to_aux(__prev, __next) do { } while (0)
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++extern void __vstate_save(struct task_struct *save_to);
++extern void __vstate_restore(struct task_struct *restore_from);
++
++static inline void __vstate_clean(struct pt_regs *regs)
++{
++	regs->status |= (regs->status & ~(SR_VS)) | SR_VS_CLEAN;
++}
++
++static inline void vstate_save(struct task_struct *task,
++			       struct pt_regs *regs)
++{
++	if ((regs->status & SR_VS) == SR_VS_DIRTY) {
++		__vstate_save(task);
++		__vstate_clean(regs);
++	}
++}
++
++static inline void vstate_restore(struct task_struct *task,
++				  struct pt_regs *regs)
++{
++	if ((regs->status & SR_VS) != SR_VS_OFF) {
++		__vstate_restore(task);
++		__vstate_clean(regs);
++	}
++}
++
++static inline void __switch_to_vector(struct task_struct *prev,
++				   struct task_struct *next)
++{
++	struct pt_regs *regs;
++
++	regs = task_pt_regs(prev);
++	if (unlikely(regs->status & SR_SD))
++		vstate_save(prev, regs);
++	vstate_restore(next, task_pt_regs(next));
++}
++
++extern bool has_vector;
++#else
++#define has_vector false
++#define vstate_save(task, regs) do { } while (0)
++#define vstate_restore(task, regs) do { } while (0)
++#define __switch_to_vector(__prev, __next) do { } while (0)
++#endif
++
+ extern struct task_struct *__switch_to(struct task_struct *,
+ 				       struct task_struct *);
+ 
+@@ -72,6 +118,8 @@ do {							\
+ 	struct task_struct *__next = (next);		\
+ 	if (has_fpu)					\
+ 		__switch_to_aux(__prev, __next);	\
++	if (has_vector)					\
++		__switch_to_vector(__prev, __next);	\
+ 	((last) = __switch_to(__prev, __next));		\
+ } while (0)
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/syscall.h milky/arch/riscv/include/asm/syscall.h
+--- test-tree/arch/riscv/include/asm/syscall.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/asm/syscall.h	2024-05-21 05:22:27.000000000 -0400
+@@ -15,7 +15,10 @@
+ #include <linux/err.h>
+ 
+ /* The array of function pointers for syscalls. */
+-extern void *sys_call_table[];
++extern const void *sys_call_table[];
++#ifdef CONFIG_COMPAT
++extern const void *compat_sys_call_table[];
++#endif
+ 
+ /*
+  * Only the low 32 bits of orig_r0 are meaningful, so we return int.
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/thread_info.h milky/arch/riscv/include/asm/thread_info.h
+--- test-tree/arch/riscv/include/asm/thread_info.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/asm/thread_info.h	2024-05-21 05:22:27.000000000 -0400
+@@ -24,6 +24,10 @@
+ #include <asm/processor.h>
+ #include <asm/csr.h>
+ 
++#ifdef CONFIG_SET_FS
++typedef unsigned long mm_segment_t;
++#endif
++
+ /*
+  * low level task data that entry.S needs immediate access to
+  * - this struct should fit entirely inside of one cache line
+@@ -34,6 +38,9 @@
+  */
+ struct thread_info {
+ 	unsigned long		flags;		/* low level flags */
++#ifdef CONFIG_SET_FS
++	mm_segment_t            addr_limit;     /* address limit */
++#endif
+ 	int                     preempt_count;  /* 0=>preemptible, <0=>BUG */
+ 	/*
+ 	 * These stack pointers are overwritten on every system call or
+@@ -50,11 +57,20 @@ struct thread_info {
+  *
+  * preempt_count needs to be 1 initially, until the scheduler is functional.
+  */
++#ifdef CONFIG_SET_FS /* CONFIG_SET_FS */
++#define INIT_THREAD_INFO(tsk)			\
++{						\
++	.flags		= 0,			\
++	.preempt_count	= INIT_PREEMPT_COUNT,	\
++	.addr_limit	= KERNEL_DS,		\
++}
++#else /* CONFIG_SET_FS */
+ #define INIT_THREAD_INFO(tsk)			\
+ {						\
+ 	.flags		= 0,			\
+ 	.preempt_count	= INIT_PREEMPT_COUNT,	\
+ }
++#endif /* CONFIG_SET_FS */
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+@@ -74,6 +90,8 @@ struct thread_info {
+ #define TIF_SYSCALL_TRACEPOINT  6       /* syscall tracepoint instrumentation */
+ #define TIF_SYSCALL_AUDIT	7	/* syscall auditing */
+ #define TIF_SECCOMP		8	/* syscall secure computing */
++#define TIF_UPROBE		9	/* uprobe breakpoint or singlestep */
++#define TIF_32BIT		11	/* 32bit process */
+ 
+ #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
+ #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
+@@ -82,9 +100,10 @@ struct thread_info {
+ #define _TIF_SYSCALL_TRACEPOINT	(1 << TIF_SYSCALL_TRACEPOINT)
+ #define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
+ #define _TIF_SECCOMP		(1 << TIF_SECCOMP)
++#define _TIF_UPROBE		(1 << TIF_UPROBE)
+ 
+ #define _TIF_WORK_MASK \
+-	(_TIF_NOTIFY_RESUME | _TIF_SIGPENDING | _TIF_NEED_RESCHED)
++	(_TIF_NOTIFY_RESUME | _TIF_SIGPENDING | _TIF_NEED_RESCHED | _TIF_UPROBE)
+ 
+ #define _TIF_SYSCALL_WORK \
+ 	(_TIF_SYSCALL_TRACE | _TIF_SYSCALL_TRACEPOINT | _TIF_SYSCALL_AUDIT | \
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/tlbflush.h milky/arch/riscv/include/asm/tlbflush.h
+--- test-tree/arch/riscv/include/asm/tlbflush.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/asm/tlbflush.h	2024-05-21 05:22:27.000000000 -0400
+@@ -13,13 +13,21 @@
+ #ifdef CONFIG_MMU
+ static inline void local_flush_tlb_all(void)
+ {
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, 1 << 26);
++#else
+ 	__asm__ __volatile__ ("sfence.vma" : : : "memory");
++#endif
+ }
+ 
+ /* Flush one page from local TLB */
+ static inline void local_flush_tlb_page(unsigned long addr)
+ {
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, 1 << 26);
++#else
+ 	__asm__ __volatile__ ("sfence.vma %0" : : "r" (addr) : "memory");
++#endif
+ }
+ #else /* CONFIG_MMU */
+ #define local_flush_tlb_all()			do { } while (0)
+@@ -50,7 +58,18 @@ static inline void flush_tlb_range(struc
+ static inline void flush_tlb_kernel_range(unsigned long start,
+ 	unsigned long end)
+ {
+-	flush_tlb_all();
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, 1 << 26);
++#else
++	start &= PAGE_MASK;
++	end   += PAGE_SIZE - 1;
++	end   &= PAGE_MASK;
++
++	while (start < end) {
++		__asm__ __volatile__ ("sfence.vma %0" : : "r" (start) : "memory");
++		start += PAGE_SIZE;
++	}
++#endif
+ }
+ 
+ #endif /* _ASM_RISCV_TLBFLUSH_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/uaccess.h milky/arch/riscv/include/asm/uaccess.h
+--- test-tree/arch/riscv/include/asm/uaccess.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/asm/uaccess.h	2024-05-21 05:22:27.000000000 -0400
+@@ -10,6 +10,31 @@
+ 
+ #include <asm/pgtable.h>		/* for TASK_SIZE */
+ 
++#ifdef CONFIG_SET_FS
++/*
++ * The fs value determines whether argument validity checking should be
++ * performed or not.  If get_fs() == USER_DS, checking is performed, with
++ * get_fs() == KERNEL_DS, checking is bypassed.
++ *
++ * For historical reasons, these macros are grossly misnamed.
++ */
++#define KERNEL_DS      (~0UL)
++#define USER_DS                (TASK_SIZE)
++
++#define get_ds()       (KERNEL_DS)
++#define get_fs()       (current_thread_info()->addr_limit)
++
++static inline void set_fs(mm_segment_t fs)
++{
++	current_thread_info()->addr_limit = fs;
++}
++
++#define segment_eq(a, b) ((a) == (b))
++
++#define user_addr_max()        (get_fs())
++#define uaccess_kernel() segment_eq(get_fs(), KERNEL_DS)
++#endif /* CONFIG_SET_FS */
++
+ /*
+  * User space memory access functions
+  */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/asm/vdso.h milky/arch/riscv/include/asm/vdso.h
+--- test-tree/arch/riscv/include/asm/vdso.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/asm/vdso.h	2024-05-21 05:22:27.000000000 -0400
+@@ -9,25 +9,23 @@
+ #define _ASM_RISCV_VDSO_H
+ 
+ #include <linux/types.h>
++#include <generated/vdso-offsets.h>
+ 
+ #ifndef GENERIC_TIME_VSYSCALL
+ struct vdso_data {
+ };
+ #endif
+ 
+-/*
+- * The VDSO symbols are mapped into Linux so we can just use regular symbol
+- * addressing to get their offsets in userspace.  The symbols are mapped at an
+- * offset of 0, but since the linker must support setting weak undefined
+- * symbols to the absolute address 0 it also happens to support other low
+- * addresses even when the code model suggests those low addresses would not
+- * otherwise be availiable.
+- */
+ #define VDSO_SYMBOL(base, name)							\
+-({										\
+-	extern const char __vdso_##name[];					\
+-	(void __user *)((unsigned long)(base) + __vdso_##name);			\
+-})
++	(void __user *)((unsigned long)(base) + __vdso_##name##_offset)
++
++#ifdef CONFIG_COMPAT
++#include <generated/compat_vdso-offsets.h>
++
++#define COMPAT_VDSO_SYMBOL(base, name)						\
++	(void __user *)((unsigned long)(base) + compat__vdso_##name##_offset)
++
++#endif /* CONFIG_COMPAT */
+ 
+ asmlinkage long sys_riscv_flush_icache(uintptr_t, uintptr_t, uintptr_t);
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/uapi/asm/elf.h milky/arch/riscv/include/uapi/asm/elf.h
+--- test-tree/arch/riscv/include/uapi/asm/elf.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/uapi/asm/elf.h	2024-05-21 05:22:27.000000000 -0400
+@@ -24,6 +24,8 @@ typedef __u64 elf_fpreg_t;
+ typedef union __riscv_fp_state elf_fpregset_t;
+ #define ELF_NFPREG (sizeof(struct __riscv_d_ext_state) / sizeof(elf_fpreg_t))
+ 
++#define ELF_NVREG  (sizeof(struct __riscv_v_state) / sizeof(elf_greg_t))
++
+ #if __riscv_xlen == 64
+ #define ELF_RISCV_R_SYM(r_info)		ELF64_R_SYM(r_info)
+ #define ELF_RISCV_R_TYPE(r_info)	ELF64_R_TYPE(r_info)
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/uapi/asm/hwcap.h milky/arch/riscv/include/uapi/asm/hwcap.h
+--- test-tree/arch/riscv/include/uapi/asm/hwcap.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/uapi/asm/hwcap.h	2024-05-21 05:22:27.000000000 -0400
+@@ -21,5 +21,6 @@
+ #define COMPAT_HWCAP_ISA_F	(1 << ('F' - 'A'))
+ #define COMPAT_HWCAP_ISA_D	(1 << ('D' - 'A'))
+ #define COMPAT_HWCAP_ISA_C	(1 << ('C' - 'A'))
++#define COMPAT_HWCAP_ISA_V	(1 << ('V' - 'A'))
+ 
+ #endif /* _UAPI_ASM_RISCV_HWCAP_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/uapi/asm/ptrace.h milky/arch/riscv/include/uapi/asm/ptrace.h
+--- test-tree/arch/riscv/include/uapi/asm/ptrace.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/uapi/asm/ptrace.h	2024-05-21 05:22:27.000000000 -0400
+@@ -77,6 +77,15 @@ union __riscv_fp_state {
+ 	struct __riscv_q_ext_state q;
+ };
+ 
++struct __riscv_v_state {
++	__uint128_t v[32];
++	unsigned long vstart;
++	unsigned long vxsat;
++	unsigned long vxrm;
++	unsigned long vl;
++	unsigned long vtype;
++};
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _UAPI_ASM_RISCV_PTRACE_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/uapi/asm/sigcontext.h milky/arch/riscv/include/uapi/asm/sigcontext.h
+--- test-tree/arch/riscv/include/uapi/asm/sigcontext.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/uapi/asm/sigcontext.h	2024-05-21 05:22:27.000000000 -0400
+@@ -17,6 +17,7 @@
+ struct sigcontext {
+ 	struct user_regs_struct sc_regs;
+ 	union __riscv_fp_state sc_fpregs;
++	struct __riscv_v_state sc_vregs;
+ };
+ 
+ #endif /* _UAPI_ASM_RISCV_SIGCONTEXT_H */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/include/uapi/asm/unistd.h milky/arch/riscv/include/uapi/asm/unistd.h
+--- test-tree/arch/riscv/include/uapi/asm/unistd.h	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/include/uapi/asm/unistd.h	2024-05-21 05:22:27.000000000 -0400
+@@ -15,7 +15,7 @@
+  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  */
+ 
+-#ifdef __LP64__
++#if defined(__LP64__) && !defined(__SYSCALL_COMPAT)
+ #define __ARCH_WANT_NEW_STAT
+ #define __ARCH_WANT_SET_GET_RLIMIT
+ #define __ARCH_WANT_SYS_CLONE3
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/asm-offsets.c milky/arch/riscv/kernel/asm-offsets.c
+--- test-tree/arch/riscv/kernel/asm-offsets.c	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/asm-offsets.c	2024-05-21 05:22:27.000000000 -0400
+@@ -67,6 +67,45 @@ void asm_offsets(void)
+ 	OFFSET(TASK_THREAD_F31, task_struct, thread.fstate.f[31]);
+ 	OFFSET(TASK_THREAD_FCSR, task_struct, thread.fstate.fcsr);
+ 
++	OFFSET(TASK_THREAD_V0,  task_struct, thread.vstate.v[0]);
++	OFFSET(TASK_THREAD_V1,  task_struct, thread.vstate.v[1]);
++	OFFSET(TASK_THREAD_V2,  task_struct, thread.vstate.v[2]);
++	OFFSET(TASK_THREAD_V3,  task_struct, thread.vstate.v[3]);
++	OFFSET(TASK_THREAD_V4,  task_struct, thread.vstate.v[4]);
++	OFFSET(TASK_THREAD_V5,  task_struct, thread.vstate.v[5]);
++	OFFSET(TASK_THREAD_V6,  task_struct, thread.vstate.v[6]);
++	OFFSET(TASK_THREAD_V7,  task_struct, thread.vstate.v[7]);
++	OFFSET(TASK_THREAD_V8,  task_struct, thread.vstate.v[8]);
++	OFFSET(TASK_THREAD_V9,  task_struct, thread.vstate.v[9]);
++	OFFSET(TASK_THREAD_V10, task_struct, thread.vstate.v[10]);
++	OFFSET(TASK_THREAD_V11, task_struct, thread.vstate.v[11]);
++	OFFSET(TASK_THREAD_V12, task_struct, thread.vstate.v[12]);
++	OFFSET(TASK_THREAD_V13, task_struct, thread.vstate.v[13]);
++	OFFSET(TASK_THREAD_V14, task_struct, thread.vstate.v[14]);
++	OFFSET(TASK_THREAD_V15, task_struct, thread.vstate.v[15]);
++	OFFSET(TASK_THREAD_V16, task_struct, thread.vstate.v[16]);
++	OFFSET(TASK_THREAD_V17, task_struct, thread.vstate.v[17]);
++	OFFSET(TASK_THREAD_V18, task_struct, thread.vstate.v[18]);
++	OFFSET(TASK_THREAD_V19, task_struct, thread.vstate.v[19]);
++	OFFSET(TASK_THREAD_V20, task_struct, thread.vstate.v[20]);
++	OFFSET(TASK_THREAD_V21, task_struct, thread.vstate.v[21]);
++	OFFSET(TASK_THREAD_V22, task_struct, thread.vstate.v[22]);
++	OFFSET(TASK_THREAD_V23, task_struct, thread.vstate.v[23]);
++	OFFSET(TASK_THREAD_V24, task_struct, thread.vstate.v[24]);
++	OFFSET(TASK_THREAD_V25, task_struct, thread.vstate.v[25]);
++	OFFSET(TASK_THREAD_V26, task_struct, thread.vstate.v[26]);
++	OFFSET(TASK_THREAD_V27, task_struct, thread.vstate.v[27]);
++	OFFSET(TASK_THREAD_V28, task_struct, thread.vstate.v[28]);
++	OFFSET(TASK_THREAD_V29, task_struct, thread.vstate.v[29]);
++	OFFSET(TASK_THREAD_V30, task_struct, thread.vstate.v[30]);
++	OFFSET(TASK_THREAD_V31, task_struct, thread.vstate.v[31]);
++	OFFSET(TASK_THREAD_VSTART, task_struct, thread.vstate.vstart);
++	OFFSET(TASK_THREAD_VXSAT, task_struct, thread.vstate.vxsat);
++	OFFSET(TASK_THREAD_VXRM, task_struct, thread.vstate.vxrm);
++	OFFSET(TASK_THREAD_VL, task_struct, thread.vstate.vl);
++	OFFSET(TASK_THREAD_VTYPE, task_struct, thread.vstate.vtype);
++	DEFINE(RISCV_VECTOR_VLENB, sizeof(__uint128_t));
++
+ 	DEFINE(PT_SIZE, sizeof(struct pt_regs));
+ 	OFFSET(PT_EPC, pt_regs, epc);
+ 	OFFSET(PT_RA, pt_regs, ra);
+@@ -168,6 +207,7 @@ void asm_offsets(void)
+ 		- offsetof(struct task_struct, thread.ra)
+ 	);
+ 
++	/* Float Point */
+ 	DEFINE(TASK_THREAD_F0_F0,
+ 		  offsetof(struct task_struct, thread.fstate.f[0])
+ 		- offsetof(struct task_struct, thread.fstate.f[0])
+@@ -301,6 +341,156 @@ void asm_offsets(void)
+ 		- offsetof(struct task_struct, thread.fstate.f[0])
+ 	);
+ 
++	/* Vector */
++	DEFINE(TASK_THREAD_V0_V0,
++		  offsetof(struct task_struct, thread.vstate.v[0])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V1_V0,
++		  offsetof(struct task_struct, thread.vstate.v[1])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V2_V0,
++		  offsetof(struct task_struct, thread.vstate.v[2])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V3_V0,
++		  offsetof(struct task_struct, thread.vstate.v[3])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V4_V0,
++		  offsetof(struct task_struct, thread.vstate.v[4])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V5_V0,
++		  offsetof(struct task_struct, thread.vstate.v[5])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V6_V0,
++		  offsetof(struct task_struct, thread.vstate.v[6])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V7_V0,
++		  offsetof(struct task_struct, thread.vstate.v[7])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V8_V0,
++		  offsetof(struct task_struct, thread.vstate.v[8])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V9_V0,
++		  offsetof(struct task_struct, thread.vstate.v[9])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V10_V0,
++		  offsetof(struct task_struct, thread.vstate.v[10])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V11_V0,
++		  offsetof(struct task_struct, thread.vstate.v[11])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V12_V0,
++		  offsetof(struct task_struct, thread.vstate.v[12])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V13_V0,
++		  offsetof(struct task_struct, thread.vstate.v[13])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V14_V0,
++		  offsetof(struct task_struct, thread.vstate.v[14])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V15_V0,
++		  offsetof(struct task_struct, thread.vstate.v[15])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V16_V0,
++		  offsetof(struct task_struct, thread.vstate.v[16])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V17_V0,
++		  offsetof(struct task_struct, thread.vstate.v[17])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V18_V0,
++		  offsetof(struct task_struct, thread.vstate.v[18])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V19_V0,
++		  offsetof(struct task_struct, thread.vstate.v[19])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V20_V0,
++		  offsetof(struct task_struct, thread.vstate.v[20])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V21_V0,
++		  offsetof(struct task_struct, thread.vstate.v[21])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V22_V0,
++		  offsetof(struct task_struct, thread.vstate.v[22])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V23_V0,
++		  offsetof(struct task_struct, thread.vstate.v[23])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V24_V0,
++		  offsetof(struct task_struct, thread.vstate.v[24])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V25_V0,
++		  offsetof(struct task_struct, thread.vstate.v[25])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V26_V0,
++		  offsetof(struct task_struct, thread.vstate.v[26])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V27_V0,
++		  offsetof(struct task_struct, thread.vstate.v[27])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V28_V0,
++		  offsetof(struct task_struct, thread.vstate.v[28])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V29_V0,
++		  offsetof(struct task_struct, thread.vstate.v[29])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V30_V0,
++		  offsetof(struct task_struct, thread.vstate.v[30])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_V31_V0,
++		  offsetof(struct task_struct, thread.vstate.v[31])
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VSTART_V0,
++		  offsetof(struct task_struct, thread.vstate.vstart)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VXSAT_V0,
++		  offsetof(struct task_struct, thread.vstate.vxsat)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VXRM_V0,
++		  offsetof(struct task_struct, thread.vstate.vxrm)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VL_V0,
++		  offsetof(struct task_struct, thread.vstate.vl)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++	DEFINE(TASK_THREAD_VTYPE_V0,
++		  offsetof(struct task_struct, thread.vstate.vtype)
++		- offsetof(struct task_struct, thread.vstate.v[0])
++	);
++
+ 	/*
+ 	 * We allocate a pt_regs on the stack when entering the kernel.  This
+ 	 * ensures the alignment is sane.
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/cpu.c milky/arch/riscv/kernel/cpu.c
+--- test-tree/arch/riscv/kernel/cpu.c	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/cpu.c	2024-05-21 05:22:27.000000000 -0400
+@@ -107,6 +107,7 @@ static int c_show(struct seq_file *m, vo
+ 	unsigned long cpu_id = (unsigned long)v - 1;
+ 	struct device_node *node = of_get_cpu_node(cpu_id, NULL);
+ 	const char *compat, *isa, *mmu;
++	const char  *freq, *icache, *dcache, *l2cache, *tlb, *cacheline, *vecver;
+ 
+ 	seq_printf(m, "processor\t: %lu\n", cpu_id);
+ 	seq_printf(m, "hart\t\t: %lu\n", cpuid_to_hartid_map(cpu_id));
+@@ -117,6 +118,28 @@ static int c_show(struct seq_file *m, vo
+ 	if (!of_property_read_string(node, "compatible", &compat)
+ 	    && strcmp(compat, "riscv"))
+ 		seq_printf(m, "uarch\t\t: %s\n", compat);
++
++	if (!of_property_read_string(node, "cpu-freq", &freq))
++		seq_printf(m, "cpu-freq\t: %s\n", freq);
++
++	if (!of_property_read_string(node, "cpu-icache", &icache))
++		seq_printf(m, "cpu-icache\t: %s\n", icache);
++
++	if (!of_property_read_string(node, "cpu-dcache", &dcache))
++		seq_printf(m, "cpu-dcache\t: %s\n", dcache);
++
++	if (!of_property_read_string(node, "cpu-l2cache", &l2cache))
++		seq_printf(m, "cpu-l2cache\t: %s\n", l2cache);
++
++	if (!of_property_read_string(node, "cpu-tlb", &tlb))
++		seq_printf(m, "cpu-tlb\t\t: %s\n", tlb);
++
++	if (!of_property_read_string(node, "cpu-cacheline", &cacheline))
++		seq_printf(m, "cpu-cacheline\t: %s\n", cacheline);
++
++	if (!of_property_read_string(node, "cpu-vector", &vecver))
++		seq_printf(m, "cpu-vector\t: %s\n", vecver);
++
+ 	seq_puts(m, "\n");
+ 	of_node_put(node);
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/cpufeature.c milky/arch/riscv/kernel/cpufeature.c
+--- test-tree/arch/riscv/kernel/cpufeature.c	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/cpufeature.c	2024-05-21 05:22:27.000000000 -0400
+@@ -59,6 +59,10 @@ bool __riscv_isa_extension_available(con
+ }
+ EXPORT_SYMBOL_GPL(__riscv_isa_extension_available);
+ 
++#ifdef CONFIG_VECTOR
++bool has_vector __read_mostly;
++#endif
++
+ void riscv_fill_hwcap(void)
+ {
+ 	struct device_node *node;
+@@ -73,6 +77,7 @@ void riscv_fill_hwcap(void)
+ 	isa2hwcap['f'] = isa2hwcap['F'] = COMPAT_HWCAP_ISA_F;
+ 	isa2hwcap['d'] = isa2hwcap['D'] = COMPAT_HWCAP_ISA_D;
+ 	isa2hwcap['c'] = isa2hwcap['C'] = COMPAT_HWCAP_ISA_C;
++	isa2hwcap['v'] = isa2hwcap['V'] = COMPAT_HWCAP_ISA_V;
+ 
+ 	elf_hwcap = 0;
+ 
+@@ -148,4 +153,9 @@ void riscv_fill_hwcap(void)
+ 	if (elf_hwcap & (COMPAT_HWCAP_ISA_F | COMPAT_HWCAP_ISA_D))
+ 		has_fpu = true;
+ #endif
++
++#ifdef CONFIG_VECTOR
++	if (elf_hwcap & COMPAT_HWCAP_ISA_V)
++		has_vector = true;
++#endif
+ }
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/cpu_ops_spinwait.c milky/arch/riscv/kernel/cpu_ops_spinwait.c
+--- test-tree/arch/riscv/kernel/cpu_ops_spinwait.c	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/cpu_ops_spinwait.c	2024-05-21 05:22:27.000000000 -0400
+@@ -33,6 +33,8 @@ static int spinwait_cpu_start(unsigned i
+ 	 */
+ 	cpu_update_secondary_bootdata(cpuid, tidle);
+ 
++	sbi_ecall(0x09000003, 0, cpuid_to_hartid_map(cpuid), 0, 0, 0, 0, 0);
++
+ 	return 0;
+ }
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/entry.S milky/arch/riscv/kernel/entry.S
+--- test-tree/arch/riscv/kernel/entry.S	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/entry.S	2024-05-21 05:22:27.000000000 -0400
+@@ -70,7 +70,7 @@ _save_context:
+ 	 * Disable the FPU to detect illegal usage of floating point in kernel
+ 	 * space.
+ 	 */
+-	li t0, SR_SUM | SR_FS
++	li t0, SR_SUM | SR_FS | SR_VS
+ 
+ 	REG_L s0, TASK_TI_USER_SP(tp)
+ 	csrrc s1, CSR_STATUS, t0
+@@ -124,21 +124,37 @@ skip_context_tracking:
+ 	REG_L a1, (a1)
+ 	jr a1
+ 1:
+-#ifdef CONFIG_TRACE_IRQFLAGS
+-	call trace_hardirqs_on
+-#endif
+ 	/*
+ 	 * Exceptions run with interrupts enabled or disabled depending on the
+ 	 * state of SR_PIE in m/sstatus.
+ 	 */
+ 	andi t0, s1, SR_PIE
+ 	beqz t0, 1f
++#ifdef CONFIG_TRACE_IRQFLAGS
++	call trace_hardirqs_on
++
++	REG_L s1, PT_STATUS(sp)
++#endif
+ 	csrs CSR_STATUS, SR_IE
+ 
+ 1:
++#ifdef CONFIG_TRACE_IRQFLAGS
++	REG_L a0, PT_A0(sp)
++	REG_L a1, PT_A1(sp)
++	REG_L a2, PT_A2(sp)
++	REG_L a3, PT_A3(sp)
++	REG_L a4, PT_A4(sp)
++	REG_L a5, PT_A5(sp)
++	REG_L a6, PT_A6(sp)
++	REG_L a7, PT_A7(sp)
++#endif
+ 	la ra, ret_from_exception
+ 	/* Handle syscalls */
+ 	li t0, EXC_SYSCALL
++
++#ifdef CONFIG_TRACE_IRQFLAGS
++	REG_L s4, PT_CAUSE(sp)
++#endif
+ 	beq s4, t0, handle_syscall
+ 
+ 	/* Handle other exceptions */
+@@ -172,6 +188,9 @@ handle_syscall:
+ 	 * Advance SEPC to avoid executing the original
+ 	 * scall instruction on sret
+ 	 */
++#ifdef CONFIG_TRACE_IRQFLAGS
++	REG_L s2, PT_EPC(sp)
++#endif
+ 	addi s2, s2, 0x4
+ 	REG_S s2, PT_EPC(sp)
+ 	/* Trace syscalls, but only if requested by the user. */
+@@ -186,20 +205,27 @@ check_syscall_nr:
+ 	 * Syscall number held in a7.
+ 	 * If syscall number is above allowed value, redirect to ni_syscall.
+ 	 */
+-	bge a7, t0, 1f
+-	/*
+-	 * Check if syscall is rejected by tracer, i.e., a7 == -1.
+-	 * If yes, we pretend it was executed.
+-	 */
+-	li t1, -1
+-	beq a7, t1, ret_from_syscall_rejected
+-	blt a7, t1, 1f
++	bgeu a7, t0, 3f
++#ifdef CONFIG_COMPAT
++	REG_L s0, PT_STATUS(sp)
++	srli s0, s0, SR_UXL_SHIFT
++	andi s0, s0, (SR_UXL >> SR_UXL_SHIFT)
++	li t0, (SR_UXL_32 >> SR_UXL_SHIFT)
++	sub t0, s0, t0
++	bnez t0, 1f
++
++	/* Call compat_syscall */
++	la s0, compat_sys_call_table
++	j 2f
++1:
++#endif
+ 	/* Call syscall */
+ 	la s0, sys_call_table
++2:
+ 	slli t0, a7, RISCV_LGPTR
+ 	add s0, s0, t0
+ 	REG_L s0, 0(s0)
+-1:
++3:
+ 	jalr s0
+ 
+ ret_from_syscall:
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/ftrace.c milky/arch/riscv/kernel/ftrace.c
+--- test-tree/arch/riscv/kernel/ftrace.c	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/ftrace.c	2024-05-21 05:22:27.000000000 -0400
+@@ -72,29 +72,56 @@ static int __ftrace_modify_call(unsigned
+ 	return 0;
+ }
+ 
++/*
++ * Put 5 instructions with 16 bytes at the front of function within
++ * patchable function entry nops' area.
++ *
++ * 0: REG_S  ra, -SZREG(sp)
++ * 1: auipc  ra, 0x?
++ * 2: jalr   -?(ra)
++ * 3: REG_L  ra, -SZREG(sp)
++ *
++ * So the opcodes is:
++ * 0: 0xfe113c23 (sd)/0xfe112e23 (sw)
++ * 1: 0x???????? -> auipc
++ * 2: 0x???????? -> jalr
++ * 3: 0xff813083 (ld)/0xffc12083 (lw)
++ */
++#if __riscv_xlen == 64
++#define INSN0	0xfe113c23
++#define INSN3	0xff813083
++#elif __riscv_xlen == 32
++#define INSN0	0xfe112e23
++#define INSN3	0xffc12083
++#endif
++
++#define FUNC_ENTRY_SIZE	16
++#define FUNC_ENTRY_JMP	4
++
+ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+ {
+-	int ret = ftrace_check_current_call(rec->ip, NULL);
++	unsigned int call[4] = {INSN0, 0, 0, INSN3};
++	unsigned long target = addr;
++	unsigned long caller = rec->ip + FUNC_ENTRY_JMP;
+ 
+-	if (ret)
+-		return ret;
++	call[1] = to_auipc_insn((unsigned int)(target - caller));
++	call[2] = to_jalr_insn((unsigned int)(target - caller));
+ 
+-	return __ftrace_modify_call(rec->ip, addr, true);
++	if (patch_text_nosync((void *)rec->ip, call, FUNC_ENTRY_SIZE))
++		return -EPERM;
++
++	return 0;
+ }
+ 
+ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
+ 		    unsigned long addr)
+ {
+-	unsigned int call[2];
+-	int ret;
++	unsigned int nops[4] = {NOP4, NOP4, NOP4, NOP4};
+ 
+-	make_call(rec->ip, addr, call);
+-	ret = ftrace_check_current_call(rec->ip, call);
+-
+-	if (ret)
+-		return ret;
++	if (patch_text_nosync((void *)rec->ip, nops, FUNC_ENTRY_SIZE))
++		return -EPERM;
+ 
+-	return __ftrace_modify_call(rec->ip, addr, false);
++	return 0;
+ }
+ 
+ 
+@@ -139,15 +166,16 @@ int ftrace_modify_call(struct dyn_ftrace
+ 		       unsigned long addr)
+ {
+ 	unsigned int call[2];
++	unsigned long caller = rec->ip + FUNC_ENTRY_JMP;
+ 	int ret;
+ 
+-	make_call(rec->ip, old_addr, call);
+-	ret = ftrace_check_current_call(rec->ip, call);
++	make_call(caller, old_addr, call);
++	ret = ftrace_check_current_call(caller, call);
+ 
+ 	if (ret)
+ 		return ret;
+ 
+-	return __ftrace_modify_call(rec->ip, addr, true);
++	return __ftrace_modify_call(caller, addr, true);
+ }
+ #endif
+ 
+@@ -176,53 +204,30 @@ void prepare_ftrace_return(unsigned long
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ extern void ftrace_graph_call(void);
++extern void ftrace_graph_regs_call(void);
+ int ftrace_enable_ftrace_graph_caller(void)
+ {
+-	unsigned int call[2];
+-	static int init_graph = 1;
+ 	int ret;
+ 
+-	make_call(&ftrace_graph_call, &ftrace_stub, call);
+-
+-	/*
+-	 * When enabling graph tracer for the first time, ftrace_graph_call
+-	 * should contains a call to ftrace_stub.  Once it has been disabled,
+-	 * the 8-bytes at the position becomes NOPs.
+-	 */
+-	if (init_graph) {
+-		ret = ftrace_check_current_call((unsigned long)&ftrace_graph_call,
+-						call);
+-		init_graph = 0;
+-	} else {
+-		ret = ftrace_check_current_call((unsigned long)&ftrace_graph_call,
+-						NULL);
+-	}
+-
++	ret = __ftrace_modify_call((unsigned long)&ftrace_graph_call,
++				    (unsigned long)&prepare_ftrace_return, true);
+ 	if (ret)
+ 		return ret;
+ 
+-	return __ftrace_modify_call((unsigned long)&ftrace_graph_call,
++	return __ftrace_modify_call((unsigned long)&ftrace_graph_regs_call,
+ 				    (unsigned long)&prepare_ftrace_return, true);
+ }
+ 
+ int ftrace_disable_ftrace_graph_caller(void)
+ {
+-	unsigned int call[2];
+ 	int ret;
+ 
+-	make_call(&ftrace_graph_call, &prepare_ftrace_return, call);
+-
+-	/*
+-	 * This is to make sure that ftrace_enable_ftrace_graph_caller
+-	 * did the right thing.
+-	 */
+-	ret = ftrace_check_current_call((unsigned long)&ftrace_graph_call,
+-					call);
+-
++	ret = __ftrace_modify_call((unsigned long)&ftrace_graph_call,
++				    (unsigned long)&prepare_ftrace_return, false);
+ 	if (ret)
+ 		return ret;
+ 
+-	return __ftrace_modify_call((unsigned long)&ftrace_graph_call,
++	return __ftrace_modify_call((unsigned long)&ftrace_graph_regs_call,
+ 				    (unsigned long)&prepare_ftrace_return, false);
+ }
+ #endif /* CONFIG_DYNAMIC_FTRACE */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/head.S milky/arch/riscv/kernel/head.S
+--- test-tree/arch/riscv/kernel/head.S	2024-05-24 09:21:48.834276094 -0400
++++ milky/arch/riscv/kernel/head.S	2024-05-21 05:22:27.000000000 -0400
+@@ -39,13 +39,7 @@ ENTRY(_start)
+ 	/* Image load offset (0MB) from start of RAM for M-mode */
+ 	.dword 0
+ #else
+-#if __riscv_xlen == 64
+-	/* Image load offset(2MB) from start of RAM */
+-	.dword 0x200000
+-#else
+-	/* Image load offset(4MB) from start of RAM */
+-	.dword 0x400000
+-#endif
++	.dword LOAD_OFFSET
+ #endif
+ 	/* Effective size of kernel image */
+ 	.dword _end - _start
+@@ -69,7 +63,7 @@ pe_head_start:
+ #ifdef CONFIG_MMU
+ relocate:
+ 	/* Relocate return address */
+-	li a1, PAGE_OFFSET
++	li a1, PAGE_OFFSET + LOAD_OFFSET
+ 	la a2, _start
+ 	sub a1, a1, a2
+ 	add ra, ra, a1
+@@ -182,7 +176,6 @@ setup_trap_vector:
+ 
+ END(_start)
+ 
+-	__INIT
+ ENTRY(_start_kernel)
+ 	/* Mask all interrupts */
+ 	csrw CSR_IE, zero
+@@ -227,7 +220,7 @@ pmp_done:
+ 	 * Disable FPU to detect illegal usage of
+ 	 * floating point in kernel space
+ 	 */
+-	li t0, SR_FS
++	li t0, SR_FS | SR_VS
+ 	csrc CSR_STATUS, t0
+ 
+ #ifdef CONFIG_SMP
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/mcount-dyn.S milky/arch/riscv/kernel/mcount-dyn.S
+--- test-tree/arch/riscv/kernel/mcount-dyn.S	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/mcount-dyn.S	2024-05-21 05:22:27.000000000 -0400
+@@ -13,224 +13,186 @@
+ 
+ 	.text
+ 
+-	.macro SAVE_ABI_STATE
+-#ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	addi    sp, sp, -48
+-	sd      s0, 32(sp)
+-	sd      ra, 40(sp)
+-	addi    s0, sp, 48
+-	sd      t0, 24(sp)
+-	sd      t1, 16(sp)
+-#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
+-	sd      t2, 8(sp)
+-#endif
+-#else
+-	addi	sp, sp, -16
+-	sd	s0, 0(sp)
+-	sd	ra, 8(sp)
+-	addi	s0, sp, 16
+-#endif
+-	.endm
++#define FENTRY_RA_OFFSET	12
++#define ABI_SIZE_ON_STACK	72
++#define ABI_A0			0
++#define ABI_A1			8
++#define ABI_A2			16
++#define ABI_A3			24
++#define ABI_A4			32
++#define ABI_A5			40
++#define ABI_A6			48
++#define ABI_A7			56
++#define ABI_RA			64
++
++	.macro SAVE_ABI
++	addi	sp, sp, -SZREG
++	addi	sp, sp, -ABI_SIZE_ON_STACK
++
++	REG_S	a0, ABI_A0(sp)
++	REG_S	a1, ABI_A1(sp)
++	REG_S	a2, ABI_A2(sp)
++	REG_S	a3, ABI_A3(sp)
++	REG_S	a4, ABI_A4(sp)
++	REG_S	a5, ABI_A5(sp)
++	REG_S	a6, ABI_A6(sp)
++	REG_S	a7, ABI_A7(sp)
++	REG_S	ra, ABI_RA(sp)
++	.endm
++
++	.macro RESTORE_ABI
++	REG_L	a0, ABI_A0(sp)
++	REG_L	a1, ABI_A1(sp)
++	REG_L	a2, ABI_A2(sp)
++	REG_L	a3, ABI_A3(sp)
++	REG_L	a4, ABI_A4(sp)
++	REG_L	a5, ABI_A5(sp)
++	REG_L	a6, ABI_A6(sp)
++	REG_L	a7, ABI_A7(sp)
++	REG_L	ra, ABI_RA(sp)
+ 
+-	.macro RESTORE_ABI_STATE
+-#ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	ld	s0, 32(sp)
+-	ld	ra, 40(sp)
+-	addi	sp, sp, 48
+-#else
+-	ld	ra, 8(sp)
+-	ld	s0, 0(sp)
+-	addi	sp, sp, 16
+-#endif
++	addi	sp, sp, ABI_SIZE_ON_STACK
++	addi	sp, sp, SZREG
+ 	.endm
+ 
+-	.macro RESTORE_GRAPH_ARGS
+-	ld	a0, 24(sp)
+-	ld	a1, 16(sp)
+-#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
+-	ld	a2, 8(sp)
+-#endif
++#ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
++	.macro SAVE_ALL
++	addi	sp, sp, -SZREG
++	addi	sp, sp, -PT_SIZE_ON_STACK
++
++	REG_S x1,  PT_EPC(sp)
++	addi	sp, sp, PT_SIZE_ON_STACK
++	REG_L x1,  (sp)
++	addi	sp, sp, -PT_SIZE_ON_STACK
++	REG_S x1,  PT_RA(sp)
++	REG_L x1,  PT_EPC(sp)
++
++	REG_S x2,  PT_SP(sp)
++	REG_S x3,  PT_GP(sp)
++	REG_S x4,  PT_TP(sp)
++	REG_S x5,  PT_T0(sp)
++	REG_S x6,  PT_T1(sp)
++	REG_S x7,  PT_T2(sp)
++	REG_S x8,  PT_S0(sp)
++	REG_S x9,  PT_S1(sp)
++	REG_S x10, PT_A0(sp)
++	REG_S x11, PT_A1(sp)
++	REG_S x12, PT_A2(sp)
++	REG_S x13, PT_A3(sp)
++	REG_S x14, PT_A4(sp)
++	REG_S x15, PT_A5(sp)
++	REG_S x16, PT_A6(sp)
++	REG_S x17, PT_A7(sp)
++	REG_S x18, PT_S2(sp)
++	REG_S x19, PT_S3(sp)
++	REG_S x20, PT_S4(sp)
++	REG_S x21, PT_S5(sp)
++	REG_S x22, PT_S6(sp)
++	REG_S x23, PT_S7(sp)
++	REG_S x24, PT_S8(sp)
++	REG_S x25, PT_S9(sp)
++	REG_S x26, PT_S10(sp)
++	REG_S x27, PT_S11(sp)
++	REG_S x28, PT_T3(sp)
++	REG_S x29, PT_T4(sp)
++	REG_S x30, PT_T5(sp)
++	REG_S x31, PT_T6(sp)
+ 	.endm
+ 
+-ENTRY(ftrace_graph_caller)
+-	addi	sp, sp, -16
+-	sd	s0, 0(sp)
+-	sd	ra, 8(sp)
+-	addi	s0, sp, 16
+-ftrace_graph_call:
+-	.global ftrace_graph_call
+-	/*
+-	 * Calling ftrace_enable/disable_ftrace_graph_caller would overwrite the
+-	 * call below.  Check ftrace_modify_all_code for details.
+-	 */
+-	call	ftrace_stub
+-	ld	ra, 8(sp)
+-	ld	s0, 0(sp)
+-	addi	sp, sp, 16
+-	ret
+-ENDPROC(ftrace_graph_caller)
++	.macro RESTORE_ALL
++	REG_L x1,  PT_RA(sp)
++	addi	sp, sp, PT_SIZE_ON_STACK
++	REG_S x1,  (sp)
++	addi	sp, sp, -PT_SIZE_ON_STACK
++	REG_L x1,  PT_EPC(sp)
++	REG_L x2,  PT_SP(sp)
++	REG_L x3,  PT_GP(sp)
++	REG_L x4,  PT_TP(sp)
++	REG_L x5,  PT_T0(sp)
++	REG_L x6,  PT_T1(sp)
++	REG_L x7,  PT_T2(sp)
++	REG_L x8,  PT_S0(sp)
++	REG_L x9,  PT_S1(sp)
++	REG_L x10, PT_A0(sp)
++	REG_L x11, PT_A1(sp)
++	REG_L x12, PT_A2(sp)
++	REG_L x13, PT_A3(sp)
++	REG_L x14, PT_A4(sp)
++	REG_L x15, PT_A5(sp)
++	REG_L x16, PT_A6(sp)
++	REG_L x17, PT_A7(sp)
++	REG_L x18, PT_S2(sp)
++	REG_L x19, PT_S3(sp)
++	REG_L x20, PT_S4(sp)
++	REG_L x21, PT_S5(sp)
++	REG_L x22, PT_S6(sp)
++	REG_L x23, PT_S7(sp)
++	REG_L x24, PT_S8(sp)
++	REG_L x25, PT_S9(sp)
++	REG_L x26, PT_S10(sp)
++	REG_L x27, PT_S11(sp)
++	REG_L x28, PT_T3(sp)
++	REG_L x29, PT_T4(sp)
++	REG_L x30, PT_T5(sp)
++	REG_L x31, PT_T6(sp)
++
++	addi	sp, sp, PT_SIZE_ON_STACK
++	addi	sp, sp, SZREG
++	.endm
++#endif /* CONFIG_DYNAMIC_FTRACE_WITH_REGS */
+ 
+ ENTRY(ftrace_caller)
+-	/*
+-	 * a0: the address in the caller when calling ftrace_caller
+-	 * a1: the caller's return address
+-	 * a2: the address of global variable function_trace_op
+-	 */
+-	ld	a1, -8(s0)
+-	addi	a0, ra, -MCOUNT_INSN_SIZE
+-	la	t5, function_trace_op
+-	ld	a2, 0(t5)
++	SAVE_ABI
+ 
+-#ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	/*
+-	 * the graph tracer (specifically, prepare_ftrace_return) needs these
+-	 * arguments but for now the function tracer occupies the regs, so we
+-	 * save them in temporary regs to recover later.
+-	 */
+-	addi	t0, s0, -8
+-	mv	t1, a0
+-#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
+-	ld	t2, -16(s0)
+-#endif
+-#endif
++	addi	a0, ra, -FENTRY_RA_OFFSET
++	la	a1, function_trace_op
++	REG_L	a2, 0(a1)
++	REG_L	a1, ABI_SIZE_ON_STACK(sp)
++	mv	a3, sp
+ 
+-	SAVE_ABI_STATE
+ ftrace_call:
+ 	.global ftrace_call
+-	/*
+-	 * For the dynamic ftrace to work, here we should reserve at least
+-	 * 8 bytes for a functional auipc-jalr pair.  The following call
+-	 * serves this purpose.
+-	 *
+-	 * Calling ftrace_update_ftrace_func would overwrite the nops below.
+-	 * Check ftrace_modify_all_code for details.
+-	 */
+ 	call	ftrace_stub
+ 
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	RESTORE_GRAPH_ARGS
+-	call	ftrace_graph_caller
++	addi	a0, sp, ABI_SIZE_ON_STACK
++	REG_L	a1, ABI_RA(sp)
++	addi	a1, a1, -FENTRY_RA_OFFSET
++#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
++	mv	a2, s0
+ #endif
+-
+-	RESTORE_ABI_STATE
++ftrace_graph_call:
++	.global ftrace_graph_call
++	call	ftrace_stub
++#endif
++	RESTORE_ABI
+ 	ret
+ ENDPROC(ftrace_caller)
+ 
+ #ifdef CONFIG_DYNAMIC_FTRACE_WITH_REGS
+-	.macro SAVE_ALL
+-	addi	sp, sp, -(PT_SIZE_ON_STACK+16)
+-	sd	s0, (PT_SIZE_ON_STACK)(sp)
+-	sd	ra, (PT_SIZE_ON_STACK+8)(sp)
+-	addi	s0, sp, (PT_SIZE_ON_STACK+16)
+-
+-	sd x1,  PT_RA(sp)
+-	sd x2,  PT_SP(sp)
+-	sd x3,  PT_GP(sp)
+-	sd x4,  PT_TP(sp)
+-	sd x5,  PT_T0(sp)
+-	sd x6,  PT_T1(sp)
+-	sd x7,  PT_T2(sp)
+-	sd x8,  PT_S0(sp)
+-	sd x9,  PT_S1(sp)
+-	sd x10, PT_A0(sp)
+-	sd x11, PT_A1(sp)
+-	sd x12, PT_A2(sp)
+-	sd x13, PT_A3(sp)
+-	sd x14, PT_A4(sp)
+-	sd x15, PT_A5(sp)
+-	sd x16, PT_A6(sp)
+-	sd x17, PT_A7(sp)
+-	sd x18, PT_S2(sp)
+-	sd x19, PT_S3(sp)
+-	sd x20, PT_S4(sp)
+-	sd x21, PT_S5(sp)
+-	sd x22, PT_S6(sp)
+-	sd x23, PT_S7(sp)
+-	sd x24, PT_S8(sp)
+-	sd x25, PT_S9(sp)
+-	sd x26, PT_S10(sp)
+-	sd x27, PT_S11(sp)
+-	sd x28, PT_T3(sp)
+-	sd x29, PT_T4(sp)
+-	sd x30, PT_T5(sp)
+-	sd x31, PT_T6(sp)
+-	.endm
+-
+-	.macro RESTORE_ALL
+-	ld x1,  PT_RA(sp)
+-	ld x2,  PT_SP(sp)
+-	ld x3,  PT_GP(sp)
+-	ld x4,  PT_TP(sp)
+-	ld x5,  PT_T0(sp)
+-	ld x6,  PT_T1(sp)
+-	ld x7,  PT_T2(sp)
+-	ld x8,  PT_S0(sp)
+-	ld x9,  PT_S1(sp)
+-	ld x10, PT_A0(sp)
+-	ld x11, PT_A1(sp)
+-	ld x12, PT_A2(sp)
+-	ld x13, PT_A3(sp)
+-	ld x14, PT_A4(sp)
+-	ld x15, PT_A5(sp)
+-	ld x16, PT_A6(sp)
+-	ld x17, PT_A7(sp)
+-	ld x18, PT_S2(sp)
+-	ld x19, PT_S3(sp)
+-	ld x20, PT_S4(sp)
+-	ld x21, PT_S5(sp)
+-	ld x22, PT_S6(sp)
+-	ld x23, PT_S7(sp)
+-	ld x24, PT_S8(sp)
+-	ld x25, PT_S9(sp)
+-	ld x26, PT_S10(sp)
+-	ld x27, PT_S11(sp)
+-	ld x28, PT_T3(sp)
+-	ld x29, PT_T4(sp)
+-	ld x30, PT_T5(sp)
+-	ld x31, PT_T6(sp)
+-
+-	ld	s0, (PT_SIZE_ON_STACK)(sp)
+-	ld	ra, (PT_SIZE_ON_STACK+8)(sp)
+-	addi	sp, sp, (PT_SIZE_ON_STACK+16)
+-	.endm
+-
+-	.macro RESTORE_GRAPH_REG_ARGS
+-	ld	a0, PT_T0(sp)
+-	ld	a1, PT_T1(sp)
+-#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
+-	ld	a2, PT_T2(sp)
+-#endif
+-	.endm
+-
+-/*
+- * Most of the contents are the same as ftrace_caller.
+- */
+ ENTRY(ftrace_regs_caller)
+-	/*
+-	 * a3: the address of all registers in the stack
+-	 */
+-	ld	a1, -8(s0)
+-	addi	a0, ra, -MCOUNT_INSN_SIZE
+-	la	t5, function_trace_op
+-	ld	a2, 0(t5)
+-	addi	a3, sp, -(PT_SIZE_ON_STACK+16)
+-
+-#ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	addi	t0, s0, -8
+-	mv	t1, a0
+-#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
+-	ld	t2, -16(s0)
+-#endif
+-#endif
+ 	SAVE_ALL
+ 
++	addi	a0, ra, -FENTRY_RA_OFFSET
++	la	a1, function_trace_op
++	REG_L	a2, 0(a1)
++	REG_L	a1, PT_SIZE_ON_STACK(sp)
++	mv	a3, sp
++
+ ftrace_regs_call:
+ 	.global ftrace_regs_call
+ 	call	ftrace_stub
+ 
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+-	RESTORE_GRAPH_REG_ARGS
+-	call	ftrace_graph_caller
++	addi	a0, sp, PT_RA
++	REG_L	a1, PT_EPC(sp)
++	addi	a1, a1, -FENTRY_RA_OFFSET
++#ifdef HAVE_FUNCTION_GRAPH_FP_TEST
++	mv	a2, s0
++#endif
++ftrace_graph_regs_call:
++	.global ftrace_graph_regs_call
++	call	ftrace_stub
+ #endif
+ 
+ 	RESTORE_ALL
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/module.c milky/arch/riscv/kernel/module.c
+--- test-tree/arch/riscv/kernel/module.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/module.c	2024-05-21 05:22:27.000000000 -0400
+@@ -253,7 +253,7 @@ static int apply_r_riscv_align_rela(stru
+ 	pr_err(
+ 	  "%s: The unexpected relocation type 'R_RISCV_ALIGN' from PC = %p\n",
+ 	  me->name, location);
+-	return -EINVAL;
++	return 0; /* Do not return -EINVAL when relocation type is R_RISCV_ALIGN */
+ }
+ 
+ static int apply_r_riscv_add32_rela(struct module *me, u32 *location,
+@@ -309,6 +309,45 @@ static int (*reloc_handlers_rela[]) (str
+ 	[R_RISCV_SUB64]			= apply_r_riscv_sub64_rela,
+ };
+ 
++static inline int apply_calc_pcrel_lo12(Elf_Shdr *sechdrs, Elf_Rela *rel,
++			   Elf_Sym *sym, unsigned int relidx,
++		       unsigned int symindex, unsigned int relsec,
++		       struct module *me, Elf_Addr *v) {
++	unsigned long hi20_loc =
++		sechdrs[sechdrs[relsec].sh_info].sh_addr
++		+ rel[relidx].r_offset;
++	u32 hi20_type = ELF_RISCV_R_TYPE(rel[relidx].r_info);
++	int ret = 0;
++
++	/* Find the corresponding HI20 relocation entry */
++	if (hi20_loc == sym->st_value
++		&& (hi20_type == R_RISCV_PCREL_HI20
++		|| hi20_type == R_RISCV_GOT_HI20)) {
++		s32 hi20, lo12;
++		Elf_Sym *hi20_sym =
++			(Elf_Sym *)sechdrs[symindex].sh_addr
++			+ ELF_RISCV_R_SYM(rel[relidx].r_info);
++		unsigned long hi20_sym_val =
++			hi20_sym->st_value
++			+ rel[relidx].r_addend;
++
++		/* Calculate lo12 */
++		size_t offset = hi20_sym_val - hi20_loc;
++
++		if (IS_ENABLED(CONFIG_MODULE_SECTIONS)
++			&& hi20_type == R_RISCV_GOT_HI20) {
++			offset = module_emit_got_entry(
++				me, hi20_sym_val);
++			offset = offset - hi20_loc;
++		}
++		hi20 = (offset + 0x800) & 0xfffff000;
++		lo12 = offset - hi20;
++		*v = lo12;
++		ret = 1;
++	}
++	return ret;
++}
++
+ int apply_relocate_add(Elf_Shdr *sechdrs, const char *strtab,
+ 		       unsigned int symindex, unsigned int relsec,
+ 		       struct module *me)
+@@ -357,38 +396,26 @@ int apply_relocate_add(Elf_Shdr *sechdrs
+ 
+ 		if (type == R_RISCV_PCREL_LO12_I || type == R_RISCV_PCREL_LO12_S) {
+ 			unsigned int j;
++			unsigned int found = 0;
+ 
+-			for (j = 0; j < sechdrs[relsec].sh_size / sizeof(*rel); j++) {
+-				unsigned long hi20_loc =
+-					sechdrs[sechdrs[relsec].sh_info].sh_addr
+-					+ rel[j].r_offset;
+-				u32 hi20_type = ELF_RISCV_R_TYPE(rel[j].r_info);
+-
+-				/* Find the corresponding HI20 relocation entry */
+-				if (hi20_loc == sym->st_value
+-				    && (hi20_type == R_RISCV_PCREL_HI20
+-					|| hi20_type == R_RISCV_GOT_HI20)) {
+-					s32 hi20, lo12;
+-					Elf_Sym *hi20_sym =
+-						(Elf_Sym *)sechdrs[symindex].sh_addr
+-						+ ELF_RISCV_R_SYM(rel[j].r_info);
+-					unsigned long hi20_sym_val =
+-						hi20_sym->st_value
+-						+ rel[j].r_addend;
+-
+-					/* Calculate lo12 */
+-					size_t offset = hi20_sym_val - hi20_loc;
+-					if (IS_ENABLED(CONFIG_MODULE_SECTIONS)
+-					    && hi20_type == R_RISCV_GOT_HI20) {
+-						offset = module_emit_got_entry(
+-							 me, hi20_sym_val);
+-						offset = offset - hi20_loc;
+-					}
+-					hi20 = (offset + 0x800) & 0xfffff000;
+-					lo12 = offset - hi20;
+-					v = lo12;
++			/* in some module, the hi20 type is before the lo12 type,
++			 * so we search the i-1 first to reduice the search time.
++			 */
++			if (i > 0) {
++				j = i - 1;
++				found = apply_calc_pcrel_lo12(sechdrs, rel, sym, j, symindex,
++					relsec, me, &v);
++			}
+ 
+-					break;
++			if (found == 0) {
++				for (j = 0; j < sechdrs[relsec].sh_size / sizeof(*rel); j++) {
++					if (j != i-1) {
++						found = apply_calc_pcrel_lo12(sechdrs, rel, sym, j,
++							symindex, relsec, me, &v);
++					}
++					if (found) {
++						break;
++					}
+ 				}
+ 			}
+ 			if (j == sechdrs[relsec].sh_size / sizeof(*rel)) {
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/patch.c milky/arch/riscv/kernel/patch.c
+--- test-tree/arch/riscv/kernel/patch.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/patch.c	2024-05-21 05:22:27.000000000 -0400
+@@ -20,7 +20,12 @@ struct patch_insn {
+ };
+ 
+ #ifdef CONFIG_MMU
+-static void *patch_map(void *addr, int fixmap)
++/*
++ * The fix_to_virt(, idx) needs a const value (not a dynamic variable of
++ * reg-a0) or BUILD_BUG_ON failed with "idx >= __end_of_fixed_addresses".
++ * So use '__always_inline' and 'const unsigned int fixmap' here.
++ */
++static __always_inline void *patch_map(void *addr, const unsigned int fixmap)
+ {
+ 	uintptr_t uintaddr = (uintptr_t) addr;
+ 	struct page *page;
+@@ -37,7 +42,6 @@ static void *patch_map(void *addr, int f
+ 	return (void *)set_fixmap_offset(fixmap, page_to_phys(page) +
+ 					 (uintaddr & ~PAGE_MASK));
+ }
+-NOKPROBE_SYMBOL(patch_map);
+ 
+ static void patch_unmap(int fixmap)
+ {
+@@ -56,7 +60,7 @@ static int patch_insn_write(void *addr,
+ 	 * already, so we don't need to give another lock here and could
+ 	 * ensure that it was safe between each cores.
+ 	 */
+-	lockdep_assert_held(&text_mutex);
++	//lockdep_assert_held(&text_mutex);
+ 
+ 	if (across_pages)
+ 		patch_map(addr + len, FIX_TEXT_POKE1);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/perf_callchain.c milky/arch/riscv/kernel/perf_callchain.c
+--- test-tree/arch/riscv/kernel/perf_callchain.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/perf_callchain.c	2024-05-21 05:22:27.000000000 -0400
+@@ -4,11 +4,7 @@
+ #include <linux/perf_event.h>
+ #include <linux/uaccess.h>
+ 
+-/* Kernel callchain */
+-struct stackframe {
+-	unsigned long fp;
+-	unsigned long ra;
+-};
++#include <asm/stacktrace.h>
+ 
+ /*
+  * Get the return address for a single stackframe and return a pointer to the
+@@ -74,13 +70,11 @@ void perf_callchain_user(struct perf_cal
+ 		fp = user_backtrace(entry, fp, 0);
+ }
+ 
+-bool fill_callchain(unsigned long pc, void *entry)
++static bool fill_callchain(void *entry, unsigned long pc)
+ {
+ 	return perf_callchain_store(entry, pc);
+ }
+ 
+-void notrace walk_stackframe(struct task_struct *task,
+-	struct pt_regs *regs, bool (*fn)(unsigned long, void *), void *arg);
+ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ 			   struct pt_regs *regs)
+ {
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/process.c milky/arch/riscv/kernel/process.c
+--- test-tree/arch/riscv/kernel/process.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/process.c	2024-05-21 05:22:27.000000000 -0400
+@@ -14,10 +14,13 @@
+ #include <linux/tick.h>
+ #include <linux/ptrace.h>
+ #include <linux/uaccess.h>
++#include <uapi/linux/elf.h>
+ 
+ #include <asm/unistd.h>
+ #include <asm/processor.h>
++#include <asm/compat.h>
+ #include <asm/csr.h>
++#include <asm/stacktrace.h>
+ #include <asm/string.h>
+ #include <asm/switch_to.h>
+ #include <asm/thread_info.h>
+@@ -39,7 +42,7 @@ void arch_cpu_idle(void)
+ 	raw_local_irq_enable();
+ }
+ 
+-void show_regs(struct pt_regs *regs)
++void __show_regs(struct pt_regs *regs)
+ {
+ 	show_regs_print_info(KERN_DEFAULT);
+ 
+@@ -69,6 +72,12 @@ void show_regs(struct pt_regs *regs)
+ 	pr_cont("status: " REG_FMT " badaddr: " REG_FMT " cause: " REG_FMT "\n",
+ 		regs->status, regs->badaddr, regs->cause);
+ }
++void show_regs(struct pt_regs *regs)
++{
++	__show_regs(regs);
++	if (!user_mode(regs))
++		dump_backtrace(regs, NULL, KERN_DEFAULT);
++}
+ 
+ void start_thread(struct pt_regs *regs, unsigned long pc,
+ 	unsigned long sp)
+@@ -82,8 +91,22 @@ void start_thread(struct pt_regs *regs,
+ 		 */
+ 		fstate_restore(current, regs);
+ 	}
++
++	if (has_vector) {
++		regs->status |= SR_VS_INITIAL;
++		vstate_restore(current, regs);
++	}
++
+ 	regs->epc = pc;
+ 	regs->sp = sp;
++
++#ifdef CONFIG_COMPAT
++	regs->status &= ~SR_UXL;
++	if (is_compat_task())
++		regs->status |= SR_UXL_32;
++	else
++		regs->status |= SR_UXL_64;
++#endif
+ }
+ 
+ void flush_thread(void)
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/ptrace.c milky/arch/riscv/kernel/ptrace.c
+--- test-tree/arch/riscv/kernel/ptrace.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/ptrace.c	2024-05-21 05:22:27.000000000 -0400
+@@ -11,6 +11,7 @@
+ #include <asm/syscall.h>
+ #include <asm/thread_info.h>
+ #include <linux/audit.h>
++#include <linux/compat.h>
+ #include <linux/ptrace.h>
+ #include <linux/elf.h>
+ #include <linux/regset.h>
+@@ -26,6 +27,9 @@ enum riscv_regset {
+ #ifdef CONFIG_FPU
+ 	REGSET_F,
+ #endif
++#ifdef CONFIG_VECTOR
++	REGSET_V,
++#endif
+ };
+ 
+ static int riscv_gpr_get(struct task_struct *target,
+@@ -81,6 +85,31 @@ static int riscv_fpr_set(struct task_str
+ }
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++static int riscv_vr_get(struct task_struct *target,
++			 const struct user_regset *regset,
++			 struct membuf to)
++{
++	struct __riscv_v_state *vstate = &target->thread.vstate;
++
++	membuf_write(&to, vstate, offsetof(struct __riscv_v_state, vtype));
++	return membuf_zero(&to, 4);	// explicitly pad
++}
++
++static int riscv_vr_set(struct task_struct *target,
++			 const struct user_regset *regset,
++			 unsigned int pos, unsigned int count,
++			 const void *kbuf, const void __user *ubuf)
++{
++	int ret;
++	struct __riscv_v_state *vstate = &target->thread.vstate;
++
++	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, vstate, 0,
++				 offsetof(struct __riscv_v_state, vtype));
++	return ret;
++}
++#endif
++
+ static const struct user_regset riscv_user_regset[] = {
+ 	[REGSET_X] = {
+ 		.core_note_type = NT_PRSTATUS,
+@@ -100,6 +129,16 @@ static const struct user_regset riscv_us
+ 		.set = riscv_fpr_set,
+ 	},
+ #endif
++#ifdef CONFIG_VECTOR
++	[REGSET_V] = {
++		.core_note_type = NT_RISCV_VECTOR,
++		.n = ELF_NVREG,
++		.size = sizeof(elf_greg_t),
++		.align = sizeof(elf_greg_t),
++		.regset_get = riscv_vr_get,
++		.set = riscv_vr_set,
++	},
++#endif
+ };
+ 
+ static const struct user_regset_view riscv_user_native_view = {
+@@ -109,9 +148,103 @@ static const struct user_regset_view ris
+ 	.n = ARRAY_SIZE(riscv_user_regset),
+ };
+ 
+-const struct user_regset_view *task_user_regset_view(struct task_struct *task)
++struct pt_regs_offset {
++	const char *name;
++	int offset;
++};
++
++#define REG_OFFSET_NAME(r) {.name = #r, .offset = offsetof(struct pt_regs, r)}
++#define REG_OFFSET_END {.name = NULL, .offset = 0}
++
++static const struct pt_regs_offset regoffset_table[] = {
++	REG_OFFSET_NAME(epc),
++	REG_OFFSET_NAME(ra),
++	REG_OFFSET_NAME(sp),
++	REG_OFFSET_NAME(gp),
++	REG_OFFSET_NAME(tp),
++	REG_OFFSET_NAME(t0),
++	REG_OFFSET_NAME(t1),
++	REG_OFFSET_NAME(t2),
++	REG_OFFSET_NAME(s0),
++	REG_OFFSET_NAME(s1),
++	REG_OFFSET_NAME(a0),
++	REG_OFFSET_NAME(a1),
++	REG_OFFSET_NAME(a2),
++	REG_OFFSET_NAME(a3),
++	REG_OFFSET_NAME(a4),
++	REG_OFFSET_NAME(a5),
++	REG_OFFSET_NAME(a6),
++	REG_OFFSET_NAME(a7),
++	REG_OFFSET_NAME(s2),
++	REG_OFFSET_NAME(s3),
++	REG_OFFSET_NAME(s4),
++	REG_OFFSET_NAME(s5),
++	REG_OFFSET_NAME(s6),
++	REG_OFFSET_NAME(s7),
++	REG_OFFSET_NAME(s8),
++	REG_OFFSET_NAME(s9),
++	REG_OFFSET_NAME(s10),
++	REG_OFFSET_NAME(s11),
++	REG_OFFSET_NAME(t3),
++	REG_OFFSET_NAME(t4),
++	REG_OFFSET_NAME(t5),
++	REG_OFFSET_NAME(t6),
++	REG_OFFSET_NAME(status),
++	REG_OFFSET_NAME(badaddr),
++	REG_OFFSET_NAME(cause),
++	REG_OFFSET_NAME(orig_a0),
++	REG_OFFSET_END,
++};
++
++/**
++ * regs_query_register_offset() - query register offset from its name
++ * @name:	the name of a register
++ *
++ * regs_query_register_offset() returns the offset of a register in struct
++ * pt_regs from its name. If the name is invalid, this returns -EINVAL;
++ */
++int regs_query_register_offset(const char *name)
+ {
+-	return &riscv_user_native_view;
++	const struct pt_regs_offset *roff;
++
++	for (roff = regoffset_table; roff->name != NULL; roff++)
++		if (!strcmp(roff->name, name))
++			return roff->offset;
++	return -EINVAL;
++}
++
++/**
++ * regs_within_kernel_stack() - check the address in the stack
++ * @regs:      pt_regs which contains kernel stack pointer.
++ * @addr:      address which is checked.
++ *
++ * regs_within_kernel_stack() checks @addr is within the kernel stack page(s).
++ * If @addr is within the kernel stack, it returns true. If not, returns false.
++ */
++static bool regs_within_kernel_stack(struct pt_regs *regs, unsigned long addr)
++{
++	return (addr & ~(THREAD_SIZE - 1))  ==
++		(kernel_stack_pointer(regs) & ~(THREAD_SIZE - 1));
++}
++
++/**
++ * regs_get_kernel_stack_nth() - get Nth entry of the stack
++ * @regs:	pt_regs which contains kernel stack pointer.
++ * @n:		stack entry number.
++ *
++ * regs_get_kernel_stack_nth() returns @n th entry of the kernel stack which
++ * is specified by @regs. If the @n th entry is NOT in the kernel stack,
++ * this returns 0.
++ */
++unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs, unsigned int n)
++{
++	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
++
++	addr += n;
++	if (regs_within_kernel_stack(regs, (unsigned long)addr))
++		return *addr;
++	else
++		return 0;
+ }
+ 
+ void ptrace_disable(struct task_struct *child)
+@@ -172,3 +305,94 @@ __visible void do_syscall_trace_exit(str
+ 		trace_sys_exit(regs, regs_return_value(regs));
+ #endif
+ }
++
++#ifdef CONFIG_COMPAT
++static int compat_riscv_gpr_get(struct task_struct *target,
++				const struct user_regset *regset,
++				struct membuf to)
++{
++	struct compat_user_regs_struct cregs;
++
++	regs_to_cregs(&cregs, task_pt_regs(target));
++
++	return membuf_write(&to, &cregs,
++			    sizeof(struct compat_user_regs_struct));
++}
++
++static int compat_riscv_gpr_set(struct task_struct *target,
++				const struct user_regset *regset,
++				unsigned int pos, unsigned int count,
++				const void *kbuf, const void __user *ubuf)
++{
++	int ret;
++	struct compat_user_regs_struct cregs;
++
++	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf, &cregs, 0, -1);
++
++	cregs_to_regs(&cregs, task_pt_regs(target));
++
++	return ret;
++}
++
++static const struct user_regset compat_riscv_user_regset[] = {
++	[REGSET_X] = {
++		.core_note_type = NT_PRSTATUS,
++		.n = ELF_NGREG,
++		.size = sizeof(compat_elf_greg_t),
++		.align = sizeof(compat_elf_greg_t),
++		.regset_get = compat_riscv_gpr_get,
++		.set = compat_riscv_gpr_set,
++	},
++#ifdef CONFIG_FPU
++	[REGSET_F] = {
++		.core_note_type = NT_PRFPREG,
++		.n = ELF_NFPREG,
++		.size = sizeof(elf_fpreg_t),
++		.align = sizeof(elf_fpreg_t),
++		.regset_get = riscv_fpr_get,
++		.set = riscv_fpr_set,
++	},
++#endif
++#ifdef CONFIG_VECTOR
++	[REGSET_V] = {
++		.core_note_type = NT_RISCV_VECTOR,
++		.n = ELF_NVREG,
++		.size = sizeof(elf_greg_t),
++		.align = sizeof(elf_greg_t),
++		.regset_get = riscv_vr_get,
++		.set = riscv_vr_set,
++	},
++#endif
++};
++
++static const struct user_regset_view compat_riscv_user_native_view = {
++	.name = "riscv",
++	.e_machine = EM_RISCV,
++	.regsets = compat_riscv_user_regset,
++	.n = ARRAY_SIZE(compat_riscv_user_regset),
++};
++
++long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
++			compat_ulong_t caddr, compat_ulong_t cdata)
++{
++	long ret = -EIO;
++
++	switch (request) {
++	default:
++		ret = compat_ptrace_request(child, request, caddr, cdata);
++		break;
++	}
++
++	return ret;
++}
++#endif /* CONFIG_COMPAT */
++
++const struct user_regset_view *task_user_regset_view(struct task_struct *task)
++{
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_32BIT))
++		return &compat_riscv_user_native_view;
++	else
++#endif
++		return &riscv_user_native_view;
++}
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/sbi.c milky/arch/riscv/kernel/sbi.c
+--- test-tree/arch/riscv/kernel/sbi.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/sbi.c	2024-05-21 05:22:27.000000000 -0400
+@@ -547,6 +547,21 @@ static inline long sbi_get_firmware_vers
+ 	return __sbi_base_ecall(SBI_EXT_BASE_GET_IMP_VERSION);
+ }
+ 
++long sbi_get_mvendorid(void)
++{
++	return __sbi_base_ecall(SBI_EXT_BASE_GET_MVENDORID);
++}
++
++long sbi_get_marchid(void)
++{
++	return __sbi_base_ecall(SBI_EXT_BASE_GET_MARCHID);
++}
++
++long sbi_get_mimpid(void)
++{
++	return __sbi_base_ecall(SBI_EXT_BASE_GET_MIMPID);
++}
++
+ static void sbi_send_cpumask_ipi(const struct cpumask *target)
+ {
+ 	struct cpumask hartid_mask;
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/signal.c milky/arch/riscv/kernel/signal.c
+--- test-tree/arch/riscv/kernel/signal.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/signal.c	2024-05-21 05:22:27.000000000 -0400
+@@ -6,6 +6,7 @@
+  * Copyright (C) 2012 Regents of the University of California
+  */
+ 
++#include <linux/compat.h>
+ #include <linux/signal.h>
+ #include <linux/uaccess.h>
+ #include <linux/syscalls.h>
+@@ -83,6 +84,41 @@ static long save_fp_state(struct pt_regs
+ #define restore_fp_state(task, regs) (0)
+ #endif
+ 
++#ifdef CONFIG_VECTOR
++static long restore_v_state(struct pt_regs *regs,
++			    struct __riscv_v_state *sc_vregs)
++{
++	long err;
++	struct __riscv_v_state __user *state = sc_vregs;
++
++	err = __copy_from_user(&current->thread.vstate, state, sizeof(*state));
++	if (unlikely(err))
++		return err;
++
++	vstate_restore(current, regs);
++
++	return err;
++}
++
++static long save_v_state(struct pt_regs *regs,
++			 struct __riscv_v_state *sc_vregs)
++{
++	long err;
++	struct __riscv_v_state __user *state = sc_vregs;
++
++	vstate_save(current, regs);
++	err = __copy_to_user(state, &current->thread.vstate, sizeof(*state));
++	if (unlikely(err))
++		return err;
++
++	return err;
++}
++#else
++#define save_v_state(task, regs) (0)
++#define restore_v_state(task, regs) (0)
++#endif
++
++
+ static long restore_sigcontext(struct pt_regs *regs,
+ 	struct sigcontext __user *sc)
+ {
+@@ -92,6 +128,9 @@ static long restore_sigcontext(struct pt
+ 	/* Restore the floating-point state. */
+ 	if (has_fpu)
+ 		err |= restore_fp_state(regs, &sc->sc_fpregs);
++	/* Restore the vector state. */
++	if (has_vector)
++		err |= restore_v_state(regs, &sc->sc_vregs);
+ 	return err;
+ }
+ 
+@@ -145,6 +184,9 @@ static long setup_sigcontext(struct rt_s
+ 	/* Save the floating-point state. */
+ 	if (has_fpu)
+ 		err |= save_fp_state(regs, &sc->sc_fpregs);
++	/* Save the vector state. */
++	if (has_vector)
++		err |= save_v_state(regs, &sc->sc_vregs);
+ 	return err;
+ }
+ 
+@@ -229,6 +271,11 @@ static int setup_rt_frame(struct ksignal
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_COMPAT
++extern int compat_setup_rt_frame(struct ksignal *ksig, sigset_t *set,
++				 struct pt_regs *regs);
++#endif
++
+ static void handle_signal(struct ksignal *ksig, struct pt_regs *regs)
+ {
+ 	sigset_t *oldset = sigmask_to_save();
+@@ -258,8 +305,13 @@ static void handle_signal(struct ksignal
+ 		}
+ 	}
+ 
++#ifdef CONFIG_COMPAT
+ 	/* Set up the stack frame */
+-	ret = setup_rt_frame(ksig, oldset, regs);
++	if (is_compat_task())
++		ret = compat_setup_rt_frame(ksig, oldset, regs);
++	else
++#endif
++		ret = setup_rt_frame(ksig, oldset, regs);
+ 
+ 	signal_setup_done(ret, ksig, 0);
+ }
+@@ -309,6 +361,9 @@ static void do_signal(struct pt_regs *re
+ asmlinkage __visible void do_notify_resume(struct pt_regs *regs,
+ 					   unsigned long thread_info_flags)
+ {
++	if (thread_info_flags & _TIF_UPROBE)
++		uprobe_notify_resume(regs);
++
+ 	/* Handle pending signal delivery */
+ 	if (thread_info_flags & _TIF_SIGPENDING)
+ 		do_signal(regs);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/stacktrace.c milky/arch/riscv/kernel/stacktrace.c
+--- test-tree/arch/riscv/kernel/stacktrace.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/stacktrace.c	2024-05-21 05:22:27.000000000 -0400
+@@ -12,17 +12,14 @@
+ #include <linux/stacktrace.h>
+ #include <linux/ftrace.h>
+ 
++#include <asm/stacktrace.h>
++
+ register unsigned long sp_in_global __asm__("sp");
+ 
+ #ifdef CONFIG_FRAME_POINTER
+ 
+-struct stackframe {
+-	unsigned long fp;
+-	unsigned long ra;
+-};
+-
+ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
+-			     bool (*fn)(unsigned long, void *), void *arg)
++			     bool (*fn)(void *, unsigned long), void *arg)
+ {
+ 	unsigned long fp, sp, pc;
+ 
+@@ -46,7 +43,7 @@ void notrace walk_stackframe(struct task
+ 		unsigned long low, high;
+ 		struct stackframe *frame;
+ 
+-		if (unlikely(!__kernel_text_address(pc) || fn(pc, arg)))
++		if (unlikely(!__kernel_text_address(pc) || !fn(arg, pc)))
+ 			break;
+ 
+ 		/* Validate frame pointer */
+@@ -57,16 +54,22 @@ void notrace walk_stackframe(struct task
+ 		/* Unwind stack frame */
+ 		frame = (struct stackframe *)fp - 1;
+ 		sp = fp;
+-		fp = frame->fp;
+-		pc = ftrace_graph_ret_addr(current, NULL, frame->ra,
+-					   (unsigned long *)(fp - 8));
++		if (regs && (regs->epc == pc) && (frame->fp & 0x7)) {
++			fp = frame->ra;
++			pc = regs->ra;
++		} else {
++			fp = frame->fp;
++			pc = ftrace_graph_ret_addr(current, NULL, frame->ra,
++						   (unsigned long *)(fp - 8));
++		}
++
+ 	}
+ }
+ 
+ #else /* !CONFIG_FRAME_POINTER */
+ 
+ void notrace walk_stackframe(struct task_struct *task,
+-	struct pt_regs *regs, bool (*fn)(unsigned long, void *), void *arg)
++	struct pt_regs *regs, bool (*fn)(void *, unsigned long), void *arg)
+ {
+ 	unsigned long sp, pc;
+ 	unsigned long *ksp;
+@@ -88,7 +91,7 @@ void notrace walk_stackframe(struct task
+ 
+ 	ksp = (unsigned long *)sp;
+ 	while (!kstack_end(ksp)) {
+-		if (__kernel_text_address(pc) && unlikely(fn(pc, arg)))
++		if (__kernel_text_address(pc) && unlikely(!fn(arg, pc)))
+ 			break;
+ 		pc = (*ksp++) - 0x4;
+ 	}
+@@ -96,29 +99,34 @@ void notrace walk_stackframe(struct task
+ 
+ #endif /* CONFIG_FRAME_POINTER */
+ 
+-
+-static bool print_trace_address(unsigned long pc, void *arg)
++static bool print_trace_address(void *arg, unsigned long pc)
+ {
+ 	const char *loglvl = arg;
+ 
+ 	print_ip_sym(loglvl, pc);
+-	return false;
++	return true;
++}
++
++void dump_backtrace(struct pt_regs *regs, struct task_struct *task,
++		    const char *loglvl)
++{
++	pr_cont("%sCall Trace:\n", loglvl);
++	walk_stackframe(task, regs, print_trace_address, (void *)loglvl);
+ }
+ 
+ void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
+ {
+-	pr_cont("Call Trace:\n");
+-	walk_stackframe(task, NULL, print_trace_address, (void *)loglvl);
++	dump_backtrace(NULL, task, loglvl);
+ }
+ 
+-static bool save_wchan(unsigned long pc, void *arg)
++static bool save_wchan(void *arg, unsigned long pc)
+ {
+ 	if (!in_sched_functions(pc)) {
+ 		unsigned long *p = arg;
+ 		*p = pc;
+-		return true;
++		return false;
+ 	}
+-	return false;
++	return true;
+ }
+ 
+ unsigned long get_wchan(struct task_struct *task)
+@@ -130,42 +138,12 @@ unsigned long get_wchan(struct task_stru
+ 	return pc;
+ }
+ 
+-
+ #ifdef CONFIG_STACKTRACE
+ 
+-static bool __save_trace(unsigned long pc, void *arg, bool nosched)
+-{
+-	struct stack_trace *trace = arg;
+-
+-	if (unlikely(nosched && in_sched_functions(pc)))
+-		return false;
+-	if (unlikely(trace->skip > 0)) {
+-		trace->skip--;
+-		return false;
+-	}
+-
+-	trace->entries[trace->nr_entries++] = pc;
+-	return (trace->nr_entries >= trace->max_entries);
+-}
+-
+-static bool save_trace(unsigned long pc, void *arg)
+-{
+-	return __save_trace(pc, arg, false);
+-}
+-
+-/*
+- * Save stack-backtrace addresses into a stack_trace buffer.
+- */
+-void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+-{
+-	walk_stackframe(tsk, NULL, save_trace, trace);
+-}
+-EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+-
+-void save_stack_trace(struct stack_trace *trace)
++void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
++		     struct task_struct *task, struct pt_regs *regs)
+ {
+-	save_stack_trace_tsk(NULL, trace);
++	walk_stackframe(task, regs, consume_entry, cookie);
+ }
+-EXPORT_SYMBOL_GPL(save_stack_trace);
+ 
+ #endif /* CONFIG_STACKTRACE */
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/syscall_table.c milky/arch/riscv/kernel/syscall_table.c
+--- test-tree/arch/riscv/kernel/syscall_table.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/syscall_table.c	2024-05-21 05:22:27.000000000 -0400
+@@ -13,7 +13,7 @@
+ #undef __SYSCALL
+ #define __SYSCALL(nr, call)	[nr] = (call),
+ 
+-void *sys_call_table[__NR_syscalls] = {
++const void *sys_call_table[__NR_syscalls] = {
+ 	[0 ... __NR_syscalls - 1] = sys_ni_syscall,
+ #include <asm/unistd.h>
+ };
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/time.c milky/arch/riscv/kernel/time.c
+--- test-tree/arch/riscv/kernel/time.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/time.c	2024-05-21 05:22:27.000000000 -0400
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/clocksource.h>
++#include <linux/of_clk.h>
+ #include <linux/delay.h>
+ #include <asm/sbi.h>
+ #include <asm/processor.h>
+@@ -23,6 +24,8 @@ void __init time_init(void)
+ 	of_node_put(cpu);
+ 	riscv_timebase = prop;
+ 
++	of_clk_init(NULL);
++
+ 	lpj_fine = riscv_timebase / HZ;
+ 	timer_probe();
+ }
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/traps.c milky/arch/riscv/kernel/traps.c
+--- test-tree/arch/riscv/kernel/traps.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/traps.c	2024-05-21 05:22:27.000000000 -0400
+@@ -12,10 +12,12 @@
+ #include <linux/signal.h>
+ #include <linux/kdebug.h>
+ #include <linux/uaccess.h>
++#include <linux/kprobes.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/irq.h>
+ 
++#include <asm/bug.h>
+ #include <asm/processor.h>
+ #include <asm/ptrace.h>
+ #include <asm/csr.h>
+@@ -56,17 +58,26 @@ void die(struct pt_regs *regs, const cha
+ 		do_exit(SIGSEGV);
+ }
+ 
++#ifdef CONFIG_VECTOR_EMU
++extern bool decode_exec_insn(struct pt_regs *regs, uint64_t insn);
++#endif
+ void do_trap(struct pt_regs *regs, int signo, int code, unsigned long addr)
+ {
+ 	struct task_struct *tsk = current;
+ 
++#ifdef CONFIG_VECTOR_EMU
++	if (signo == SIGILL)
++		if (decode_exec_insn(regs, regs->badaddr))
++			return;
++#endif
++
+ 	if (show_unhandled_signals && unhandled_signal(tsk, signo)
+ 	    && printk_ratelimit()) {
+ 		pr_info("%s[%d]: unhandled signal %d code 0x%x at 0x" REG_FMT,
+ 			tsk->comm, task_pid_nr(tsk), signo, code, addr);
+ 		print_vma_addr(KERN_CONT " in ", instruction_pointer(regs));
+ 		pr_cont("\n");
+-		show_regs(regs);
++		__show_regs(regs);
+ 	}
+ 
+ 	force_sig_fault(signo, code, (void __user *)addr);
+@@ -75,6 +86,8 @@ void do_trap(struct pt_regs *regs, int s
+ static void do_trap_error(struct pt_regs *regs, int signo, int code,
+ 	unsigned long addr, const char *str)
+ {
++	current->thread.bad_cause = regs->cause;
++
+ 	if (user_mode(regs)) {
+ 		do_trap(regs, signo, code, addr);
+ 	} else {
+@@ -145,6 +158,22 @@ static inline unsigned long get_break_in
+ 
+ asmlinkage __visible void do_trap_break(struct pt_regs *regs)
+ {
++#ifdef CONFIG_KPROBES
++	if (kprobe_single_step_handler(regs))
++		return;
++
++	if (kprobe_breakpoint_handler(regs))
++		return;
++#endif
++#ifdef CONFIG_UPROBES
++	if (uprobe_single_step_handler(regs))
++		return;
++
++	if (uprobe_breakpoint_handler(regs))
++		return;
++#endif
++	current->thread.bad_cause = regs->cause;
++
+ 	if (user_mode(regs))
+ 		force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)regs->epc);
+ #ifdef CONFIG_KGDB
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/vdso/so2s.sh milky/arch/riscv/kernel/vdso/so2s.sh
+--- test-tree/arch/riscv/kernel/vdso/so2s.sh	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/vdso/so2s.sh	1969-12-31 19:00:00.000000000 -0500
+@@ -1,6 +0,0 @@
+-#!/bin/sh
+-# SPDX-License-Identifier: GPL-2.0+
+-# Copyright 2020 Palmer Dabbelt <palmerdabbelt@google.com>
+-
+-sed 's!\([0-9a-f]*\) T \([a-z0-9_]*\)\(@@LINUX_4.15\)*!.global \2\n.set \2,0x\1!' \
+-| grep '^\.'
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/vdso/vdso.S milky/arch/riscv/kernel/vdso/vdso.S
+--- test-tree/arch/riscv/kernel/vdso/vdso.S	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/vdso/vdso.S	2024-05-21 05:22:27.000000000 -0400
+@@ -7,12 +7,16 @@
+ #include <linux/linkage.h>
+ #include <asm/page.h>
+ 
++#ifndef __VDSO_PATH
++#define __VDSO_PATH "arch/riscv/kernel/vdso/vdso.so"
++#endif
++
+ 	__PAGE_ALIGNED_DATA
+ 
+ 	.globl vdso_start, vdso_end
+ 	.balign PAGE_SIZE
+ vdso_start:
+-	.incbin "arch/riscv/kernel/vdso/vdso.so"
++	.incbin __VDSO_PATH
+ 	.balign PAGE_SIZE
+ vdso_end:
+ 
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/vdso.c milky/arch/riscv/kernel/vdso.c
+--- test-tree/arch/riscv/kernel/vdso.c	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/vdso.c	2024-05-21 05:22:27.000000000 -0400
+@@ -32,7 +32,7 @@ static union {
+ } vdso_data_store __page_aligned_data;
+ struct vdso_data *vdso_data = &vdso_data_store.data;
+ 
+-static int __init vdso_init(void)
++static int __init __vdso_init(void)
+ {
+ 	unsigned int i;
+ 
+@@ -54,6 +54,60 @@ static int __init vdso_init(void)
+ 
+ 	return 0;
+ }
++
++#ifdef CONFIG_COMPAT
++extern char compat_vdso_start[], compat_vdso_end[];
++
++static unsigned int compat_vdso_pages;
++static struct page **compat_vdso_pagelist;
++
++/*
++ * The compat vDSO data page.
++ */
++static union {
++	struct vdso_data	data;
++	u8			page[PAGE_SIZE];
++} compat_vdso_data_store __page_aligned_data;
++struct vdso_data *compat_vdso_data = &compat_vdso_data_store.data;
++
++static int __init __compat_vdso_init(void)
++{
++	unsigned int i;
++
++	compat_vdso_pages = (compat_vdso_end - compat_vdso_start) >> PAGE_SHIFT;
++	compat_vdso_pagelist =
++		kcalloc(compat_vdso_pages + 1, sizeof(struct page *), GFP_KERNEL);
++	if (unlikely(compat_vdso_pagelist == NULL)) {
++		pr_err("compat vdso: pagelist allocation failed\n");
++		return -ENOMEM;
++	}
++
++	for (i = 0; i < compat_vdso_pages; i++) {
++		struct page *pg;
++
++		pg = virt_to_page(compat_vdso_start + (i << PAGE_SHIFT));
++		compat_vdso_pagelist[i] = pg;
++	}
++	compat_vdso_pagelist[i] = virt_to_page(compat_vdso_data);
++
++	return 0;
++}
++#endif
++
++static int __init vdso_init(void)
++{
++	int ret = 0;
++
++	ret = __vdso_init();
++	if (ret)
++		goto out;
++
++#ifdef CONFIG_COMPAT
++	ret = __compat_vdso_init();
++#endif
++out:
++	return ret;
++}
+ arch_initcall(vdso_init);
+ 
+ int arch_setup_additional_pages(struct linux_binprm *bprm,
+@@ -100,6 +154,52 @@ end:
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_COMPAT
++int compat_arch_setup_additional_pages(struct linux_binprm *bprm,
++				       int uses_interp)
++{
++	struct mm_struct *mm = current->mm;
++	unsigned long vdso_base, vdso_len;
++	int ret;
++
++	vdso_len = (compat_vdso_pages + 1) << PAGE_SHIFT;
++
++	mmap_write_lock(mm);
++	vdso_base = get_unmapped_area(NULL, 0, vdso_len, 0, 0);
++	if (IS_ERR_VALUE(vdso_base)) {
++		ret = vdso_base;
++		goto end;
++	}
++
++	/*
++	 * Put vDSO base into mm struct. We need to do this before calling
++	 * install_special_mapping or the perf counter mmap tracking code
++	 * will fail to recognise it as a vDSO (since arch_vma_name fails).
++	 */
++	mm->context.vdso = (void *)vdso_base;
++
++	ret =
++	   install_special_mapping(mm, vdso_base, vdso_pages << PAGE_SHIFT,
++		(VM_READ | VM_EXEC | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC),
++		compat_vdso_pagelist);
++
++	if (unlikely(ret)) {
++		mm->context.vdso = NULL;
++		goto end;
++	}
++
++	vdso_base += (compat_vdso_pages << PAGE_SHIFT);
++	ret = install_special_mapping(mm, vdso_base, PAGE_SIZE,
++		(VM_READ | VM_MAYREAD), &compat_vdso_pagelist[compat_vdso_pages]);
++
++	if (unlikely(ret))
++		mm->context.vdso = NULL;
++end:
++	mmap_write_unlock(mm);
++	return ret;
++}
++#endif
++
+ const char *arch_vma_name(struct vm_area_struct *vma)
+ {
+ 	if (vma->vm_mm && (vma->vm_start == (long)vma->vm_mm->context.vdso))
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/kernel/vmlinux.lds.S milky/arch/riscv/kernel/vmlinux.lds.S
+--- test-tree/arch/riscv/kernel/vmlinux.lds.S	2024-05-24 09:21:48.838276082 -0400
++++ milky/arch/riscv/kernel/vmlinux.lds.S	2024-05-21 05:22:27.000000000 -0400
+@@ -24,7 +24,7 @@ PECOFF_FILE_ALIGNMENT = 0x200;
+ SECTIONS
+ {
+ 	/* Beginning of code and text segment */
+-	. = LOAD_OFFSET;
++	. = PAGE_OFFSET + LOAD_OFFSET;
+ 	_start = .;
+ 	HEAD_TEXT_SECTION
+ 	. = ALIGN(PAGE_SIZE);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/mm/cacheflush.c milky/arch/riscv/mm/cacheflush.c
+--- test-tree/arch/riscv/mm/cacheflush.c	2024-05-24 09:21:48.842276068 -0400
++++ milky/arch/riscv/mm/cacheflush.c	2024-05-21 05:22:27.000000000 -0400
+@@ -4,11 +4,10 @@
+  */
+ 
+ #include <asm/cacheflush.h>
++#include <asm/sbi.h>
+ 
+ #ifdef CONFIG_SMP
+ 
+-#include <asm/sbi.h>
+-
+ static void ipi_remote_fence_i(void *info)
+ {
+ 	return local_flush_icache_all();
+@@ -87,3 +86,43 @@ void flush_icache_pte(pte_t pte)
+ 		flush_icache_all();
+ }
+ #endif /* CONFIG_MMU */
++
++static bool thead_dma_init_flag = false;
++
++#define sync_is()	asm volatile (".long 0x01b0000b")
++void dma_wbinv_range(unsigned long start, unsigned long end)
++{
++	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
++
++	if (!thead_dma_init_flag)
++		return;
++
++	for (; i < end; i += L1_CACHE_BYTES)
++		asm volatile (".long 0x02b5000b"); /* dcache.cipa a0 */
++
++	sync_is();
++}
++
++void dma_wb_range(unsigned long start, unsigned long end)
++{
++	register unsigned long i asm("a0") = start & ~(L1_CACHE_BYTES - 1);
++
++	if (!thead_dma_init_flag)
++		return;
++
++	for (; i < end; i += L1_CACHE_BYTES)
++		asm volatile (".long 0x0295000b"); /* dcache.cpa a0 */
++
++	sync_is();
++}
++
++#define THEAD_VENDOR_ID       0x5b7
++
++static int __init thead_dma_init(void)
++{
++	if (sbi_get_mvendorid() == THEAD_VENDOR_ID)
++		thead_dma_init_flag = true;
++
++	return 0;
++}
++arch_initcall(thead_dma_init);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/mm/context.c milky/arch/riscv/mm/context.c
+--- test-tree/arch/riscv/mm/context.c	2024-05-24 09:21:48.842276068 -0400
++++ milky/arch/riscv/mm/context.c	2024-05-21 05:22:27.000000000 -0400
+@@ -44,6 +44,7 @@ void switch_mm(struct mm_struct *prev, s
+ 	struct task_struct *task)
+ {
+ 	unsigned int cpu;
++	unsigned long asid;
+ 
+ 	if (unlikely(prev == next))
+ 		return;
+@@ -59,9 +60,47 @@ void switch_mm(struct mm_struct *prev, s
+ 	cpumask_set_cpu(cpu, mm_cpumask(next));
+ 
+ #ifdef CONFIG_MMU
+-	csr_write(CSR_SATP, virt_to_pfn(next->pgd) | SATP_MODE);
+-	local_flush_tlb_all();
++	check_and_switch_context(next, cpu);
++	asid = (next->context.asid.counter & SATP_ASID_MASK)
++		<< SATP_ASID_SHIFT;
++
++	csr_write(sptbr, virt_to_pfn(next->pgd) | SATP_MODE | asid);
+ #endif
+ 
+ 	flush_icache_deferred(next);
+ }
++
++static DEFINE_PER_CPU(atomic64_t, active_asids);
++static DEFINE_PER_CPU(u64, reserved_asids);
++
++struct asid_info asid_info;
++
++void check_and_switch_context(struct mm_struct *mm, unsigned int cpu)
++{
++	asid_check_context(&asid_info, &mm->context.asid, cpu, mm);
++}
++
++static void asid_flush_cpu_ctxt(void)
++{
++	local_flush_tlb_all();
++}
++
++static int asids_init(void)
++{
++	BUG_ON(((1 << SATP_ASID_BITS) - 1) <= num_possible_cpus());
++
++	if (asid_allocator_init(&asid_info, SATP_ASID_BITS, 1,
++				asid_flush_cpu_ctxt))
++		panic("Unable to initialize ASID allocator for %lu ASIDs\n",
++		      NUM_ASIDS(&asid_info));
++
++	asid_info.active = &active_asids;
++	asid_info.reserved = &reserved_asids;
++
++	pr_info("ASID allocator initialised with %lu entries\n",
++		NUM_CTXT_ASIDS(&asid_info));
++
++	local_flush_tlb_all();
++	return 0;
++}
++early_initcall(asids_init);
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/mm/fault.c milky/arch/riscv/mm/fault.c
+--- test-tree/arch/riscv/mm/fault.c	2024-05-24 09:21:48.842276068 -0400
++++ milky/arch/riscv/mm/fault.c	2024-05-21 05:22:27.000000000 -0400
+@@ -13,6 +13,7 @@
+ #include <linux/perf_event.h>
+ #include <linux/signal.h>
+ #include <linux/uaccess.h>
++#include <linux/kprobes.h>
+ 
+ #include <asm/ptrace.h>
+ #include <asm/tlbflush.h>
+@@ -202,6 +203,9 @@ asmlinkage void do_page_fault(struct pt_
+ 	tsk = current;
+ 	mm = tsk->mm;
+ 
++	if (kprobe_page_fault(regs, cause))
++		return;
++
+ 	/*
+ 	 * Fault-in kernel-space virtual memory on-demand.
+ 	 * The 'reference' page table is init_mm.pgd.
+@@ -217,7 +221,7 @@ asmlinkage void do_page_fault(struct pt_
+ 	}
+ 
+ 	/* Enable interrupts if they were enabled in the parent context. */
+-	if (likely(regs->status & SR_PIE))
++	if (likely(regs->status & SR_PIE) || user_mode(regs))
+ 		local_irq_enable();
+ 
+ 	/*
+@@ -225,6 +229,7 @@ asmlinkage void do_page_fault(struct pt_
+ 	 * in an atomic region, then we must not take the fault.
+ 	 */
+ 	if (unlikely(faulthandler_disabled() || !mm)) {
++		tsk->thread.bad_cause = cause;
+ 		no_context(regs, addr);
+ 		return;
+ 	}
+@@ -242,16 +247,19 @@ retry:
+ 	mmap_read_lock(mm);
+ 	vma = find_vma(mm, addr);
+ 	if (unlikely(!vma)) {
++		tsk->thread.bad_cause = cause;
+ 		bad_area(regs, mm, code, addr);
+ 		return;
+ 	}
+ 	if (likely(vma->vm_start <= addr))
+ 		goto good_area;
+ 	if (unlikely(!(vma->vm_flags & VM_GROWSDOWN))) {
++		tsk->thread.bad_cause = cause;
+ 		bad_area(regs, mm, code, addr);
+ 		return;
+ 	}
+ 	if (unlikely(expand_stack(vma, addr))) {
++		tsk->thread.bad_cause = cause;
+ 		bad_area(regs, mm, code, addr);
+ 		return;
+ 	}
+@@ -264,6 +272,7 @@ good_area:
+ 	code = SEGV_ACCERR;
+ 
+ 	if (unlikely(access_error(cause, vma))) {
++		tsk->thread.bad_cause = cause;
+ 		bad_area(regs, mm, code, addr);
+ 		return;
+ 	}
+@@ -297,6 +306,7 @@ good_area:
+ 	mmap_read_unlock(mm);
+ 
+ 	if (unlikely(fault & VM_FAULT_ERROR)) {
++		tsk->thread.bad_cause = cause;
+ 		mm_fault_error(regs, addr, fault);
+ 		return;
+ 	}
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/mm/init.c milky/arch/riscv/mm/init.c
+--- test-tree/arch/riscv/mm/init.c	2024-05-24 09:21:48.842276068 -0400
++++ milky/arch/riscv/mm/init.c	2024-05-21 05:22:27.000000000 -0400
+@@ -152,6 +152,14 @@ disable:
+ }
+ #endif /* CONFIG_BLK_DEV_INITRD */
+ 
++static phys_addr_t firmware_size __initdata;
++static int __init early_get_firmware_size(char *arg)
++{
++	firmware_size = memparse(arg, &arg);
++	return 0;
++}
++early_param("riscv.fwsz", early_get_firmware_size);
++
+ void __init setup_bootmem(void)
+ {
+ 	phys_addr_t mem_start = 0;
+@@ -193,6 +201,11 @@ void __init setup_bootmem(void)
+ 	 */
+ 	memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
+ 
++	if (firmware_size > PAGE_SIZE && firmware_size < LOAD_OFFSET)
++		memblock_reserve(__pa(PAGE_OFFSET), firmware_size);
++	else
++		memblock_reserve(__pa(PAGE_OFFSET), LOAD_OFFSET);
++
+ 	early_init_fdt_scan_reserved_mem();
+ 	memblock_allow_resize();
+ 	memblock_dump_all();
+@@ -434,7 +447,7 @@ static uintptr_t __init best_map_size(ph
+ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
+ {
+ 	uintptr_t va, pa, end_va;
+-	uintptr_t load_pa = (uintptr_t)(&_start);
++	uintptr_t load_pa = (uintptr_t)(&_start) - LOAD_OFFSET;
+ 	uintptr_t load_sz = (uintptr_t)(&_end) - load_pa;
+ 	uintptr_t map_size = best_map_size(load_pa, MAX_EARLY_MAPPING_SIZE);
+ #ifndef __PAGETABLE_PMD_FOLDED
+@@ -472,8 +485,8 @@ asmlinkage void __init setup_vm(uintptr_
+ 	/* Setup trampoline PGD and PMD */
+ 	create_pgd_mapping(trampoline_pg_dir, PAGE_OFFSET,
+ 			   (uintptr_t)trampoline_pmd, PGDIR_SIZE, PAGE_TABLE);
+-	create_pmd_mapping(trampoline_pmd, PAGE_OFFSET,
+-			   load_pa, PMD_SIZE, PAGE_KERNEL_EXEC);
++	create_pmd_mapping(trampoline_pmd, PAGE_OFFSET + LOAD_OFFSET,
++			   load_pa + LOAD_OFFSET, PMD_SIZE, PAGE_KERNEL_EXEC);
+ #else
+ 	/* Setup trampoline PGD */
+ 	create_pgd_mapping(trampoline_pg_dir, PAGE_OFFSET,
+diff -urpN --no-dereference -X diffgen.ignore test-tree/arch/riscv/mm/tlbflush.c milky/arch/riscv/mm/tlbflush.c
+--- test-tree/arch/riscv/mm/tlbflush.c	2024-05-24 09:21:48.842276068 -0400
++++ milky/arch/riscv/mm/tlbflush.c	2024-05-21 05:22:27.000000000 -0400
+@@ -3,6 +3,73 @@
+ #include <linux/mm.h>
+ #include <linux/smp.h>
+ #include <linux/sched.h>
++
++#define XUANTIE
++#ifdef  XUANTIE
++#include <asm/mmu_context.h>
++
++void flush_tlb_all(void)
++{
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, 1 << 26);
++#else
++	__asm__ __volatile__ ("sfence.vma" : : : "memory");
++#endif
++}
++
++void flush_tlb_mm(struct mm_struct *mm)
++{
++	int newpid = cpu_asid(mm);
++
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, (1 << 27) | newpid);
++#else
++	__asm__ __volatile__ ("sfence.vma zero, %0"
++				:
++				: "r"(newpid)
++				: "memory");
++#endif
++}
++
++void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
++{
++	int newpid = cpu_asid(vma->vm_mm);
++
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, (1 << 27) | newpid);
++#else
++	addr &= PAGE_MASK;
++
++	__asm__ __volatile__ ("sfence.vma %0, %1"
++				:
++				: "r"(addr), "r"(newpid)
++				: "memory");
++#endif
++}
++
++void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
++			unsigned long end)
++{
++	unsigned long newpid = cpu_asid(vma->vm_mm);
++
++#ifdef CONFIG_NO_SFENCE_VMA
++	csr_write(CSR_SMCIR, (1 << 27) | newpid);
++#else
++	start &= PAGE_MASK;
++	end   += PAGE_SIZE - 1;
++	end   &= PAGE_MASK;
++
++	while (start < end) {
++		__asm__ __volatile__ ("sfence.vma %0, %1"
++					:
++					: "r"(start), "r"(newpid)
++					: "memory");
++		start += PAGE_SIZE;
++	}
++#endif
++}
++#else
++
+ #include <asm/sbi.h>
+ 
+ void flush_tlb_all(void)
+@@ -54,3 +121,4 @@ void flush_tlb_range(struct vm_area_stru
+ {
+ 	__sbi_tlb_flush_range(mm_cpumask(vma->vm_mm), start, end - start);
+ }
++#endif
