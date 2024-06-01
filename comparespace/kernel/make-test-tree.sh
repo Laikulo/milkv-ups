@@ -30,6 +30,6 @@ done
 # probably should exclude instead
 
 echo >&2 "--- Generating diffs"
-diff -qr --no-dereference -X diffgen.ignore test-tree milky > summary.txt
-diff -urpN --no-dereference -X diffgen.ignore test-tree milky > remaining.diff
+diff -qwr --no-dereference -X diffgen.ignore test-tree milky > summary.txt
+diff -wurpN --no-dereference -X diffgen.ignore test-tree milky > remaining.diff
 
