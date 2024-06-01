@@ -1,0 +1,16 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/netdevice.h milky/include/linux/netdevice.h
+--- test-tree/include/linux/netdevice.h	2024-06-01 13:47:58.906874556 -0400
++++ milky/include/linux/netdevice.h	2024-05-21 05:22:27.000000000 -0400
+@@ -3852,9 +3852,11 @@ int netdev_rx_handler_register(struct ne
+ void netdev_rx_handler_unregister(struct net_device *dev);
+ 
+ bool dev_valid_name(const char *name);
++int get_user_ifreq(struct ifreq *ifr, void __user **ifrdata, void __user *arg);
++int put_user_ifreq(struct ifreq *ifr, void __user *arg);
+ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
+ 		bool *need_copyout);
+-int dev_ifconf(struct net *net, struct ifconf *, int);
++int dev_ifconf(struct net *net, struct ifconf __user *ifc);
+ int dev_ethtool(struct net *net, struct ifreq *);
+ unsigned int dev_get_flags(const struct net_device *);
+ int __dev_change_flags(struct net_device *dev, unsigned int flags,

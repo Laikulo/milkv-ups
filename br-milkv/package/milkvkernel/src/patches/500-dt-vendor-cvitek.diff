@@ -1,0 +1,12 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/Documentation/devicetree/bindings/vendor-prefixes.yaml milky/Documentation/devicetree/bindings/vendor-prefixes.yaml
+--- test-tree/Documentation/devicetree/bindings/vendor-prefixes.yaml	2024-06-01 13:18:33.648527212 -0400
++++ milky/Documentation/devicetree/bindings/vendor-prefixes.yaml	2024-05-21 05:22:27.000000000 -0400
+@@ -249,6 +249,8 @@ patternProperties:
+     description: Shenzen Chuangsiqi Technology Co.,Ltd.
+   "^cubietech,.*":
+     description: Cubietech, Ltd.
++  "^cvitek,.*":
++    description:  Cvitek Co., Ltd.
+   "^cypress,.*":
+     description: Cypress Semiconductor Corporation
+   "^cznic,.*":

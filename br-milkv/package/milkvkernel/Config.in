@@ -1,0 +1,5 @@
+config BR2_PACKAGE_MILKVKERNEL
+	bool "Milkv Kernel Package"
+	help
+	  This package includes kernel extensions extraceted form the milkv sdk
+	  https://github.com/milkv-duo/duo-buildroot-sdk/tree/develop/linux_5.10

@@ -1,0 +1,5 @@
+config BR2_LINUX_KERNEL_EXT_MILKVKERNEL
+	bool "Milk-V kernel extensions"
+	help
+		Kernel extensions extracted from milkv sdk
+		https://github.com/milkv-duo/duo-buildroot-sdk/tree/develop/linux_5.10

@@ -1,0 +1,11 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/cpuhotplug.h milky/include/linux/cpuhotplug.h
+--- test-tree/include/linux/cpuhotplug.h	2024-06-01 13:47:58.846874739 -0400
++++ milky/include/linux/cpuhotplug.h	2024-05-21 05:22:27.000000000 -0400
+@@ -184,6 +184,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_POWERPC_TRACE_IMC_ONLINE,
+ 	CPUHP_AP_PERF_POWERPC_HV_24x7_ONLINE,
+ 	CPUHP_AP_PERF_POWERPC_HV_GPCI_ONLINE,
++	CPUHP_AP_PERF_CSKY_ONLINE,
+ 	CPUHP_AP_WATCHDOG_ONLINE,
+ 	CPUHP_AP_WORKQUEUE_ONLINE,
+ 	CPUHP_AP_RCUTREE_ONLINE,

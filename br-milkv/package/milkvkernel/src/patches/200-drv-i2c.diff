@@ -1,0 +1,93 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/i2c/busses/i2c-designware-core.h milky/drivers/i2c/busses/i2c-designware-core.h
+--- test-tree/drivers/i2c/busses/i2c-designware-core.h	2024-06-01 13:18:37.628514180 -0400
++++ milky/drivers/i2c/busses/i2c-designware-core.h	2024-05-21 05:22:27.000000000 -0400
+@@ -286,6 +286,7 @@ struct dw_i2c_dev {
+ 	int			mode;
+ 	struct i2c_bus_recovery_info rinfo;
+ 	bool			suspended;
++	int			use_interstop;
+ };
+ 
+ #define ACCESS_INTR_MASK	0x00000001
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/i2c/busses/i2c-designware-master.c milky/drivers/i2c/busses/i2c-designware-master.c
+--- test-tree/drivers/i2c/busses/i2c-designware-master.c	2024-06-01 13:18:37.628514180 -0400
++++ milky/drivers/i2c/busses/i2c-designware-master.c	2024-05-21 05:22:27.000000000 -0400
+@@ -205,6 +205,8 @@ static int i2c_dw_init_master(struct dw_
+ 	}
+ 
+ 	/* Write SDA hold time if supported */
++	dev->sda_hold_time = 0x1E;
++
+ 	if (dev->sda_hold_time)
+ 		regmap_write(dev->map, DW_IC_SDA_HOLD, dev->sda_hold_time);
+ 
+@@ -330,9 +332,12 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 			 * be adjusted when receiving the first byte.
+ 			 * Thus we can't stop the transaction here.
+ 			 */
+-			if (dev->msg_write_idx == dev->msgs_num - 1 &&
+-			    buf_len == 1 && !(flags & I2C_M_RECV_LEN))
++			if (((dev->msg_write_idx == dev->msgs_num - 1) || (flags & I2C_M_WRSTOP)) &&
++			    buf_len == 1 && !(flags & I2C_M_RECV_LEN)) {
+ 				cmd |= BIT(9);
++				if (flags & I2C_M_WRSTOP)
++					dev->use_interstop = 1;
++			}
+ 
+ 			if (need_restart) {
+ 				cmd |= BIT(10);
+@@ -507,7 +512,10 @@ i2c_dw_xfer(struct i2c_adapter *adap, st
+ 	 * additional interrupts are a hardware bug or this driver doesn't
+ 	 * handle them correctly yet.
+ 	 */
+-	__i2c_dw_disable_nowait(dev);
++	if (!dev->use_interstop)
++		__i2c_dw_disable_nowait(dev);
++
++	dev->use_interstop = 0;
+ 
+ 	if (dev->msg_err) {
+ 		ret = dev->msg_err;
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/i2c/i2c-dev.c milky/drivers/i2c/i2c-dev.c
+--- test-tree/drivers/i2c/i2c-dev.c	2024-06-01 13:18:37.640514141 -0400
++++ milky/drivers/i2c/i2c-dev.c	2024-05-21 05:22:27.000000000 -0400
+@@ -29,6 +29,14 @@
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ 
++#if defined(CONFIG_ARCH_CVITEK)
++#define I2C0 "i2c@04000000"
++#define I2C1 "i2c@04010000"
++#define I2C2 "i2c@04020000"
++#define I2C3 "i2c@04030000"
++#define I2C4 "i2c@04040000"
++#endif
++
+ /*
+  * An i2c_dev represents an i2c_adapter ... an I2C or SMBus master, not a
+  * slave (i2c_client) with which messages will be exchanged.  It's coupled
+@@ -660,7 +668,24 @@ static int i2cdev_attach_adapter(struct
+ 	i2c_dev->dev.class = i2c_dev_class;
+ 	i2c_dev->dev.parent = &adap->dev;
+ 	i2c_dev->dev.release = i2cdev_dev_release;
++
++#if defined(CONFIG_ARCH_CVITEK)
++	if (!strcmp(adap->dev.of_node->full_name, I2C0))
++		adap->i2c_idx = 0;
++	if (!strcmp(adap->dev.of_node->full_name, I2C1))
++		adap->i2c_idx = 1;
++	if (!strcmp(adap->dev.of_node->full_name, I2C2))
++		adap->i2c_idx = 2;
++	if (!strcmp(adap->dev.of_node->full_name, I2C3))
++		adap->i2c_idx = 3;
++	if (!strcmp(adap->dev.of_node->full_name, I2C4))
++		adap->i2c_idx = 4;
++
++	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->i2c_idx);
++#else
+ 	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->nr);
++#endif
++
+ 
+ 	res = cdev_device_add(&i2c_dev->cdev, &i2c_dev->dev);
+ 	if (res) {

@@ -1,0 +1,13 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/staging/fbtft/fb_ili9341.c milky/drivers/staging/fbtft/fb_ili9341.c
+--- test-tree/drivers/staging/fbtft/fb_ili9341.c	2024-06-01 13:18:40.804503782 -0400
++++ milky/drivers/staging/fbtft/fb_ili9341.c	2024-05-21 05:22:27.000000000 -0400
+@@ -30,6 +30,9 @@ static int init_display(struct fbtft_par
+ {
+ 	par->fbtftops.reset(par);
+ 
++	if (par->gpio.cs)
++		gpiod_set_value(par->gpio.cs, 0);  /* Activate chip */
++
+ 	/* startup sequence for MI0283QT-9A */
+ 	write_reg(par, MIPI_DCS_SOFT_RESET);
+ 	mdelay(5);

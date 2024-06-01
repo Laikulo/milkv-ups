@@ -1,0 +1,13 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/i2c.h milky/include/linux/i2c.h
+--- test-tree/include/linux/i2c.h	2024-06-01 13:47:58.866874677 -0400
++++ milky/include/linux/i2c.h	2024-05-21 05:22:27.000000000 -0400
+@@ -711,6 +711,9 @@ struct i2c_adapter {
+ #define I2C_ALF_SUSPEND_REPORTED	1
+ 
+ 	int nr;
++#if defined(CONFIG_ARCH_CVITEK)
++	int i2c_idx;
++#endif
+ 	char name[48];
+ 	struct completion dev_released;
+ 

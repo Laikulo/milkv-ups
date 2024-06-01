@@ -1,0 +1,26 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/kernel/module.c milky/kernel/module.c
+--- test-tree/kernel/module.c	2024-06-01 13:47:59.454872885 -0400
++++ milky/kernel/module.c	2024-05-21 05:22:27.000000000 -0400
+@@ -3836,6 +3836,10 @@ static int load_module(struct load_info
+ 	long err = 0;
+ 	char *after_dashes;
+ 
++#ifdef CONFIG_ARCH_CVITEK
++	flags |= (MODULE_INIT_IGNORE_MODVERSIONS | MODULE_INIT_IGNORE_VERMAGIC);
++#endif
++
+ 	err = elf_header_check(info);
+ 	if (err) {
+ 		pr_err("Module has invalid ELF header\n");
+@@ -4439,8 +4443,9 @@ static int modules_open(struct inode *in
+ 	int err = seq_open(file, &modules_op);
+ 
+ 	if (!err) {
+-		struct seq_file *m = file->private_data;
+-		m->private = kallsyms_show_value(file->f_cred) ? NULL : (void *)8ul;
++		// Show ko base address as default during KALLSYM disable.
++		// struct seq_file *m = file->private_data;
++		// m->private = kallsyms_show_value(file->f_cred) ? NULL : (void *)8ul;
+ 	}
+ 
+ 	return err;
