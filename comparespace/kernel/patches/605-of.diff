@@ -1,0 +1,12 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/of_reserved_mem.h milky/include/linux/of_reserved_mem.h
+--- test-tree/include/linux/of_reserved_mem.h	2024-06-01 13:47:58.910874544 -0400
++++ milky/include/linux/of_reserved_mem.h	2024-05-21 05:22:27.000000000 -0400
+@@ -9,7 +9,7 @@ struct of_phandle_args;
+ struct reserved_mem_ops;
+ 
+ struct reserved_mem {
+-	const char			*name;
++	char				name[8];
+ 	unsigned long			fdt_node;
+ 	unsigned long			phandle;
+ 	const struct reserved_mem_ops	*ops;

@@ -1,0 +1,50 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/mmc/card.h milky/include/linux/mmc/card.h
+--- test-tree/include/linux/mmc/card.h	2024-06-01 13:47:58.902874568 -0400
++++ milky/include/linux/mmc/card.h	2024-05-21 05:22:27.000000000 -0400
+@@ -270,6 +270,7 @@ struct mmc_card {
+ #define MMC_QUIRK_BROKEN_IRQ_POLLING	(1<<11)	/* Polling SDIO_CCCR_INTx could create a fake interrupt */
+ #define MMC_QUIRK_TRIM_BROKEN	(1<<12)		/* Skip trim */
+ #define MMC_QUIRK_BROKEN_HPI	(1<<13)		/* Disable broken HPI support */
++#define MMC_QUIRK_EXTRA_LONG_READ_TIME (1<<14)	/* For Micron eMMC need very long read time after power loss boot */
+ 
+ 	bool			reenable_cmdq;	/* Re-enable Command Queue */
+ 
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/mmc/host.h milky/include/linux/mmc/host.h
+--- test-tree/include/linux/mmc/host.h	2024-06-01 13:47:58.902874568 -0400
++++ milky/include/linux/mmc/host.h	2024-05-21 05:22:27.000000000 -0400
+@@ -281,6 +281,7 @@ struct mmc_host {
+ 	unsigned int		f_min;
+ 	unsigned int		f_max;
+ 	unsigned int		f_init;
++	unsigned int		f_src;
+ 	u32			ocr_avail;
+ 	u32			ocr_avail_sdio;	/* SDIO-specific OCR */
+ 	u32			ocr_avail_sd;	/* SD-specific OCR */
+@@ -470,7 +471,7 @@ struct mmc_host {
+ 	int			cqe_qdepth;
+ 	bool			cqe_enabled;
+ 	bool			cqe_on;
+-
++	bool			ever_unplugged;
+ 	/* Host Software Queue support */
+ 	bool			hsq_enabled;
+ 
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/mmc/slot-gpio.h milky/include/linux/mmc/slot-gpio.h
+--- test-tree/include/linux/mmc/slot-gpio.h	2024-06-01 13:47:58.906874556 -0400
++++ milky/include/linux/mmc/slot-gpio.h	2024-05-21 05:22:27.000000000 -0400
+@@ -13,6 +13,15 @@
+ 
+ struct mmc_host;
+ 
++struct mmc_gpio {
++	struct gpio_desc *ro_gpio;
++	struct gpio_desc *cd_gpio;
++	irqreturn_t (*cd_gpio_isr)(int irq, void *dev_id);
++	char *ro_label;
++	char *cd_label;
++	u32 cd_debounce_delay_ms;
++};
++
+ int mmc_gpio_get_ro(struct mmc_host *host);
+ int mmc_gpio_get_cd(struct mmc_host *host);
+ int mmc_gpiod_request_cd(struct mmc_host *host, const char *con_id,

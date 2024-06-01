@@ -1,0 +1,81 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/uapi/linux/usb/video.h milky/include/uapi/linux/usb/video.h
+--- test-tree/include/uapi/linux/usb/video.h	2024-06-01 13:47:59.430872959 -0400
++++ milky/include/uapi/linux/usb/video.h	2024-05-21 05:22:27.000000000 -0400
+@@ -566,5 +566,63 @@ struct UVC_FRAME_MJPEG(n) {				\
+ 	__le32 dwFrameInterval[n];			\
+ } __attribute__ ((packed))
+ 
++/* Frame Based Payload - 3.1.1. Frame Based Video Format Descriptor */
++struct uvc_format_framebased {
++	__u8  bLength;
++	__u8  bDescriptorType;
++	__u8  bDescriptorSubType;
++	__u8  bFormatIndex;
++	__u8  bNumFrameDescriptors;
++	__u8  guidFormat[16];
++	__u8  bBitsPerPixel;
++	__u8  bDefaultFrameIndex;
++	__u8  bAspectRatioX;
++	__u8  bAspectRatioY;
++	__u8  bmInterfaceFlags;
++	__u8  bCopyProtect;
++	__u8  bVariableSize;
++} __attribute__((__packed__));
++
++#define UVC_DT_FORMAT_FRAMEBASED_SIZE			28
++
++/* Frame Based Payload - 3.1.2. Frame Based Video Frame Descriptor */
++struct uvc_frame_framebased {
++	__u8  bLength;
++	__u8  bDescriptorType;
++	__u8  bDescriptorSubType;
++	__u8  bFrameIndex;
++	__u8  bmCapabilities;
++	__u16 wWidth;
++	__u16 wHeight;
++	__u32 dwMinBitRate;
++	__u32 dwMaxBitRate;
++	__u32 dwDefaultFrameInterval;
++	__u8  bFrameIntervalType;
++	__u32 dwBytesPerLine;
++	__u32 dwFrameInterval[];
++} __attribute__((__packed__));
++
++#define UVC_DT_FRAME_FRAMEBASED_SIZE(n)                        (26+4*(n))
++
++#define UVC_FRAME_FRAMEBASED(n) \
++	uvc_frame_framebased_##n
++
++#define DECLARE_UVC_FRAME_FRAMEBASED(n)		\
++struct UVC_FRAME_FRAMEBASED(n) {		\
++	__u8  bLength;				\
++	__u8  bDescriptorType;			\
++	__u8  bDescriptorSubType;		\
++	__u8  bFrameIndex;			\
++	__u8  bmCapabilities;			\
++	__u16 wWidth;				\
++	__u16 wHeight;				\
++	__u32 dwMinBitRate;			\
++	__u32 dwMaxBitRate;			\
++	__u32 dwDefaultFrameInterval;		\
++	__u8  bFrameIntervalType;		\
++	__u32 dwBytesPerLine;			\
++	__u32 dwFrameInterval[n];		\
++} __attribute__ ((packed))
++
+ #endif /* __LINUX_USB_VIDEO_H */
+ 
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/uapi/linux/videodev2.h milky/include/uapi/linux/videodev2.h
+--- test-tree/include/uapi/linux/videodev2.h	2024-06-01 13:47:59.430872959 -0400
++++ milky/include/uapi/linux/videodev2.h	2024-05-21 05:22:27.000000000 -0400
+@@ -1110,6 +1110,10 @@ static inline __u64 v4l2_timeval_to_ns(c
+ #define V4L2_BUF_FLAG_LAST			0x00100000
+ /* request_fd is valid */
+ #define V4L2_BUF_FLAG_REQUEST_FD		0x00800000
++/* cvitek define buf from isp_fe_0 */
++#define V4L2_BUF_FLAG_FRAME_ISP_0		0x00200000
++/* cvitek define buf from isp_fe_1 */
++#define V4L2_BUF_FLAG_FRAME_ISP_1		0x00400000
+ 
+ /**
+  * struct v4l2_exportbuffer - export of video buffer as DMABUF file descriptor

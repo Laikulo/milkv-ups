@@ -1,0 +1,21 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/ethtool.h milky/include/linux/ethtool.h
+--- test-tree/include/linux/ethtool.h	2024-06-01 13:47:58.858874703 -0400
++++ milky/include/linux/ethtool.h	2024-05-21 05:22:27.000000000 -0400
+@@ -17,8 +17,6 @@
+ #include <linux/compat.h>
+ #include <uapi/linux/ethtool.h>
+ 
+-#ifdef CONFIG_COMPAT
+-
+ struct compat_ethtool_rx_flow_spec {
+ 	u32		flow_type;
+ 	union ethtool_flow_union h_u;
+@@ -38,8 +36,6 @@ struct compat_ethtool_rxnfc {
+ 	u32				rule_locs[];
+ };
+ 
+-#endif /* CONFIG_COMPAT */
+-
+ #include <linux/rculist.h>
+ 
+ /**

@@ -1,0 +1,12 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/compat.h milky/include/linux/compat.h
+--- test-tree/include/linux/compat.h	2024-06-01 13:47:58.846874739 -0400
++++ milky/include/linux/compat.h	2024-05-21 05:22:27.000000000 -0400
+@@ -451,8 +451,6 @@ extern long compat_arch_ptrace(struct ta
+ 
+ struct epoll_event;	/* fortunately, this one is fixed-layout */
+ 
+-extern void __user *compat_alloc_user_space(unsigned long len);
+-
+ int compat_restore_altstack(const compat_stack_t __user *uss);
+ int __compat_save_altstack(compat_stack_t __user *, unsigned long);
+ #define unsafe_compat_save_altstack(uss, sp, label) do { \

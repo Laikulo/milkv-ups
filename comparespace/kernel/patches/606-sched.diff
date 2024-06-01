@@ -1,0 +1,15 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/sched.h milky/include/linux/sched.h
+--- test-tree/include/linux/sched.h	2024-06-01 13:47:59.142873836 -0400
++++ milky/include/linux/sched.h	2024-05-21 05:22:27.000000000 -0400
+@@ -1689,7 +1689,11 @@ extern int sched_setscheduler_nocheck(st
+ extern void sched_set_fifo(struct task_struct *p);
+ extern void sched_set_fifo_low(struct task_struct *p);
+ extern void sched_set_normal(struct task_struct *p, int nice);
++#ifdef CONFIG_SCHED_CVITEK
++extern int sched_setattr(struct task_struct *, struct sched_attr *);
++#else
+ extern int sched_setattr(struct task_struct *, const struct sched_attr *);
++#endif
+ extern int sched_setattr_nocheck(struct task_struct *, const struct sched_attr *);
+ extern struct task_struct *idle_task(int cpu);
+ 

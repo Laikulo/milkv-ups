@@ -1,0 +1,376 @@
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/usb/gadget.h milky/include/linux/usb/gadget.h
+--- test-tree/include/linux/usb/gadget.h	2024-06-01 13:47:59.338873239 -0400
++++ milky/include/linux/usb/gadget.h	2024-05-21 05:22:27.000000000 -0400
+@@ -122,6 +122,9 @@ struct usb_request {
+ 
+ 	int			status;
+ 	unsigned		actual;
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	int req_map;
++#endif
+ };
+ 
+ /*-------------------------------------------------------------------------*/
+@@ -718,6 +721,22 @@ struct usb_gadget_driver {
+ };
+ 
+ 
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++/*-------------------------------------------------------------------------*/
++
++/**
++ * struct otg_gadget_ops - Interface between OTG core and gadget
++ *
++ * Provided by the gadget core to allow the OTG core to start/stop the gadget
++ *
++ * @start: function to start the gadget
++ * @stop: function to stop the gadget
++ */
++struct otg_gadget_ops {
++	int (*start)(struct usb_gadget *gadget);
++	int (*stop)(struct usb_gadget *gadget);
++};
++#endif
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/usb/hcd.h milky/include/linux/usb/hcd.h
+--- test-tree/include/linux/usb/hcd.h	2024-06-01 13:47:59.338873239 -0400
++++ milky/include/linux/usb/hcd.h	2024-05-21 05:22:27.000000000 -0400
+@@ -412,6 +412,22 @@ struct hc_driver {
+ 
+ };
+ 
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++/**
++ * struct otg_hcd_ops - Interface between OTG core and HCD
++ *
++ * Provided by the HCD core to allow the OTG core to start/stop the HCD
++ *
++ * @add: function to add the HCD
++ * @remove: function to remove the HCD
++ */
++struct otg_hcd_ops {
++	int (*add)(struct usb_hcd *hcd,
++		   unsigned int irqnum, unsigned long irqflags);
++	void (*remove)(struct usb_hcd *hcd);
++};
++#endif
++
+ static inline int hcd_giveback_urb_in_bh(struct usb_hcd *hcd)
+ {
+ 	return hcd->driver->flags & HCD_BH;
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/usb/otg-fsm.h milky/include/linux/usb/otg-fsm.h
+--- test-tree/include/linux/usb/otg-fsm.h	2024-06-01 13:47:59.338873239 -0400
++++ milky/include/linux/usb/otg-fsm.h	2024-05-21 05:22:27.000000000 -0400
+@@ -19,6 +19,9 @@
+ #ifndef __LINUX_USB_OTG_FSM_H
+ #define __LINUX_USB_OTG_FSM_H
+ 
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++#include <linux/device.h>
++#endif
+ #include <linux/mutex.h>
+ #include <linux/errno.h>
+ 
+@@ -35,8 +38,11 @@
+ 					 * OTG and EH 2.0 Charpter 6.2.3
+ 					 * Table:6-5
+ 					 */
+-
++#if defined(CONFIG_CVITEK_USB_LEGACY) && defined(USB_SIM_SPEED_UP)
++#define T_HOST_REQ_POLL		(10)
++#else
+ #define T_HOST_REQ_POLL		(1500)	/* 1500ms, HNP polling interval */
++#endif
+ 
+ enum otg_fsm_timer {
+ 	/* Standard OTG timers */
+@@ -69,11 +75,13 @@ enum otg_fsm_timer {
+  *		ADP measurement taken at n-2, differs by more than CADP_THR
+  * @power_up:	TRUE when the OTG device first powers up its USB system and
+  *		ADP measurement taken if ADP capable
++ * @overcurrent: TRUE when overcurrent condition detected
+  *
+  *	A-Device state inputs
+  * @a_srp_det:	TRUE if the A-device detects SRP
+  * @a_vbus_vld:	TRUE when VBUS voltage is in regulation
+  * @b_conn:	TRUE if the A-device detects connection from the B-device
++ * @a_srp_det_not_compliant_dev: TRUE if A-device detected not compliant device
+  * @a_bus_resume: TRUE when the B-device detects that the A-device is signaling
+  *		  a resume (K state)
+  *	B-Device state inputs
+@@ -133,12 +141,21 @@ enum otg_fsm_timer {
+  * a_clr_err:	Asserted (by application ?) to clear a_vbus_err due to an
+  *		overcurrent condition and causes the A-device to transition
+  *		to a_wait_vfall
++ *
++ *       Timers
++ * @a_bidl_adis_tmout: TRUE when TA_BIDL_ADIS timer interrupt occurs
++ * @b_aidl_bdis_tmout: TRUE when TB_AIDL_BDIS timer interrupt occurs
++ *
+  */
+ struct otg_fsm {
+ 	/* Input */
+ 	int id;
+ 	int adp_change;
+ 	int power_up;
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	int overcurrent;
++	int a_srp_det_not_compliant_dev;
++#endif
+ 	int a_srp_det;
+ 	int a_vbus_vld;
+ 	int b_conn;
+@@ -187,6 +204,9 @@ struct otg_fsm {
+ 	int a_aidl_bdis_tmout;
+ 	int b_ase0_brst_tmout;
+ 	int a_bidl_adis_tmout;
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	int b_aidl_bdis_tmout;
++#endif
+ 
+ 	struct otg_fsm_ops *ops;
+ 	struct usb_otg *otg;
+@@ -197,6 +217,10 @@ struct otg_fsm {
+ 	u8 *host_req_flag;
+ 	struct delayed_work hnp_polling_work;
+ 	bool state_changed;
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	/* for debug prints */
++	struct device *dev;
++#endif
+ };
+ 
+ struct otg_fsm_ops {
+@@ -211,6 +235,9 @@ struct otg_fsm_ops {
+ 	void	(*del_timer)(struct otg_fsm *fsm, enum otg_fsm_timer timer);
+ 	int	(*start_host)(struct otg_fsm *fsm, int on);
+ 	int	(*start_gadget)(struct otg_fsm *fsm, int on);
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	int	(*start_enum)(struct usb_bus *bus, unsigned int port_num);
++#endif
+ };
+ 
+ 
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/usb/otg.h milky/include/linux/usb/otg.h
+--- test-tree/include/linux/usb/otg.h	2024-06-01 13:47:59.338873239 -0400
++++ milky/include/linux/usb/otg.h	2024-05-21 05:22:27.000000000 -0400
+@@ -12,7 +12,76 @@
+ 
+ #include <linux/phy/phy.h>
+ #include <linux/usb/phy.h>
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++#include <linux/device.h>
++#include <linux/hrtimer.h>
++#include <linux/ktime.h>
++#include <linux/usb.h>
++#include <linux/usb/hcd.h>
++#include <linux/usb/gadget.h>
++#include <linux/usb/otg-fsm.h>
++#endif
+ 
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++/**
++ * struct otg_hcd - host controller state and interface
++ *
++ * @hcd: host controller
++ * @irqnum: irq number
++ * @irqflags: irq flags
++ * @ops: otg to host controller interface
++ */
++struct otg_hcd {
++	struct usb_hcd *hcd;
++	unsigned int irqnum;
++	unsigned long irqflags;
++	struct otg_hcd_ops *ops;
++};
++
++struct usb_otg;
++
++/**
++ * struct otg_timer - otg timer data
++ *
++ * @timer: high resolution timer
++ * @timeout: timeout value
++ * @timetout_bit: pointer to variable that is set on timeout
++ * @otgd: usb otg data
++ */
++struct otg_timer {
++	struct hrtimer timer;
++	ktime_t timeout;
++	/* callback data */
++	int *timeout_bit;
++	struct usb_otg *otgd;
++};
++#endif
++
++/**
++ * struct usb_otg - usb otg controller state
++ *
++ * @default_a: Indicates we are an A device. i.e. Host.
++ * @phy: USB phy interface
++ * @usb_phy: old usb_phy interface
++ * @host: host controller bus
++ * @gadget: gadget device
++ * @state: current otg state
++ * @dev: otg controller device
++ * @caps: otg capabilities revision, hnp, srp, etc
++ * @fsm: otg finite state machine
++ * @fsm_ops: controller hooks for the state machine
++ * ------- internal use only -------
++ * @primary_hcd: primary host state and interface
++ * @shared_hcd: shared host state and interface
++ * @gadget_ops: gadget interface
++ * @timers: otg timers for state machine
++ * @list: list of otg controllers
++ * @work: otg state machine work
++ * @wq: otg state machine work queue
++ * @fsm_running: state machine running/stopped indicator
++ * @flags: to track if host/gadget is running
++ * @drd_only: dual-role mode. no otg features.
++ */
+ struct usb_otg {
+ 	u8			default_a;
+ 
+@@ -24,6 +93,27 @@ struct usb_otg {
+ 
+ 	enum usb_otg_state	state;
+ 
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	struct device *dev;
++	struct usb_otg_caps *caps;
++	struct otg_fsm fsm;
++	struct otg_fsm_ops fsm_ops;
++
++	/* internal use only */
++	struct otg_hcd primary_hcd;
++	struct otg_hcd shared_hcd;
++	struct otg_gadget_ops *gadget_ops;
++	struct otg_timer timers[NUM_OTG_FSM_TIMERS];
++	struct list_head list;
++	struct work_struct work;
++	struct workqueue_struct *wq;
++	bool fsm_running;
++	u32 flags;
++#define OTG_FLAG_GADGET_RUNNING (1 << 0)
++#define OTG_FLAG_HOST_RUNNING (1 << 1)
++	/* use otg->fsm.lock for serializing access */
++	bool drd_only;
++#endif
+ 	/* bind/unbind the host controller */
+ 	int	(*set_host)(struct usb_otg *otg, struct usb_bus *host);
+ 
+@@ -59,6 +149,98 @@ struct usb_otg_caps {
+ 
+ extern const char *usb_otg_state_string(enum usb_otg_state state);
+ 
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++/**
++ * struct usb_otg_config - otg controller configuration
++ * @caps: otg capabilities of the controller
++ * @ops: otg fsm operations
++ * @otg_timeouts: override default otg fsm timeouts
++ */
++struct usb_otg_config {
++	struct usb_otg_caps otg_caps;
++	struct otg_fsm_ops *fsm_ops;
++	unsigned int otg_timeouts[NUM_OTG_FSM_TIMERS];
++};
++
++#if IS_ENABLED(CONFIG_USB_OTG)
++struct otg_fsm *usb_otg_register(struct device *dev,
++				 struct usb_otg_config *config,
++				 work_func_t usb_otg_specific_work);
++int usb_otg_unregister(struct device *dev);
++int usb_otg_register_hcd(struct usb_hcd *hcd, unsigned int irqnum,
++			 unsigned long irqflags, struct otg_hcd_ops *ops);
++int usb_otg_unregister_hcd(struct usb_hcd *hcd);
++int usb_otg_register_gadget(struct usb_gadget *gadget,
++			    struct otg_gadget_ops *ops);
++int usb_otg_unregister_gadget(struct usb_gadget *gadget);
++void usb_otg_sync_inputs(struct otg_fsm *fsm);
++int usb_otg_kick_fsm(struct device *hcd_gcd_device);
++struct device *usb_otg_fsm_to_dev(struct otg_fsm *fsm);
++int usb_otg_start_host(struct otg_fsm *fsm, int on);
++int usb_otg_start_gadget(struct otg_fsm *fsm, int on);
++
++#else /* CONFIG_USB_OTG */
++
++static inline struct otg_fsm *usb_otg_register(struct device *dev,
++					       struct usb_otg_config *config,
++						   work_func_t usb_otg_specific_work)
++{
++	return ERR_PTR(-ENOTSUPP);
++}
++
++static inline int usb_otg_unregister(struct device *dev)
++{
++	return -ENOTSUPP;
++}
++
++static inline int usb_otg_register_hcd(struct usb_hcd *hcd, unsigned int irqnum,
++				       unsigned long irqflags,
++				       struct otg_hcd_ops *ops)
++{
++	return -ENOTSUPP;
++}
++
++static inline int usb_otg_unregister_hcd(struct usb_hcd *hcd)
++{
++	return -ENOTSUPP;
++}
++
++static inline int usb_otg_register_gadget(struct usb_gadget *gadget,
++					  struct otg_gadget_ops *ops)
++{
++	return -ENOTSUPP;
++}
++
++static inline int usb_otg_unregister_gadget(struct usb_gadget *gadget)
++{
++	return -ENOTSUPP;
++}
++
++static inline void usb_otg_sync_inputs(struct otg_fsm *fsm)
++{
++}
++
++static inline int usb_otg_kick_fsm(struct device *hcd_gcd_device)
++{
++	return -ENOTSUPP;
++}
++
++static inline struct device *usb_otg_fsm_to_dev(struct otg_fsm *fsm)
++{
++	return NULL;
++}
++
++static inline int usb_otg_start_host(struct otg_fsm *fsm, int on)
++{
++	return -ENOTSUPP;
++}
++
++static inline int usb_otg_start_gadget(struct otg_fsm *fsm, int on)
++{
++	return -ENOTSUPP;
++}
++#endif /* CONFIG_USB_OTG */
++#endif
+ /* Context: can sleep */
+ static inline int
+ otg_start_hnp(struct usb_otg *otg)
+diff -wurpN --no-dereference -X diffgen.ignore test-tree/include/linux/usb/phy.h milky/include/linux/usb/phy.h
+--- test-tree/include/linux/usb/phy.h	2024-06-01 13:47:59.338873239 -0400
++++ milky/include/linux/usb/phy.h	2024-05-21 05:22:27.000000000 -0400
+@@ -61,6 +61,10 @@ enum usb_otg_state {
+ 	OTG_STATE_A_PERIPHERAL,
+ 	OTG_STATE_A_WAIT_VFALL,
+ 	OTG_STATE_A_VBUS_ERR,
++#if defined(CONFIG_CVITEK_USB_LEGACY)
++	/* for hnp dual role */
++	OTG_STATE_A_EXIT_HNP,
++#endif
+ };
+ 
+ struct usb_phy;
