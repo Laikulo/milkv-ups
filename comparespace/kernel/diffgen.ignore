@@ -3,3 +3,4 @@
 .get_maintainer.ignore
 .mailmap
 README.md
+.yamllint
