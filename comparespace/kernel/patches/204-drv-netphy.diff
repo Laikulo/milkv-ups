@@ -1,0 +1,46 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c milky/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+--- test-tree/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c	2024-06-01 13:18:39.492508077 -0400
++++ milky/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c	2024-05-21 05:22:27.000000000 -0400
+@@ -506,6 +506,25 @@ stmmac_probe_config_dt(struct platform_d
+ 		plat->pmt = 1;
+ 	}
+ 
++	if (of_device_is_compatible(np, "cvitek,ethernet")) {
++		of_property_read_u32(np, "snps,multicast-filter-bins",
++				     &plat->multicast_filter_bins);
++		of_property_read_u32(np, "snps,perfect-filter-entries",
++				     &plat->unicast_filter_entries);
++		plat->unicast_filter_entries = dwmac1000_validate_ucast_entries(&pdev->dev, plat->unicast_filter_entries);
++		plat->multicast_filter_bins = dwmac1000_validate_mcast_bins(&pdev->dev, plat->multicast_filter_bins);
++#if defined(CONFIG_ARCH_CV183X)
++		plat->has_gmac4 = 1;
++		plat->has_gmac = 0;
++		plat->tso_en = 1;
++#else
++		plat->has_gmac4 = 0;
++		plat->has_gmac = 1;
++		plat->tso_en = 0;
++#endif
++		plat->pmt = 0;
++	}
++
+ 	if (of_device_is_compatible(np, "snps,dwmac-4.00") ||
+ 	    of_device_is_compatible(np, "snps,dwmac-4.10a") ||
+ 	    of_device_is_compatible(np, "snps,dwmac-4.20a") ||
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/net/phy/phy_device.c milky/drivers/net/phy/phy_device.c
+--- test-tree/drivers/net/phy/phy_device.c	2024-06-01 13:18:39.536507934 -0400
++++ milky/drivers/net/phy/phy_device.c	2024-05-21 05:22:27.000000000 -0400
+@@ -1185,9 +1185,10 @@ void phy_attached_print(struct phy_devic
+ 	char *irq_str = phy_attached_info_irq(phydev);
+ 
+ 	if (!fmt) {
+-		phydev_info(phydev, ATTACHED_FMT "\n",
+-			 drv_name, phydev_name(phydev),
+-			 irq_str);
++		if (strcmp(drv_name, "unbound"))
++			phydev_info(phydev, ATTACHED_FMT "\n",
++				    drv_name, phydev_name(phydev),
++				    irq_str);
+ 	} else {
+ 		va_list ap;
+ 

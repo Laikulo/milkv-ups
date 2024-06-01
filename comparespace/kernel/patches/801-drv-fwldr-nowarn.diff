@@ -1,0 +1,12 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/base/firmware_loader/main.c milky/drivers/base/firmware_loader/main.c
+--- test-tree/drivers/base/firmware_loader/main.c	2024-06-01 13:18:35.628520729 -0400
++++ milky/drivers/base/firmware_loader/main.c	2024-05-21 05:22:27.000000000 -0400
+@@ -1128,7 +1128,7 @@ request_firmware_nowait(
+ 	fw_work->device = device;
+ 	fw_work->context = context;
+ 	fw_work->cont = cont;
+-	fw_work->opt_flags = FW_OPT_NOWAIT |
++	fw_work->opt_flags = FW_OPT_NOWAIT | FW_OPT_NO_WARN |
+ 		(uevent ? FW_OPT_UEVENT : FW_OPT_USERHELPER);
+ 
+ 	if (!uevent && fw_cache_is_setup(device, name)) {

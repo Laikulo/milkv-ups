@@ -1,0 +1,60 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/tee/optee/core.c milky/drivers/tee/optee/core.c
+--- test-tree/drivers/tee/optee/core.c	2024-06-01 13:18:41.812500481 -0400
++++ milky/drivers/tee/optee/core.c	2024-05-21 05:22:27.000000000 -0400
+@@ -544,7 +544,11 @@ err_memunmap:
+ }
+ 
+ /* Simple wrapper functions to be able to use a function pointer */
++#ifdef CONFIG_ARCH_CVITEK
++void optee_smccc_smc(unsigned long a0, unsigned long a1,
++#else
+ static void optee_smccc_smc(unsigned long a0, unsigned long a1,
++#endif
+ 			    unsigned long a2, unsigned long a3,
+ 			    unsigned long a4, unsigned long a5,
+ 			    unsigned long a6, unsigned long a7,
+@@ -552,6 +556,9 @@ static void optee_smccc_smc(unsigned lon
+ {
+ 	arm_smccc_smc(a0, a1, a2, a3, a4, a5, a6, a7, res);
+ }
++#ifdef CONFIG_ARCH_CVITEK
++EXPORT_SYMBOL(optee_smccc_smc);
++#endif
+ 
+ static void optee_smccc_hvc(unsigned long a0, unsigned long a1,
+ 			    unsigned long a2, unsigned long a3,
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/tee/tee_core.c milky/drivers/tee/tee_core.c
+--- test-tree/drivers/tee/tee_core.c	2024-06-01 13:18:41.812500481 -0400
++++ milky/drivers/tee/tee_core.c	2024-05-21 05:22:27.000000000 -0400
+@@ -16,6 +16,7 @@
+ #include <crypto/hash.h>
+ #include <crypto/sha.h>
+ #include "tee_private.h"
++#include "tee_cv_private.h"
+ 
+ #define TEE_NUM_DEVICES	32
+ 
+@@ -973,6 +974,8 @@ static DEVICE_ATTR_RO(implementation_id)
+ 
+ static struct attribute *tee_dev_attrs[] = {
+ 	&dev_attr_implementation_id.attr,
++	&dev_attr_aimodel_keyfile_path.attr,
++	&dev_attr_cv_debug.attr,
+ 	NULL
+ };
+ 
+@@ -1250,11 +1253,14 @@ out_unreg_class:
+ 	class_destroy(tee_class);
+ 	tee_class = NULL;
+ 
++	tee_cv_init();
++
+ 	return rc;
+ }
+ 
+ static void __exit tee_exit(void)
+ {
++	tee_cv_exit();
+ 	bus_unregister(&tee_bus_type);
+ 	unregister_chrdev_region(tee_devt, TEE_NUM_DEVICES);
+ 	class_destroy(tee_class);

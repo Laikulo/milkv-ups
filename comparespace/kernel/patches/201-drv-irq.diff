@@ -1,0 +1,23 @@
+diff -urpN --no-dereference -X diffgen.ignore test-tree/drivers/irqchip/irq-sifive-plic.c milky/drivers/irqchip/irq-sifive-plic.c
+--- test-tree/drivers/irqchip/irq-sifive-plic.c	2024-06-01 13:18:38.196512321 -0400
++++ milky/drivers/irqchip/irq-sifive-plic.c	2024-05-21 05:22:27.000000000 -0400
+@@ -163,11 +163,17 @@ static void plic_irq_eoi(struct irq_data
+ {
+ 	struct plic_handler *handler = this_cpu_ptr(&plic_handlers);
+ 
+-	writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++	if (irqd_irq_masked(d)) {
++		plic_irq_unmask(d);
++		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++		plic_irq_mask(d);
++	} else {
++		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++	}
+ }
+ 
+ static struct irq_chip plic_chip = {
+-	.name		= "SiFive PLIC",
++	.name		= "T-Head PLIC",
+ 	.irq_mask	= plic_irq_mask,
+ 	.irq_unmask	= plic_irq_unmask,
+ 	.irq_eoi	= plic_irq_eoi,
