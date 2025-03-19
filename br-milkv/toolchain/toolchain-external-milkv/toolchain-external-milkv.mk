@@ -1,0 +1,8 @@
+TOOLCHAIN_EXTERNAL_MILKV_VERSION = 67688c7335e7239f7592b86ed1432c97cbab245b
+TOOLCHAIN_EXTERNAL_MILKV_SITE = $(call github,milkv-duo,host-tools,$(TOOLCHAIN_EXTERNAL_MILKV_VERSION))
+define TOOLCHAIN_EXTERNAL_MILKV_EXTRACT_CMDS
+	$(ZCAT) $(DL_DIR)/toolchain-external-milkv/$(TOOLCHAIN_EXTERNAL_MILKV_SOURCE) | \
+	$(TAR) -C $(TOOLCHAIN_EXTERNAL_MILKV_DIR) --strip-components=3 $(TAR_OPTIONS) - host-tools-$(TOOLCHAIN_EXTERNAL_MILKV_VERSION)/gcc/riscv64-linux-x86_64
+endef
+
+$(eval $(toolchain-external-package))
