@@ -1,0 +1,12 @@
+boot.sd (genimage)
+ - fip.bin
+ 	(ATF Style FIP)
+ 		(fiptool.py genfip)
+ - rawimages/boot.sd 
+ 	(u-boot fit)
+ 	  (mkimage multi.its)
+ 	    (from boards_scan.py)
+ 	- kernel
+ 	- dtb
+ 	- initrd (in some other configurations)
+
