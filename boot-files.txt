@@ -10,3 +10,32 @@ boot.sd (genimage)
  	- dtb
  	- initrd (in some other configurations)
 
+```
+FIT description: Various kernels, ramdisks and FDT blobs
+Created:         Thu Nov 21 22:32:26 2024
+ Image 0 (kernel-1)
+  Description:  cvitek kernel
+  Created:      Thu Nov 21 22:32:26 2024
+  Type:         Kernel Image
+  Compression:  lzma compressed
+  Data Size:    2960115 Bytes = 2890.74 KiB = 2.82 MiB
+  Architecture: RISC-V
+  OS:           Linux
+  Load Address: 0x80200000
+  Entry Point:  0x80200000
+  Hash algo:    crc32
+  Hash value:   287228a1
+ Image 1 (fdt-cv1800b_milkv_duo_sd)
+  Description:  cvitek device tree - cv1800b_milkv_duo_sd
+  Created:      Thu Nov 21 22:32:26 2024
+  Type:         Flat Device Tree
+  Compression:  uncompressed
+  Data Size:    19689 Bytes = 19.23 KiB = 0.02 MiB
+  Architecture: RISC-V
+  Hash algo:    sha256
+  Hash value:   83cc087c77e9f4a85e65611e07fe478aec3efc437266b400be3f0ae95d9c2ae0
+ Configuration 0 (config-cv1800b_milkv_duo_sd)
+  Description:  boot cvitek system with board cv1800b_milkv_duo_sd
+  Kernel:       kernel-1
+  FDT:          fdt-cv1800b_milkv_duo_sd
+```

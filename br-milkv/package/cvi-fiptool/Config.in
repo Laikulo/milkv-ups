@@ -1,0 +1,7 @@
+config BR2_PACKAGE_HOST_CVI_FIPTOOL
+	bool "host-cvi-fiptool"
+	default n
+	select BR2_PACKAGE_HOST_PYTHON3
+	select BR2_PACKAGE_HOST_PYTHON3_XZ
+	help
+	  Tools used to build FIPs

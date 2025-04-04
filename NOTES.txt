@@ -1,0 +1,2 @@
+Cherry-picked 7f59889c91f7d5d440d6a09aad0209f0aca3d09d for xz in host python
+Won't be needed after buildroot 2024.08
