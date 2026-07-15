@@ -6,5 +6,15 @@ if [[ ! -d $HOME/.br2dl ]]; then
 	mkdir "$HOME/.br2dl"
 fi
 
-exec podman run --rm -it -v "$HOME/.br2dl":/mnt/br2dl:rw -e BR2_DL_DIR=/mnt/br2dl -v "$WORK_DIR":/mnt/work:rw -w /mnt/work -e BR2_EXTERNAL=/mnt/work/br-milkv --userns=keep-id milkv-buildspace
+if [[ -d /sys/fs/selinux ]]; then
+	vol_args="rw,z"
+else
+	vol_args="rw"
+fi
+
+exec podman run --rm -it \
+	-v "$HOME/.br2dl":/mnt/br2dl:"$vol_args" -e BR2_DL_DIR=/mnt/br2dl \
+	-v "$WORK_DIR":/mnt/work:"$vol_args" -w /mnt/work \
+	-e BR2_EXTERNAL=/mnt/work/br-milkv \
+	--userns=keep-id milkv-buildspace
 
