@@ -2,6 +2,17 @@
 
 WORK_DIR="$(dirname "$(realpath "$0")")"
 
+IMAGE_NAME="milkv-buildspace:latest"
+
+if ! command -v podman > /dev/null; then
+	echo >&2 FATAL: podman not found
+	exit 2
+fi
+
+if [[ $(podman images -q "$IMAGE_NAME") == "" ]];  then
+	podman build -t "$IMAGE_NAME" $WORK_DIR/buildspace
+fi
+
 if [[ ! -d $HOME/.br2dl ]]; then
 	mkdir "$HOME/.br2dl"
 fi
@@ -16,5 +27,5 @@ exec podman run --rm -it \
 	-v "$HOME/.br2dl":/mnt/br2dl:"$vol_args" -e BR2_DL_DIR=/mnt/br2dl \
 	-v "$WORK_DIR":/mnt/work:"$vol_args" -w /mnt/work \
 	-e BR2_EXTERNAL=/mnt/work/br-milkv \
-	--userns=keep-id milkv-buildspace
+	--userns=keep-id "$IMAGE_NAME"
 
