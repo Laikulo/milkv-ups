@@ -1,4 +1,0 @@
-config BR2_PACKAGE_PYTHON_PINPONG
-	bool "python-pinpong"
-	help
-	  The pinpong library is an open-source Python library.

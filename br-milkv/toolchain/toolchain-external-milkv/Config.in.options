@@ -1,6 +1,0 @@
-if BR2_TOOLCHAIN_EXTERNAL_MILKV
-config BR2_TOOLCHAIN_EXTERNAL_PREFIX
-	default "riscv64-unknown-linux-musl"
-config BR2_PACKAGE_PROVIDES_TOOLCHAIN_EXTERNAL
-	default "toolchain-external-milkv"
-endif

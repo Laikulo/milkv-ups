@@ -1,3 +1,7 @@
 [submodule "buildroot"]
 	path = buildroot
 	url = https://gitlab.com/buildroot.org/buildroot.git
+[submodule "milkv"]
+	path = br-milkv
+	url = https://github.com/Laikulo/buildroot-milkv.git
+	branch = main
