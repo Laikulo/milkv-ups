@@ -2,7 +2,7 @@
 
 WORK_DIR="$(dirname "$(realpath "$0")")"
 
-IMAGE_NAME="milkv-buildspace:latest"
+IMAGE_NAME="milkv-buildspace:v2"
 
 if ! command -v podman > /dev/null; then
 	echo >&2 FATAL: podman not found
@@ -26,6 +26,7 @@ fi
 exec podman run --rm -it \
 	-v "$HOME/.br2dl":/mnt/br2dl:"$vol_args" -e BR2_DL_DIR=/mnt/br2dl \
 	-v "$WORK_DIR":/mnt/work:"$vol_args" -w /mnt/work \
+	-v "milkv_ccache:/mnt/ccache" -e BR2_CCACHE_DIR=/mnt/ccache \
 	-e BR2_EXTERNAL=/mnt/work/br-milkv \
 	--userns=keep-id "$IMAGE_NAME"
 
