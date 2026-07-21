@@ -8,9 +8,8 @@ Buildroot setup for running NUT on a milkv duo.
 dev@box$ git clone https://github.com/Laikulo/milkv-ups.git --recurse-submodules
 dev@box$ cd milkv-ups
 dev@box$ ./space
-ubuntu@asdf123$ cd buildroot
-ubuntu@asdf123$ make milkv-duo_musl_riscv64_defconfig
-ubuntu@asdf123$ make
+ubuntu@asdf123$ ./confload
+ubuntu@asdf123$ make -C buildroot
 ubuntu@asdf123$ exit
 dev@box$ dd if=buildroot/output/images/sd.img of=/path/to/sdcard/this/is/fake/to/avoid/disaster bs=4M status=progress oflag=direct
 ```
@@ -29,8 +28,9 @@ Note that buildroot does not (by default) build packages concurrently. This opti
 ├── buildroot       <- Submodule containing buildroot itself
 ├── buildspace      <- Container definition for build workspace
 ├── comparespace    <- Working area for comparing vendored 'sdk' versions of things to their upstreams
-├── configs         <- Area for UPS-specific buildroot configs (that are out of scope for the buildroot external tree)
+├── configs         <- Config snippets and similar
 └── space           <- Helper script to build and enter the build workspace
+└── confload        <- Helper script to merge buildroot configs
 ```
 
 ## Components
@@ -69,5 +69,9 @@ The space script builds this container if it is not present, and then launches i
 
 Note that the container does include other users, so the running user will need subuids/subgids
 
-### configs
-This contains a config that adds NUT. It is currently outdated, and should probably be reduced to a snippet applied after the defconfig.
+### configs / confload
+This contains a config snippet that enables the NUT package, and may contain more as time grows.
+
+This allows us to separate the 'milkv' and 'ups' parts of this project cleanly, and __may__ allow us to use multiple similar upstream defconfigs together.
+
+`confload` is a helper script that merges the config snippets, and places them where buildroot expects. It must be run within the buildspace.

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -xe
+
+script_dir="$(dirname "$(realpath "$0")")"
+base_config=milkv-duo_musl_riscv64_defconfig
+
+cd "$script_dir/buildroot"
+
+"$script_dir/buildroot/support/kconfig/merge_config.sh" "$script_dir/br-milkv/configs/$base_config" "$script_dir/configs/"*.cfrag

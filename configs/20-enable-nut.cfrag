@@ -1,0 +1,7 @@
+# We enable LIBUSB, as nut doesn't directly require it, but usbhid-ups does
+
+BR2_PACKAGE_LIBUSB=y
+BR2_PACKAGE_LIBUSB_COMPAT=y
+
+BR2_PACKAGE_NUT=y
+BR2_PACKAGE_NUT_DRIVERS="usbhid-ups"
