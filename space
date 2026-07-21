@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+set -e
+
 WORK_DIR="$(dirname "$(realpath "$0")")"
 
-IMAGE_NAME="milkv-buildspace:v2"
+IMAGE_NAME="milkv-buildspace:v3"
 
 if ! command -v podman > /dev/null; then
 	echo >&2 FATAL: podman not found
